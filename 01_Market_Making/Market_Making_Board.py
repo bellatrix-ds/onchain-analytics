@@ -12,7 +12,7 @@ import plotly.express as px
 # --------------------------------------
 # Load main dataset
 df = pd.read_csv(
-    'https://raw.githubusercontent.com/bellatrix-ds/ml-in-crypto/refs/heads/main/03_Wallet_Identity_Classifier/04_df_final.csv',
+    'https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/test.csv',
     on_bad_lines='skip'
 )
 
