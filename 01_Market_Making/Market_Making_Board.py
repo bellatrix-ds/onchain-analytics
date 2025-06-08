@@ -71,7 +71,7 @@ with col5:
 st.subheader("📄 Filtered Pool Table")
 st.dataframe(filtered_df.reset_index(drop=True))
 
-# __________________
+# __________________ Part 2 ______________________________________________________________________
 
 df_tvl = pd.read_csv("https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_tvl.csv")
 df_tvl['timestamp'] = pd.to_datetime(df_tvl['timestamp'])
