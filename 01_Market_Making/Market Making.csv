@@ -1,4 +1,4 @@
-Chain,Dex,Pool_Type,Pool_Name,pool_id,tvlUsd,tvlUsd_pretty,Share
+chain,dex,pool_type,pool_name,pool_id,tvlUsd,tvlUsd_pretty,Share
 Ethereum,Curve,Stable Pair,DAI-USDC-USDT,25171c4c-1877-449a-9f88-45a9f153ee31,182088963,182.09M,20
 Ethereum,Curve,Stable Pair,USD0-USD0++,bc58a174-05f8-4e41-8f77-be9c13a614bf,79461688,79.46M,9
 Ethereum,Curve,Stable Pair,FRAX-USDE,12ca9565-0369-404e-b209-631305e4012a,67947399,67.95M,7
