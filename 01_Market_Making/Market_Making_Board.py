@@ -23,15 +23,15 @@ st.title("📊 Market Making Board")
 # _____ Filters _______________________________________
 col1, col2, col3 = st.columns(3)
 with col1:
-    selected_chain = st.selectbox("🔗 Select Chain", sorted(df['Chain'].unique()))
+    selected_chain = st.selectbox("🔗 Select Chain", sorted(df['chain'].unique()))
 with col2:
-    selected_dex = st.selectbox("📈 Select DEX", sorted(df['Dex'].unique()))
+    selected_dex = st.selectbox("📈 Select DEX", sorted(df['dex'].unique()))
 with col3:
-    selected_type = st.selectbox("💱 Select Pool Type", sorted(df['Pool_Type'].unique()))
+    selected_type = st.selectbox("💱 Select Pool Type", sorted(df['pool_type'].unique()))
 
 filtered_df = df[
-    (df['Chain'] == selected_chain) &
-    (df['Dex'] == selected_dex)
+    (df['chain'] == selected_chain) &
+    (df['dex'] == selected_dex)
 ]
 
 # _____ Pic Chart Market Share _______________________________________
@@ -39,13 +39,13 @@ filtered_df = df[
 fig1 = px.pie(
     filtered_df,
     values='Share',
-    names='Pool_Name',
+    names='pool_name',
     title=f"📌 Market Share of Pools on {selected_dex} ({selected_chain})",
     hole=0.45)
 
 # _____ Pic Chart Pool Type _______________________________________
 
-type_counts = filtered_df['Pool_Type'].value_counts(normalize=True) * 100
+type_counts = filtered_df['pool_type'].value_counts(normalize=True) * 100
 type_df = pd.DataFrame({
     'Type': type_counts.index,
     'Percentage': type_counts.values
@@ -86,17 +86,17 @@ def format_number(n):
     else:
         return str(n)
 
-dex_options = df["Dex"].unique()
+dex_options = df["dex"].unique()
 selected_dex = st.multiselect("Select Dex(s):", options=dex_options, default=dex_options)
 
-filtered_dex_pools = df[df["Dex"].isin(selected_dex)][["pool_name", "pool_id", "Dex"]]
+filtered_dex_pools = df[df["dex"].isin(selected_dex)][["pool_name", "pool_id", "dex"]]
 df_tvl_filtered = df_tvl.merge(filtered_dex_pools, on="pool_id")
 
 # 📈 TVL Line Chart
 st.subheader("📉 TVL Trend Over Time per Dex")
 
 fig, ax = plt.subplots(figsize=(12, 6))
-for dex_name in df_tvl_filtered["Dex"].unique():
+for dex_name in df_tvl_filtered["dex"].unique():
     data = df_tvl_filtered[df_tvl_filtered["Dex"] == dex_name]
     grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
     ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
