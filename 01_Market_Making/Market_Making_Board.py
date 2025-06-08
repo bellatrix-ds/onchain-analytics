@@ -23,7 +23,7 @@ st.title("📊 Market Making Board")
 # _____ Filters _______________________________________
 col1, col2, col3 = st.columns(3)
 with col1:
-    selected_chain = st.selectbox("🔗 Select Chain", sorted(df['chain'].unique()))
+    selected_chain = st.selectbox("🔗 Select chain", sorted(df['chain'].unique()))
 with col2:
     selected_dex = st.selectbox("📈 Select DEX", sorted(df['dex'].unique()))
 with col3:
