@@ -89,8 +89,9 @@ def format_number(n):
 dex_options = df["dex"].unique()
 selected_dex = st.multiselect("Select Dex(s):", options=dex_options, default=dex_options)
 
-filtered_dex_pools = df[df["dex"].isin(selected_dex)][["pool_name", "pool_id", "dex"]]
-df_tvl_filtered = df_tvl.merge(filtered_dex_pools, on="pool_id")
+filtered_dex_pools = df[df["dex"].isin(selected_dex)][["pool_id", "dex"]]  # فقط pool_id و dex
+df_tvl_filtered = df_tvl.merge(filtered_dex_pools, on="pool_id", how="inner")
+st.write("🧪 Columns in df_tvl_filtered:", df_tvl_filtered.columns.tolist())
 
 # 📈 TVL Line Chart
 st.subheader("📉 TVL Trend Over Time per Dex")
