@@ -97,7 +97,7 @@ st.write("🧪 Columns in df_tvl_filtered:", df_tvl_filtered.columns.tolist())
 st.subheader("📉 TVL Trend Over Time per Dex")
 
 fig, ax = plt.subplots(figsize=(12, 6))
-for dex_name in df_tvl_filtered["dex"].unique():
+for dex_name in df_tvl_filtered["dex_x"].unique():
     data = df_tvl_filtered[df_tvl_filtered["dex"] == dex_name]
     grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
     ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
