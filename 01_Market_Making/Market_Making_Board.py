@@ -86,7 +86,7 @@ def format_number(n):
     else:
         return str(n)
 
-dex_options = df_tvl["dex"].unique()
+dex_options = df["dex"].unique()
 selected_dex = st.multiselect("Select Dex(s):", options=dex_options, default=dex_options)
 
 filtered_dex_pools = df[df["dex"].isin(selected_dex)][["pool_name", "pool_id", "dex"]]
