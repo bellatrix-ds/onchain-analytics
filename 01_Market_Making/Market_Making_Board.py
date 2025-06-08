@@ -18,9 +18,9 @@ df = pd.read_csv(
 
 # --------------------------------------
 st.set_page_config(layout="wide")
-st.title("📊 Curve Pool Dashboard")
+st.title("📊 Market Making Board")
 
-# فیلترهای اولیه
+# _____ Filters _______________________________________
 col1, col2, col3 = st.columns(3)
 with col1:
     selected_chain = st.selectbox("🔗 Select Chain", sorted(df['Chain'].unique()))
@@ -29,22 +29,22 @@ with col2:
 with col3:
     selected_type = st.selectbox("💱 Select Pool Type", sorted(df['Pool_Type'].unique()))
 
-# فیلتر داده‌ها بر اساس انتخاب‌ها
 filtered_df = df[
     (df['Chain'] == selected_chain) &
     (df['Dex'] == selected_dex)
 ]
 
-# 📊 نمودار دایره‌ای: سهم بازار هر استخر بر اساس Share
+# _____ Pic Chart Market Share _______________________________________
+
 fig1 = px.pie(
     filtered_df,
     values='Share',
     names='Pool_Name',
     title=f"📌 Market Share of Pools on {selected_dex} ({selected_chain})",
-    hole=0.45
-)
+    hole=0.45)
 
-# 📈 درصد انواع استخرها
+# _____ Pic Chart Pool Type _______________________________________
+
 type_counts = filtered_df['Pool_Type'].value_counts(normalize=True) * 100
 type_df = pd.DataFrame({
     'Type': type_counts.index,
@@ -59,14 +59,15 @@ fig2 = px.pie(
     hole=0.45
 )
 
-# نمایش نمودارها در کنار هم
 col4, col5 = st.columns(2)
 with col4:
     st.plotly_chart(fig1, use_container_width=True)
 with col5:
     st.plotly_chart(fig2, use_container_width=True)
 
-# 📋 نمایش دیتای فیلترشده
+
+# _____ Table _______________________________________
+
 st.subheader("📄 Filtered Pool Table")
 st.dataframe(filtered_df.reset_index(drop=True))
 
