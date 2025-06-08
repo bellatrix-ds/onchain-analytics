@@ -15,7 +15,7 @@ df = pd.read_csv(
     'https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/Market%20Making.csv',
     on_bad_lines='skip'
 )
-
+print(df.columns)
 # --------------------------------------
 st.set_page_config(layout="wide")
 st.title("📊 Market Making Board")
