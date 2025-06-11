@@ -110,8 +110,8 @@ Rising TVL trends suggest growing trust and increasing capital allocation.
 # Plotting
 fig, ax = plt.subplots(figsize=(12, 6))
 
-for dex_name in df_tvl_filtered["dex"].unique():
-    data = df_tvl_filtered[df_tvl_filtered["dex"] == dex_name]
+for dex_name in df_tvl_filtered["dex_x"].unique():
+    data = df_tvl_filtered[df_tvl_filtered["dex_x"] == dex_name]
     grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
     ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
 
