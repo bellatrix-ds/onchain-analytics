@@ -98,36 +98,39 @@ df_tvl_filtered = df_tvl.merge(filtered_dex_pools, on="pool_id", how="inner")
 # Line chart section
 st.subheader("📉 4. TVL Trend Over Time per Dex")
 
-# 📌 Explanation Box
-st.markdown("""
-<div style="background-color:#f0f2f6;padding:15px;border-radius:8px;border:1px solid #ccc">
-🔍 **What to look for?**<br>
-In this chart, we're tracking the market's confidence in DEX liquidity pools.<br>
-Pay attention to sharp drops — they might indicate a risk of capital flight.<br>
-Rising TVL trends suggest growing trust and increasing capital allocation.
-</div>
-""", unsafe_allow_html=True)
+col1, col2 = st.columns([1.2, 2])
 
-# Plotting
-fig, ax = plt.subplots(figsize=(12, 6))
+with col1:
+    st.markdown("""
+    🔍 **What to look for?**  
+    In this chart, we're tracking the market's confidence in DEX liquidity pools.  
+    Pay attention to sharp drops — they might indicate a risk of capital flight.  
+    Rising TVL trends suggest growing trust and increasing capital allocation.
+    """)
 
-for dex_name in df_tvl_filtered["dex_x"].unique():
-    data = df_tvl_filtered[df_tvl_filtered["dex_x"] == dex_name]
-    grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
-    ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
+with col2:
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for dex_name in df_tvl_filtered["dex_x"].unique():
+        data = df_tvl_filtered[df_tvl_filtered["dex_x"] == dex_name]
+        grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
+        ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
 
-# Formatting axes
-ax.set_ylabel("TVL (in millions USD)")
-ax.set_xlabel("Date (Year 2025)")
-ax.legend()
-ax.set_title("Total TVL by Dex (Over Time)")
-ax.grid(True)
+    ax.set_ylabel("TVL (in millions USD)")
+    ax.set_xlabel("Date")
+    ax.legend()
+    ax.set_title("Total TVL by Dex (Over Time) — 2025")
 
-# Custom ticks
-ax.set_yticklabels([format_number(y) for y in ax.get_yticks()])
-ax.xaxis.set_major_formatter(DateFormatter('%b-%d'))
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/1e6:.0f}M'))
+    ax.xaxis.set_major_formatter(DateFormatter('%b-%d'))
 
-st.pyplot(fig)
+    ax.grid(True)
+    st.pyplot(fig)
+
+
+
+
+
+
 
 # ـــ
 
