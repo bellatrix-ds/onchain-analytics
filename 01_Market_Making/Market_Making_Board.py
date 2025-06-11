@@ -71,7 +71,7 @@ with col5:
 st.subheader("📄 Filtered Pool Table")
 st.dataframe(filtered_df.reset_index(drop=True))
 
-# __________________ Part 2 ______________________________________________________________________
+# __________________ Part 4 ______________________________________________________________________
 
 df_tvl = pd.read_csv("https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_tvl.csv")
 df_tvl['timestamp'] = pd.to_datetime(df_tvl['timestamp'])
@@ -80,38 +80,53 @@ def format_number(n):
     if n >= 1e9:
         return f"{n / 1e9:.2f}B"
     elif n >= 1e6:
-        return f"{n / 1e6:.2f}M"
+        return f"{n / 1e6:.0f}M"  # بدون اعشار
     elif n >= 1e3:
-        return f"{n / 1e3:.2f}K"
+        return f"{n / 1e3:.0f}K"
     else:
         return str(n)
 
+# Filter DEX selection
 dex_options = df["dex"].unique()
 selected_dex = st.multiselect("Select Dex(s):", options=dex_options, default=dex_options)
 
-filtered_dex_pools = df[df["dex"].isin(selected_dex)][["pool_id", "dex"]]  # فقط pool_id و dex
+# Merge and filter
+filtered_dex_pools = df[df["dex"].isin(selected_dex)][["pool_id", "dex"]]
 df_tvl_filtered = df_tvl.merge(filtered_dex_pools, on="pool_id", how="inner")
-st.write("🧪 Columns in df_tvl_filtered:", df_tvl_filtered.columns.tolist())
 
-# 📈 TVL Line Chart
-st.subheader("📉 TVL Trend Over Time per Dex")
+# Line chart section
+st.subheader("📉 4. TVL Trend Over Time per Dex")
 
+# 📌 Explanation Box
+st.markdown("""
+<div style="background-color:#f0f2f6;padding:15px;border-radius:8px;border:1px solid #ccc">
+🔍 **What to look for?**<br>
+In this chart, we're tracking the market's confidence in DEX liquidity pools.<br>
+Pay attention to sharp drops — they might indicate a risk of capital flight.<br>
+Rising TVL trends suggest growing trust and increasing capital allocation.
+</div>
+""", unsafe_allow_html=True)
+
+# Plotting
 fig, ax = plt.subplots(figsize=(12, 6))
-for dex_name in df_tvl_filtered["dex_x"].unique():
-    data = df_tvl_filtered[df_tvl_filtered["dex_x"] == dex_name]
+
+for dex_name in df_tvl_filtered["dex"].unique():
+    data = df_tvl_filtered[df_tvl_filtered["dex"] == dex_name]
     grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
     ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
 
-ax.set_ylabel("TVL (USD)")
-ax.set_xlabel("Date")
+# Formatting axes
+ax.set_ylabel("TVL (in millions USD)")
+ax.set_xlabel("Date (Year 2025)")
 ax.legend()
 ax.set_title("Total TVL by Dex (Over Time)")
 ax.grid(True)
-labels = [format_number(y) for y in ax.get_yticks()]
-ax.set_yticklabels(labels)
+
+# Custom ticks
+ax.set_yticklabels([format_number(y) for y in ax.get_yticks()])
+ax.xaxis.set_major_formatter(DateFormatter('%b-%d'))
 
 st.pyplot(fig)
-
 
 # ـــ
 
