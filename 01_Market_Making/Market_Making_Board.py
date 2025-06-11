@@ -98,15 +98,20 @@ df_tvl_filtered = df_tvl.merge(filtered_dex_pools, on="pool_id", how="inner")
 # Line chart section
 st.subheader("📉 4. TVL Trend Over Time per Dex")
 
-col1, col2 = st.columns([1.2, 2])
+col1, col2 = st.columns([1.2, 2], gap="large")
 
 with col1:
-    st.markdown("""
-    🔍 **What to look for?**  
-    In this chart, we're tracking the market's confidence in DEX liquidity pools.  
-    Pay attention to sharp drops — they might indicate a risk of capital flight.  
-    Rising TVL trends suggest growing trust and increasing capital allocation.
-    """)
+    st.markdown(
+                """
+        <div style='margin-top: 25px'>
+        🔍 <b>What to look for?</b><br>
+        In this chart, we're tracking the market's confidence in DEX liquidity pools.<br>
+        Pay attention to sharp drops — they might indicate a risk of capital flight.<br>
+        Rising TVL trends suggest growing trust and increasing capital allocation.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 with col2:
     fig, ax = plt.subplots(figsize=(10, 5))
