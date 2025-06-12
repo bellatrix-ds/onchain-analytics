@@ -106,7 +106,7 @@ with col1:
         <div style='margin-top: 25px'>
         🔍 <b>What to look for?</b><br>
         In this chart, we're tracking the market's confidence in DEX liquidity pools.<br>
-        Pay attention to sharp drops — they might indicate a risk of capital flight.<br>
+        Pay attention to sharp drops; they might indicate a risk of capital flight.<br>
         Rising TVL trends suggest growing trust and increasing capital allocation.
         </div>
         """,
