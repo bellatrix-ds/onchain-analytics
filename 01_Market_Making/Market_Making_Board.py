@@ -118,7 +118,7 @@ with col2:
     for pool in df_tvl_filtered["pool_name"].unique():
         data = df_tvl_filtered[df_tvl_filtered["pool_name"] == pool]
         grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
-        ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
+        ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=pool)
 
     ax.set_ylabel("TVL (in millions USD)")
     ax.set_xlabel("Date")
