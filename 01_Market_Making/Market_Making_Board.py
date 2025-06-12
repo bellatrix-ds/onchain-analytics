@@ -132,7 +132,7 @@ with col2:
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/1e6:.0f}M'))
     ax.xaxis.set_major_formatter(DateFormatter('%b-%d'))
 
-    ax.grid(True)
+    ax.grid(False)
     st.pyplot(fig)
 
 
