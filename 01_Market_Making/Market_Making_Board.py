@@ -115,8 +115,8 @@ with col1:
 
 with col2:
     fig, ax = plt.subplots(figsize=(10, 5))
-    for dex_name in df_tvl_filtered["dex_x"].unique():
-        data = df_tvl_filtered[df_tvl_filtered["dex_x"] == dex_name]
+    for pool in df_tvl_filtered["pool_name"].unique():
+        data = df_tvl_filtered[df_tvl_filtered["pool_name"] == pool]
         grouped = data.groupby("timestamp")["tvlUsd"].sum().reset_index()
         ax.plot(grouped["timestamp"], grouped["tvlUsd"], label=dex_name)
 
