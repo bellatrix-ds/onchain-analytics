@@ -126,7 +126,7 @@ with col2:
     bbox_to_anchor=(1.05, 1), 
     loc='upper left',
     fontsize='small'
-))
+)
     ax.set_title("Total TVL by Dex (Over Time) — 2025")
 
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/1e6:.0f}M'))
