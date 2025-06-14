@@ -16,70 +16,79 @@ from matplotlib.dates import DateFormatter
 # __________________ New ______________________________________________________________________
 
 
-df = pd.read_csv(
-    'https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main.csv',
-    on_bad_lines='skip')
+data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main.csv', on_bad_lines='skip')
 
-# Basic page setup
+# Add computed columns
+data['trade_size'] = data['volume'] / data['swap_count']
+data['trade_size_bin'] = pd.cut(data['trade_size'], bins=[0, 1e4, 5e4, 1e5, 5e5, 1e6, np.inf], 
+                                labels=["<10k", "10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M+"])
+data['order_size_bin'] = pd.cut(data['order_size'], bins=[0, 1e4, 5e4, 1e5, 5e5, 1e6, np.inf],
+                                labels=["<10k", "10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M+"])
+
+# Set up dashboard
 st.set_page_config(page_title="StableMM Radar", layout="wide")
 st.title("📊 StableMM Radar — Market Making Insights on Stablecoin Pools")
 
-# Sidebar filters
-st.sidebar.header("🔍 Filters")
-selected_chain = st.sidebar.multiselect("Select Chain(s)", options=df['blockchain'].unique(), default=list(df['blockchain'].unique()))
-selected_dex = st.sidebar.multiselect("Select DEX(s)", options=df['dex'].unique(), default=list(df['dex'].unique()))
-selected_pool = st.sidebar.multiselect("Select Pool(s)", options=df['pool'].unique(), default=list(df['pool'].unique()))
-min_tvl = st.sidebar.slider("Minimum TVL (USD)", min_value=0, max_value=int(df['volume'].max()), value=50000000)
-min_spread = st.sidebar.slider("Minimum Spread (%)", min_value=0.0, max_value=1.0, value=0.02)
-
-# Filter Data
-df_filtered = df[
-    (df['blockchain'].isin(selected_chain)) &
-    (df['dex'].isin(selected_dex)) &
-    (df['pool'].isin(selected_pool)) &
-    (df['volume'] > min_tvl) &
-    (df['Spread'] > min_spread)
-].copy()
-
-# Calculate trade size
-df_filtered['trade_size'] = df_filtered['volume'] / df_filtered['swap_count']
-
-# --- Section 1: Slippage vs Trade Size Line Chart ---
-col1, col2 = st.columns([1, 2])
+# Filters (now at the top)
+col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
+    chain = st.selectbox("Select Chain", sorted(data['blockchain'].unique()))
+with col2:
+    dex = st.selectbox("Select DEX", sorted(data['dex'].unique()))
+with col3:
+    pool = st.selectbox("Select Pool", sorted(data['pool'].unique()))
+with col4:
+    min_tvl = st.number_input("Minimum TVL", min_value=0, value=50_000_000, step=1_000_000)
+with col5:
+    min_spread = st.slider("Min Spread (%)", 0.0, 1.0, 0.02)
+
+# Apply filters
+filtered = data[
+    (data['blockchain'] == chain) &
+    (data['dex'] == dex) &
+    (data['pool'] == pool) &
+    (data['volume'] > min_tvl) &
+    (data['Spread'] > min_spread)
+]
+
+# --- Chart 1: Spread vs Trade Size ---
+col6, col7 = st.columns([1, 2])
+with col6:
     st.markdown("### 🧭 Slippage vs. Trade Size")
     st.markdown("""
-    **Purpose**: Evaluate execution quality across different liquidity depths  
-    **What to look for?** Watch for steep slopes — they signal thin liquidity and price impact risk.
+**Purpose**: Evaluate execution quality across different liquidity depths  
+**What to look for?** Watch for steep slopes — they signal thin liquidity.
     """)
-with col2:
-    fig, ax = plt.subplots(figsize=(10, 5))
-    for pool_name, group in df_filtered.groupby("pool"):
-        ax.plot(group["trade_size"], group["Spread"], label=pool_name)
-    ax.set_xlabel("Trade Size (USD)")
-    ax.set_ylabel("Spread (%)")
-    ax.set_title("Slippage vs. Trade Size per Pool")
-    ax.legend(fontsize="x-small")
-    st.pyplot(fig)
+with col7:
+    if not filtered.empty:
+        line_data = filtered.groupby(['trade_size_bin', 'pool'])['Spread'].mean().unstack().fillna(0)
+        fig1, ax1 = plt.subplots(figsize=(10, 5))
+        line_data.plot(marker='o', ax=ax1)
+        ax1.set_title("Slippage vs. Trade Size")
+        ax1.set_ylabel("Spread (%)")
+        ax1.grid(True)
+        st.pyplot(fig1)
+    else:
+        st.warning("No data for selected filters.")
 
-# --- Section 2: Heatmap ---
-col3, col4 = st.columns([1, 2])
-with col3:
+# --- Chart 2: Heatmap ---
+col8, col9 = st.columns([1, 2])
+with col8:
     st.markdown("### 🧊 Slippage Heatmap")
     st.markdown("""
-    **Purpose**: Uncover execution weaknesses across pools  
-    **What to look for?** Darker colors = higher slippage = liquidity gaps.
+**Purpose**: Uncover execution weaknesses across pools  
+**What to look for?** Darker shades indicate worse execution due to liquidity gaps.
     """)
-with col4:
-    heatmap_data = df_filtered.pivot_table(
-        index="pool", columns="order_size", values="Spread", aggfunc="mean"
-    )
-    fig2, ax2 = plt.subplots(figsize=(12, 8))
-    sns.heatmap(heatmap_data, cmap="YlOrRd", ax=ax2)
-    ax2.set_xlabel("Order Size (USD)")
-    ax2.set_ylabel("Token Pair")
-    ax2.set_title("Slippage Heatmap")
-    st.pyplot(fig2)
+with col9:
+    if not filtered.empty:
+        heatmap_data = filtered.pivot_table(index="pool", columns="order_size_bin", values="Spread", aggfunc="mean")
+        fig2, ax2 = plt.subplots(figsize=(12, 6))
+        sns.heatmap(heatmap_data, cmap="YlOrRd", annot=True, fmt=".2f", ax=ax2)
+        ax2.set_title("Slippage Heatmap (Token vs Order Size)")
+        st.pyplot(fig2)
+    else:
+        st.warning("No data for selected filters.")
+
 
 
 
