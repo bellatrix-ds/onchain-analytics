@@ -91,7 +91,9 @@ st.markdown("---")
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
 
 st.subheader("📈 Spread vs. Trade Size")
- filtered_data['Spread'] = filtered_data['Spread'] / 100
+
+filtered_data['Spread'] = filtered_data['Spread'] / 100
+
 trade_size_order = [
     "≤10k", "10k–50k", "50k–100k", "100k–200k", "200k–300k", "300k–400k",
     "400k–500k", "500k–750k", "750k–1M", ">1M"
