@@ -111,6 +111,9 @@ with col_text1:
     - **Look for**: Steep slopes, which indicate pools with shallow depth.
     """)
 
+
+st.markdown("---")
+
 # __________________ Part3: Heatmap ______________________________________________________________________
 
 st.subheader("🔥 Slippage Heatmap (Pool vs Order Size)")
@@ -133,7 +136,7 @@ with col_text2:
     - **Look for**: Brighter red blocks—higher slippage means riskier for MM.
     """)
 
-
+st.markdown("---")
 
 # ـــ
 
