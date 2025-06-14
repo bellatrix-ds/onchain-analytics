@@ -91,14 +91,14 @@ st.markdown("---")
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
 
 st.subheader("📈 Spread vs. Trade Size")
-filtered_data['Spread'] = filtered_data['Spread'] / 100
+filtered_data['Spread2'] = filtered_data['Spread'] / 100
 
 col_text1 , col_chart1 = st.columns([1, 1])
 
 with col_chart1:
     line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
         x=alt.X("trade_size_bin", title="Trade Size (binned)"),
-        y=alt.Y("Spread", title="Spread (%)"),
+        y=alt.Y("Spread2", title="Spread (%)"),
         color="pool"
     ).properties(height=400)
 
