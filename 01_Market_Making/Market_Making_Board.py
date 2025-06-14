@@ -163,12 +163,11 @@ with col_text2:
 
 st.markdown("---")
 
-
 # __________________ Part4: Boxplot ______________________________________________________________________
 
 st.subheader("📊 Spread Distribution by DEX")
 
-col_text3, col_chart3 = st.columns([1, 2])
+col_text3, col_chart3 = st.columns([1, 1])
 
 with col_chart3:
     box_plot = alt.Chart(filtered_data).mark_boxplot(extent='min-max').encode(
