@@ -162,7 +162,6 @@ with col_text2:
     """)
 
 st.markdown("---")
-
 # __________________ Part4: Boxplot ______________________________________________________________________
 
 st.subheader("📊 Spread Distribution by DEX")
@@ -186,6 +185,44 @@ with col_text3:
     - **Goal**: Compare how well different DEXs manage slippage (spread).
     - **Look for**: DEXs with higher median or wider spread distribution; these may indicate weaker liquidity providers, offering **market making opportunities**.
     """)
+
+st.markdown("---")
+# __________________ Part5: Scoring System ______________________________________________________________________
+from sklearn.preprocessing import MinMaxScaler
+
+# Step 1: Group by pool and aggregate over time
+pool_stats = data.groupby(["blockchain", "dex", "pool"]).agg({
+    "volume": "mean",
+    "swap_count": "mean",
+    "order_size": "mean",
+    "Spread": ["mean", "std"],
+    "Trade_size": "mean"
+})
+
+# Step 2: Flatten column names
+pool_stats.columns = ['volume_mean', 'swap_count_mean', 'order_size_mean', 'spread_mean', 'spread_std', 'trade_size_mean']
+pool_stats = pool_stats.reset_index()
+
+# Step 3: Normalize all metrics
+scaler = MinMaxScaler()
+metrics = ['volume_mean', 'swap_count_mean', 'order_size_mean', 'spread_mean', 'spread_std', 'trade_size_mean']
+pool_stats_normalized = pool_stats.copy()
+pool_stats_normalized[metrics] = scaler.fit_transform(pool_stats[metrics])
+
+# Step 4: Compute MM Score
+pool_stats_normalized["mm_score"] = (
+    pool_stats_normalized["volume_mean"] * 0.25 +
+    pool_stats_normalized["swap_count_mean"] * 0.2 +
+    pool_stats_normalized["order_size_mean"] * 0.1 +
+    (1 - pool_stats_normalized["spread_mean"]) * 0.25 +
+    (1 - pool_stats_normalized["spread_std"]) * 0.1 +
+    pool_stats_normalized["trade_size_mean"] * 0.1
+)
+
+# Step 5: Show top pools
+top_pools = pool_stats_normalized.sort_values(by="mm_score", ascending=False)
+st.dataframe(top_pools[["blockchain", "dex", "pool", "mm_score"]].head(20))
+
 # ـــ
 
 st.markdown("---")
