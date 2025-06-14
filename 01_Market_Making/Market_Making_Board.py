@@ -91,6 +91,7 @@ st.markdown("---")
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
 
 st.subheader("📈 Spread vs. Trade Size")
+filtered_data['Spread'] = filtered_data['Spread'] / 100
 
 col_text1 , col_chart1 = st.columns([1, 1])
 
