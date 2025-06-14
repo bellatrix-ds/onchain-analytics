@@ -50,7 +50,7 @@ if selected_dex != "All":
 if selected_pool != "All":
     filtered_data = filtered_data[filtered_data["pool"] == selected_pool]
 
-# filtered_data = filtered_data[filtered_data["Trade_size"] >= min_trade_size]
+filtered_data = filtered_data[filtered_data["Trade_size"] >= min_trade_size]
 filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
 
 
