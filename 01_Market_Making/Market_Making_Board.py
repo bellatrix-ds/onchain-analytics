@@ -171,7 +171,7 @@ with col_text3:
     st.markdown("### What to look for?")
     st.markdown("""
     - **Goal**: Compare how well different DEXs manage slippage (spread).
-    - **Look for**: DEXs with higher median or wider spread distribution: these may indicate weaker liquidity providers, offering **market making opportunities**.
+    - **Look for**: DEXs with higher median or wider spread distribution; these may indicate weaker liquidity providers, offering **market making opportunities**.
     """)
 # ـــ
 
