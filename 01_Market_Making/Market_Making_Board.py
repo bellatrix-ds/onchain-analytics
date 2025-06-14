@@ -37,7 +37,7 @@ else:
     filtered_pool_options = data[data["dex"] == selected_dex]["pool"].unique().tolist()
 
 selected_pool = col3.selectbox("Select Pool", ["All"] + sorted(filtered_pool_options))
-min_trade_size = col4.number_input("Minimum Trade Size ($)", options=trade_size_order,  index=0  )
+min_trade_size = col4.selectbox("Minimum Trade Size ($)", options=trade_size_order, index=0)
 min_spread = col5.number_input("Minimum Spread (%))", value=0)
 
 filtered_data = data.copy()
