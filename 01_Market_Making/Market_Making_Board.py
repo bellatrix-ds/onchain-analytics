@@ -10,6 +10,7 @@ import seaborn as sns
 import plotly.express as px
 from matplotlib.dates import DateFormatter
 import numpy as np
+import altair as alt
 # --------------------------------------
 
 
@@ -18,78 +19,97 @@ import numpy as np
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main.csv', on_bad_lines='skip')
 
-# Add computed columns
-data['trade_size'] = data['volume'] / data['swap_count']
-data['trade_size_bin'] = pd.cut(data['trade_size'], bins=[0, 1e4, 5e4, 1e5, 5e5, 1e6, np.inf], 
-                                labels=["<10k", "10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M+"])
-data['order_size_bin'] = pd.cut(data['order_size'], bins=[0, 1e4, 5e4, 1e5, 5e5, 1e6, np.inf],
-                                labels=["<10k", "10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M+"])
+trade size
+data["trade_size"] = data["volume"] / data["swap_count"]
 
-# Set up dashboard
-st.set_page_config(page_title="StableMM Radar", layout="wide")
-st.title("📊 StableMM Radar — Market Making Insights on Stablecoin Pools")
+# باین کردن trade_size و order_size
+data["trade_size_bin"] = pd.cut(
+    data["trade_size"], 
+    bins=[0, 10_000, 50_000, 100_000, 500_000, 1_000_000, float("inf")],
+    labels=["<10k", "10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M+"]
+)
 
-# Filters (now at the top)
+data["order_size_bin"] = pd.cut(
+    data["order_size"], 
+    bins=[0, 10_000, 50_000, 100_000, 500_000, 1_000_000, float("inf")],
+    labels=["<10k", "10k-50k", "50k-100k", "100k-500k", "500k-1M", "1M+"]
+)
+
+# عنوان
+st.title("🔍 Stable Pools Market Maker Radar")
+
+# فیلترها (بالاتر از نمودارها)
 col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    chain = st.selectbox("Select Chain", sorted(data['blockchain'].unique()))
-with col2:
-    dex = st.selectbox("Select DEX", sorted(data['dex'].unique()))
-with col3:
-    pool = st.selectbox("Select Pool", sorted(data['pool'].unique()))
-with col4:
-    min_tvl = st.number_input("Minimum TVL", min_value=0, value=50_000_000, step=1_000_000)
-with col5:
-    min_spread = st.slider("Min Spread (%)", 0.0, 1.0, 0.02)
 
-# Apply filters
-filtered = data[
-    (data['blockchain'] == chain) &
-    (data['dex'] == dex) &
-    (data['pool'] == pool) &
-    (data['volume'] > min_tvl) &
-    (data['Spread'] > min_spread)
-]
+# Default selections = all
+selected_chain = col1.selectbox("Select Blockchain", ["All"] + sorted(data["blockchain"].unique().tolist()))
+selected_dex = col2.selectbox("Select DEX", ["All"] + sorted(data["dex"].unique().tolist()))
 
-# --- Chart 1: Spread vs Trade Size ---
-col6, col7 = st.columns([1, 2])
-with col6:
-    st.markdown("### 🧭 Slippage vs. Trade Size")
+# فیلتر وابسته برای pool
+if selected_dex == "All":
+    filtered_pool_options = data["pool"].unique().tolist()
+else:
+    filtered_pool_options = data[data["dex"] == selected_dex]["pool"].unique().tolist()
+
+selected_pool = col3.selectbox("Select Pool", ["All"] + sorted(filtered_pool_options))
+min_tvl = col4.number_input("Minimum TVL ($)", value=0)
+min_spread = col5.slider("Minimum Spread (%)", 0.0, 5.0, 0.0, step=0.1)
+
+# اعمال فیلترها روی دیتافریم
+filtered_data = data.copy()
+if selected_chain != "All":
+    filtered_data = filtered_data[filtered_data["blockchain"] == selected_chain]
+
+if selected_dex != "All":
+    filtered_data = filtered_data[filtered_data["dex"] == selected_dex]
+
+if selected_pool != "All":
+    filtered_data = filtered_data[filtered_data["pool"] == selected_pool]
+
+filtered_data = filtered_data[filtered_data["tvl_usd"] >= min_tvl]
+filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
+
+# بخش اول: Trade Size vs. Slippage
+st.subheader("📈 Spread vs. Trade Size")
+
+col_chart1, col_text1 = st.columns([2, 1])
+
+with col_chart1:
+    line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
+        x=alt.X("trade_size_bin:N", title="Trade Size (binned)"),
+        y=alt.Y("Spread:Q", title="Spread (%)"),
+        color="pool:N"
+    ).properties(height=400)
+
+    st.altair_chart(line_chart, use_container_width=True)
+
+with col_text1:
+    st.markdown("### What to look for?")
     st.markdown("""
-**Purpose**: Evaluate execution quality across different liquidity depths  
-**What to look for?** Watch for steep slopes — they signal thin liquidity.
+    - **Goal**: Assess how trade size affects slippage.
+    - **Look for**: Steep slopes, which indicate pools with shallow depth.
     """)
-with col7:
-    if not filtered.empty:
-        line_data = filtered.groupby(['trade_size_bin', 'pool'])['Spread'].mean().unstack().fillna(0)
-        fig1, ax1 = plt.subplots(figsize=(10, 5))
-        line_data.plot(marker='o', ax=ax1)
-        ax1.set_title("Slippage vs. Trade Size")
-        ax1.set_ylabel("Spread (%)")
-        ax1.grid(True)
-        st.pyplot(fig1)
-    else:
-        st.warning("No data for selected filters.")
 
-# --- Chart 2: Heatmap ---
-col8, col9 = st.columns([1, 2])
-with col8:
-    st.markdown("### 🧊 Slippage Heatmap")
+# بخش دوم: Heatmap
+st.subheader("🔥 Slippage Heatmap (Pool vs Order Size)")
+
+col_chart2, col_text2 = st.columns([2, 1])
+
+with col_chart2:
+    heatmap = alt.Chart(filtered_data).mark_rect().encode(
+        x=alt.X("order_size_bin:N", title="Order Size (binned)"),
+        y=alt.Y("pool:N", title="Pool"),
+        color=alt.Color("Spread:Q", scale=alt.Scale(scheme='redyellowgreen', reverse=True), title="Spread (%)")
+    ).properties(height=500)
+
+    st.altair_chart(heatmap, use_container_width=True)
+
+with col_text2:
+    st.markdown("### What to look for?")
     st.markdown("""
-**Purpose**: Uncover execution weaknesses across pools  
-**What to look for?** Darker shades indicate worse execution due to liquidity gaps.
+    - **Goal**: Spot liquidity weakness by order size and pool.
+    - **Look for**: Brighter red blocks—higher slippage means riskier for MM.
     """)
-with col9:
-    if not filtered.empty:
-        heatmap_data = filtered.pivot_table(index="pool", columns="order_size_bin", values="Spread", aggfunc="mean")
-        fig2, ax2 = plt.subplots(figsize=(12, 6))
-        sns.heatmap(heatmap_data, cmap="YlOrRd", annot=True, fmt=".2f", ax=ax2)
-        ax2.set_title("Slippage Heatmap (Token vs Order Size)")
-        st.pyplot(fig2)
-    else:
-        st.warning("No data for selected filters.")
-
-
 
 
 
