@@ -75,7 +75,7 @@ filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
 # بخش اول: Trade Size vs. Slippage
 st.subheader("📈 Spread vs. Trade Size")
 
-col_chart1, col_text1 = st.columns([2, 1])
+col_text1 , col_chart1 = st.columns([2, 1])
 
 with col_chart1:
     line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
