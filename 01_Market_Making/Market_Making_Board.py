@@ -50,7 +50,15 @@ if selected_dex != "All":
 if selected_pool != "All":
     filtered_data = filtered_data[filtered_data["pool"] == selected_pool]
 
-filtered_data = filtered_data[filtered_data["Trade_size"] >= min_trade_size]
+
+if min_trade_size != "All":
+    trade_size_bins = trade_size_order[1:]
+    selected_index = trade_size_bins.index(min_trade_size)
+    allowed_bins = trade_size_bins[selected_index:]
+    filtered_data = filtered_data[filtered_data["trade_size_bin"].isin(allowed_bins)]
+
+
+
 filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
 
 
