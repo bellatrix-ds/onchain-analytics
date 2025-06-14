@@ -190,10 +190,9 @@ with col_text3:
 st.markdown("---")
 # __________________ Part5: Scoring System ______________________________________________________________________
 
-st.markdown("## 🧠 Pool Scoring System")
+st.subheader("🧠 Pool Scoring System")
+st.subheader("### 🎛️ Adjust Scoring Weights")
 
-# Row: Sliders for scoring weights
-st.markdown("### 🎛️ Adjust Scoring Weights")
 col1, col2, col3 = st.columns(3)
 with col1:
     volume_w = st.slider("Weight: Volume", 0.0, 1.0, 0.25, 0.05)
