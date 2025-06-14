@@ -237,7 +237,7 @@ pool_stats_normalized["mm_score"] = (
 
 # --- Display Layout ---
 st.markdown("### 🔍 Results & Interpretation")
-col_left, col_right = st.columns([1, 2])
+col_left, col_right = st.columns([1, 1])
 
 with col_left:
     st.markdown("#### ℹ️ How This Scoring Works")
