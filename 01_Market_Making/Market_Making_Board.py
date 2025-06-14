@@ -123,11 +123,17 @@ st.markdown("---")
 
 st.subheader("🔥 Slippage Heatmap (Pool vs Order Size)")
 
+order_size_order = [
+    "≤1k", "1k–5k", "5k–10k", "10k–25k", "25k–50k",
+    "50k–100k", "100k–250k", "250k–1M", ">1M"
+]
+
+
 col_text2  , col_chart2 = st.columns([1, 1])
 
 with col_chart2:
     heatmap = alt.Chart(filtered_data).mark_rect().encode(
-        x=alt.X("order_size_bin", title="Order Size (binned)"),
+        x=alt.X("order_size_bin", title="Order Size (binned)",sort=order_size_order),
         y=alt.Y("pool", title="Pool"),
         color=alt.Color("Spread:Q", scale=alt.Scale(scheme='redyellowgreen', reverse=True), title="Spread (%)")
     ).properties(height=500)
