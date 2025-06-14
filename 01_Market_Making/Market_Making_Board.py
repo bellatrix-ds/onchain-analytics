@@ -149,6 +149,32 @@ with col_text2:
 
 st.markdown("---")
 
+
+st.markdown("---")
+
+# __________________ Part4: Boxplot ______________________________________________________________________
+
+st.subheader("📊 Spread Distribution by DEX")
+
+col_text3, col_chart3 = st.columns([1, 2])
+
+with col_chart3:
+    box_plot = alt.Chart(filtered_data).mark_boxplot(extent='min-max').encode(
+        x=alt.X("dex:N", title="DEX"),
+        y=alt.Y("Spread:Q", title="Spread (%)"),
+        color="dex:N"
+    ).properties(
+        height=400,
+        width=600
+    )
+    st.altair_chart(box_plot, use_container_width=True)
+
+with col_text3:
+    st.markdown("### What to look for?")
+    st.markdown("""
+    - **Goal**: Compare how well different DEXs manage slippage (spread).
+    - **Look for**: DEXs with higher median or wider spread distribution — these may indicate weaker liquidity providers, offering **market making opportunities**.
+    """)
 # ـــ
 
 st.markdown("---")
