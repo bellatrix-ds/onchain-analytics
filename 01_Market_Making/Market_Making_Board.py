@@ -21,6 +21,12 @@ st.title("🔍 Stable Pools Market Maker Radar")
 
 # __________________ Filters ______________________________________________________________________
 
+trade_size_order = [
+    "All", "≤10k", "10k–50k", "50k–100k", "100k–200k",
+    "200k–300k", "300k–400k", "400k–500k",
+    "500k–750k", "750k–1M", ">1M"
+]
+
 col1, col2, col3, col4, col5 = st.columns(5)
 selected_chain = col1.selectbox("Select Blockchain", ["All"] + sorted(data["blockchain"].unique().tolist()))
 selected_dex = col2.selectbox("Select DEX", ["All"] + sorted(data["dex"].unique().tolist()))
@@ -31,7 +37,7 @@ else:
     filtered_pool_options = data[data["dex"] == selected_dex]["pool"].unique().tolist()
 
 selected_pool = col3.selectbox("Select Pool", ["All"] + sorted(filtered_pool_options))
-min_trade_size = col4.number_input("Minimum Trade Size ($)", value=0)
+min_trade_size = col4.number_input("Minimum Trade Size ($)", options=trade_size_order,  index=0  )
 min_spread = col5.number_input("Minimum Spread (%))", value=0)
 
 filtered_data = data.copy()
