@@ -19,6 +19,8 @@ import altair as alt
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main.csv', on_bad_lines='skip')
 
+st.set_page_config(layout="wide")
+
 # trade size
 data["trade_size"] = data["volume"] / data["swap_count"]
 
@@ -36,7 +38,7 @@ data["order_size_bin"] = pd.cut(
 )
 
 # عنوان
- st.set_page_config(layout="wide")
+ 
 st.title("🔍 Stable Pools Market Maker Radar")
 
 # فیلترها (بالاتر از نمودارها)
