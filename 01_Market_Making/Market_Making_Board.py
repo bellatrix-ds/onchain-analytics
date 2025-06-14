@@ -191,7 +191,7 @@ st.markdown("---")
 # __________________ Part5: Scoring System ______________________________________________________________________
 
 st.subheader("🧠 Pool Scoring System")
-st.subheader("### 🎛️ Adjust Scoring Weights")
+st.markdown("### 🎛️ Adjust Scoring Weights")
 
 col1, col2, col3 = st.columns(3)
 with col1:
