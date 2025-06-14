@@ -159,7 +159,7 @@ col_text3, col_chart3 = st.columns([1, 2])
 with col_chart3:
     box_plot = alt.Chart(filtered_data).mark_boxplot(extent='min-max').encode(
         x=alt.X("dex:N", title="DEX"),
-        y=alt.Y("Spread:Q", title="Spread (%)"),
+        y=alt.Y("Spread", title="Spread (%)", scale=alt.Scale(type='log')),
         color="dex:N"
     ).properties(
         height=400,
