@@ -11,6 +11,7 @@ import plotly.express as px
 from matplotlib.dates import DateFormatter
 import numpy as np
 import altair as alt
+from sklearn.preprocessing import MinMaxScaler
 
 # __________________ Introduction ______________________________________________________________________
 
@@ -188,9 +189,26 @@ with col_text3:
 
 st.markdown("---")
 # __________________ Part5: Scoring System ______________________________________________________________________
-from sklearn.preprocessing import MinMaxScaler
 
-# Step 1: Group by pool and aggregate over time
+st.markdown("## 🧠 Pool Scoring System")
+
+# Row: Sliders for scoring weights
+st.markdown("### 🎛️ Adjust Scoring Weights")
+col1, col2, col3 = st.columns(3)
+with col1:
+    volume_w = st.slider("Weight: Volume", 0.0, 1.0, 0.25, 0.05)
+    swap_w = st.slider("Weight: Swap Count", 0.0, 1.0, 0.2, 0.05)
+with col2:
+    order_size_w = st.slider("Weight: Order Size", 0.0, 1.0, 0.1, 0.05)
+    trade_size_w = st.slider("Weight: Trade Size", 0.0, 1.0, 0.1, 0.05)
+with col3:
+    spread_mean_w = st.slider("Weight: Spread (↓ better)", 0.0, 1.0, 0.25, 0.05)
+    spread_std_w = st.slider("Weight: Spread Volatility (↓ better)", 0.0, 1.0, 0.1, 0.05)
+
+# Normalize total weight to avoid overweighting
+total_weight = volume_w + swap_w + order_size_w + spread_mean_w + spread_std_w + trade_size_w
+
+# --- Score Calculation ---
 pool_stats = data.groupby(["blockchain", "dex", "pool"]).agg({
     "volume": "mean",
     "swap_count": "mean",
@@ -198,30 +216,47 @@ pool_stats = data.groupby(["blockchain", "dex", "pool"]).agg({
     "Spread": ["mean", "std"],
     "Trade_size": "mean"
 })
-
-# Step 2: Flatten column names
 pool_stats.columns = ['volume_mean', 'swap_count_mean', 'order_size_mean', 'spread_mean', 'spread_std', 'trade_size_mean']
 pool_stats = pool_stats.reset_index()
 
-# Step 3: Normalize all metrics
+# Normalize
 scaler = MinMaxScaler()
 metrics = ['volume_mean', 'swap_count_mean', 'order_size_mean', 'spread_mean', 'spread_std', 'trade_size_mean']
 pool_stats_normalized = pool_stats.copy()
 pool_stats_normalized[metrics] = scaler.fit_transform(pool_stats[metrics])
 
-# Step 4: Compute MM Score
+# MM Score
 pool_stats_normalized["mm_score"] = (
-    pool_stats_normalized["volume_mean"] * 0.25 +
-    pool_stats_normalized["swap_count_mean"] * 0.2 +
-    pool_stats_normalized["order_size_mean"] * 0.1 +
-    (1 - pool_stats_normalized["spread_mean"]) * 0.25 +
-    (1 - pool_stats_normalized["spread_std"]) * 0.1 +
-    pool_stats_normalized["trade_size_mean"] * 0.1
-)
+    (pool_stats_normalized["volume_mean"] * volume_w) +
+    (pool_stats_normalized["swap_count_mean"] * swap_w) +
+    (pool_stats_normalized["order_size_mean"] * order_size_w) +
+    ((1 - pool_stats_normalized["spread_mean"]) * spread_mean_w) +
+    ((1 - pool_stats_normalized["spread_std"]) * spread_std_w) +
+    (pool_stats_normalized["trade_size_mean"] * trade_size_w)
+) / total_weight
 
-# Step 5: Show top pools
-top_pools = pool_stats_normalized.sort_values(by="mm_score", ascending=False)
-st.dataframe(top_pools[["blockchain", "dex", "pool", "mm_score"]].head(20))
+# --- Display Layout ---
+st.markdown("### 🔍 Results & Interpretation")
+col_left, col_right = st.columns([1, 2])
+
+with col_left:
+    st.markdown("#### ℹ️ How This Scoring Works")
+    st.markdown("""
+    This scoring system evaluates how suitable a pool is for **market making**.
+    
+    **Metrics considered:**
+    - ✅ High volume, trade size, swap activity
+    - ⚠️ Low average spread and spread volatility
+
+    The higher the score, the more promising the pool is for stable MM profits.
+    """)
+
+with col_right:
+    st.markdown("#### 🏆 Top 20 Pools")
+    st.dataframe(pool_stats_normalized.sort_values("mm_score", ascending=False)[
+        ["blockchain", "dex", "pool", "mm_score"]
+    ].head(20), use_container_width=True)
+
 
 # ـــ
 
