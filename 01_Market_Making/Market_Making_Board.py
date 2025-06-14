@@ -96,7 +96,7 @@ with col_text1:
 # بخش دوم: Heatmap
 st.subheader("🔥 Slippage Heatmap (Pool vs Order Size)")
 
-col_text2  , col_chart2 = st.columns([1, 2])
+col_text2  , col_chart2 = st.columns([1, 1])
 
 with col_chart2:
     heatmap = alt.Chart(filtered_data).mark_rect().encode(
