@@ -150,8 +150,6 @@ with col_text2:
 st.markdown("---")
 
 
-st.markdown("---")
-
 # __________________ Part4: Boxplot ______________________________________________________________________
 
 st.subheader("📊 Spread Distribution by DEX")
