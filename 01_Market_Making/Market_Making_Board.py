@@ -165,7 +165,7 @@ with col_chart3:
         height=400,
         width=600
     )
-    st.altair_chart(box_plot, use_container_width=True)
+    st.altair_chart(box_plot, use_container_width=False)
 
 with col_text3:
     st.markdown("### What to look for?")
