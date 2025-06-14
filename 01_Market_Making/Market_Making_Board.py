@@ -19,7 +19,7 @@ import altair as alt
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main.csv', on_bad_lines='skip')
 
-trade size
+# trade size
 data["trade_size"] = data["volume"] / data["swap_count"]
 
 # باین کردن trade_size و order_size
