@@ -85,6 +85,7 @@ with col2:
     st.plotly_chart(fig2, use_container_width=True)
 
 
+
 st.markdown("---")
 
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
