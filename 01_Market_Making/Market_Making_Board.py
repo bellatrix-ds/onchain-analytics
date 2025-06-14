@@ -51,29 +51,43 @@ filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
 
 # __________________ Part1: Pie chart + Pool Count  ______________________________________________________________________
 
-col1, col2 = st.columns(2)
+grouped = filtered_data.groupby("pool").agg({
+    "swap_count": "sum",
+    "Trade_size": "mean"
+}).reset_index()
 
+# تغییر نام برای نمایش بهتر
+grouped.rename(columns={"pool": "pool_name"}, inplace=True)
+
+# محاسبه‌ی نسبت‌ها برای نمایش سهم
+grouped["swap_share"] = grouped["swap_count"] / grouped["swap_count"].sum()
+grouped["trade_size_share"] = grouped["Trade_size"] / grouped["Trade_size"].sum()
+
+# __ Pie Chart 1: بر اساس swap_count (فعالیت استخرها) ___________________________
+fig1 = px.pie(
+    grouped,
+    values='swap_share',
+    names='pool_name',
+    title=f"📌 Market Share by Swap Count on {selected_dex} ({selected_chain})",
+    hole=0.45
+)
+
+# __ Pie Chart 2: بر اساس Trade Size (حجم متوسط سفارش) ___________________________
+fig2 = px.pie(
+    grouped,
+    values='trade_size_share',
+    names='pool_name',
+    title=f"📌 Market Share by Trade Size on {selected_dex} ({selected_chain})",
+    hole=0.45
+)
+
+# __ نمایش دو ستون در Streamlit _________________________________________________
+col1, col2 = st.columns(2)
 with col1:
-    st.subheader("Pool Share Distribution")
-    
-   
-    pie_data = filtered_data.groupby("pool")["volume"].sum()
-    
-    
-    pie_data_top = pie_data.sort_values(ascending=False).head(10)
-    
-    fig, ax = plt.subplots()
-    ax.pie(pie_data_top, labels=pie_data_top.index, autopct='%1.1f%%', startangle=90)
-    ax.axis("equal")
-    st.pyplot(fig)
+    st.plotly_chart(fig1, use_container_width=True)
 
 with col2:
-    st.subheader("Number of Pools")
-    unique_pool_count = filtered_data["pool"].nunique()
-    st.metric("Total Pools", unique_pool_count)
-
-
-
+    st.plotly_chart(fig2, use_container_width=True)
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
 
 st.subheader("📈 Spread vs. Trade Size")
