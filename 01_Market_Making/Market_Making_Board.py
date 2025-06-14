@@ -97,7 +97,7 @@ col_text1 , col_chart1 = st.columns([1, 1])
 
 with col_chart1:
     line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
-        x=alt.X("trade_size_bin", title="Trade Size (binned)",axis=alt.Axis(labelAngle=30),
+        x=alt.X("trade_size_bin", title="Trade Size (binned)",axis=alt.Axis(labelAngle=30)),
         y=alt.Y("Spread", title="Spread (%)"),
         color="pool"
     ).properties(height=400)
