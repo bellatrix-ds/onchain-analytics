@@ -18,7 +18,7 @@ data = pd.read_csv('https://github.com/bellatrix-ds/onchain-analytics/edit/main/
 
 st.set_page_config(layout="wide")
 st.title("🔍 Stable Pools Market Maker Radar")
-
+print(data.columns)
 # __________________ Filters ______________________________________________________________________
 
 col1, col2, col3, col4, col5 = st.columns(5)
