@@ -14,7 +14,7 @@ import altair as alt
 
 # __________________ Introduction ______________________________________________________________________
 
-data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip')
+data = pd.read_csv('https://github.com/bellatrix-ds/onchain-analytics/edit/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip')
 
 st.set_page_config(layout="wide")
 st.title("🔍 Stable Pools Market Maker Radar")
