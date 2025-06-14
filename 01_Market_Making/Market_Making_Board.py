@@ -18,8 +18,8 @@ df = pd.read_csv(
 )
 print(df.columns)
 # --------------------------------------
-st.set_page_config(layout="wide")
-st.title("📊 Market Making Board")
+# st.set_page_config(layout="wide")
+# st.title("📊 Market Making Board")
 
 # _____ Filters _______________________________________
 col1, col2, col3 = st.columns(3)
