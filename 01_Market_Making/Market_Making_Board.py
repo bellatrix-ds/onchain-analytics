@@ -56,14 +56,11 @@ grouped = filtered_data.groupby("pool").agg({
     "Trade_size": "mean"
 }).reset_index()
 
-# تغییر نام برای نمایش بهتر
 grouped.rename(columns={"pool": "pool_name"}, inplace=True)
 
-# محاسبه‌ی نسبت‌ها برای نمایش سهم
 grouped["swap_share"] = grouped["swap_count"] / grouped["swap_count"].sum()
 grouped["trade_size_share"] = grouped["Trade_size"] / grouped["Trade_size"].sum()
 
-# __ Pie Chart 1: بر اساس swap_count (فعالیت استخرها) ___________________________
 fig1 = px.pie(
     grouped,
     values='swap_share',
@@ -72,7 +69,6 @@ fig1 = px.pie(
     hole=0.45
 )
 
-# __ Pie Chart 2: بر اساس Trade Size (حجم متوسط سفارش) ___________________________
 fig2 = px.pie(
     grouped,
     values='trade_size_share',
@@ -81,13 +77,14 @@ fig2 = px.pie(
     hole=0.45
 )
 
-# __ نمایش دو ستون در Streamlit _________________________________________________
 col1, col2 = st.columns(2)
 with col1:
     st.plotly_chart(fig1, use_container_width=True)
 
 with col2:
     st.plotly_chart(fig2, use_container_width=True)
+____________
+
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
 
 st.subheader("📈 Spread vs. Trade Size")
