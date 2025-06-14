@@ -133,7 +133,7 @@ col_text2  , col_chart2 = st.columns([1, 1])
 
 with col_chart2:
     heatmap = alt.Chart(filtered_data).mark_rect().encode(
-        x=alt.X("order_size_bin", title="Order Size (binned)",sort=order_size_order),
+        x=alt.X("order_size_bin", title="Order Size (binned)",axis=alt.Axis(labelAngle=30, labelOverlap=False),sort=order_size_order),
         y=alt.Y("pool", title="Pool"),
         color=alt.Color("Spread:Q", scale=alt.Scale(scheme='redyellowgreen', reverse=True), title="Spread (%)")
     ).properties(height=500)
