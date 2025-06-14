@@ -36,6 +36,7 @@ data["order_size_bin"] = pd.cut(
 )
 
 # عنوان
+ st.set_page_config(layout="wide")
 st.title("🔍 Stable Pools Market Maker Radar")
 
 # فیلترها (بالاتر از نمودارها)
