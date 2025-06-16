@@ -251,22 +251,54 @@ trade_size_order = [
     "≤10k", "10k–50k", "50k–100k", "100k–200k", "200k–300k", "300k–400k",
     "400k–500k", "500k–750k", "750k–1M", ">1M"
 ]
+
+
+# Select bin to evaluate slope from
+threshold_bin = st.selectbox("📊 Show me pools with steep slope beyond:", trade_size_order, index=2)
+
+# Convert bin label to index
+threshold_index = trade_size_order.index(threshold_bin)
+
+# Group and calculate slope per pool after threshold
+def compute_slopes(df, threshold_idx):
+    result = []
+    for pool, group in df.groupby("pool"):
+        group = group.copy()
+        group["x_idx"] = group["trade_size_bin"].apply(lambda x: trade_size_order.index(x))
+        group = group.sort_values("x_idx")
+        post_threshold = group[group["x_idx"] >= threshold_idx]
+        if len(post_threshold) >= 2:
+            x = post_threshold["x_idx"]
+            y = post_threshold["Spread"]
+            slope = (y.iloc[-1] - y.iloc[0]) / (x.iloc[-1] - x.iloc[0])
+            if slope > 0.01:  # ← you can tune this slope threshold
+                result.append(pool)
+    return result
+
+steep_pools = compute_slopes(filtered_data, threshold_index)
+
+# Filter data based on steep pools
+filtered_chart_data = filtered_data[filtered_data["pool"].isin(steep_pools)]
+
+# Layout
 col_text1 , col_chart1 = st.columns([1, 1])
 
 with col_chart1:
-    line_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
-        x=alt.X("trade_size_bin", title="Trade Size (binned)",axis=alt.Axis(labelAngle=30, labelOverlap=False) ,sort=trade_size_order),
+    chart = alt.Chart(filtered_chart_data).mark_line(point=True).encode(
+        x=alt.X("trade_size_bin", title="Trade Size (binned)", axis=alt.Axis(labelAngle=30), sort=trade_size_order),
         y=alt.Y("Spread", title="Spread (%)"),
         color="pool"
     ).properties(height=400)
 
-    st.altair_chart(line_chart, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True)
 
 with col_text1:
     st.markdown("### What to look for?")
-    st.markdown("""
+    st.markdown(f"""
     - **Goal**: Assess how trade size affects slippage.
-    - **Look for**: Steep slopes, which indicate pools with shallow depth.
+    - **Look for**: Pools with **steep spread increase** after `{threshold_bin}`.
+    - 🔍 These pools show **critical price slippage after {threshold_bin} trades**.  
+      If you can provide depth, you’ll dominate pricing.
     """)
 
 
