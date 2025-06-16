@@ -34,20 +34,7 @@ def custom_metric(title, value, subtext=None, color="green"):
 
 # __________________ Key KPIs ______________________________________________________________________
 
-st.markdown("""
-<div style="
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 14px 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-">
-    <p style="color: #333; font-size: 14px;">
-    👀 Let’s take a quick glance at what stood out over the past 7 days —
-    top pools, wild spreads, and where the action’s been.
-    </p>
-""", unsafe_allow_html=True)
+st.markdown("##### 👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
 
 
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
