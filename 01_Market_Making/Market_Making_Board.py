@@ -103,6 +103,8 @@ st.markdown("---")
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
 
 st.markdown("#### 💡 Opportunity Scanner")
+st.markdown(" 🧭 Find pools where the big guys are missing, low competition, juicy spreads, and solid trade volume.")
+
 
 df = data.copy()
 
