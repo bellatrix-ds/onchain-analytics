@@ -414,7 +414,7 @@ with col_left:
     st.markdown(f"""
     This scoring system evaluates how suitable a pool is for **market making** based on the selected strategy preset:
     
-    -- **Selected Profile:** `{preset}`
+
     
     **Metrics considered:**
     - ✅ High volume, trade size, swap activity
