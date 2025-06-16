@@ -22,12 +22,12 @@ st.title("🔍 Stable Pools Market Maker Radar")
 
 def custom_metric(title, value, subtext=None, color="green"):
     html = f"""
-        <div style='text-align: center; padding: 6px'>
-            <div style='font-size:13px; color: gray'>{title}</div>
-            <div style='font-size:18px; font-weight:600'>{value}</div>
+        <div style='text-align: center; padding: 8px'>
+            <div style='font-size:15px; color: gray'>{title}</div>
+            <div style='font-size:20px; font-weight:600'>{value}</div>
     """
     if subtext:
-        html += f"<div style='font-size:13px; color:{color}'>↑ {subtext}</div>"
+        html += f"<div style='font-size:15px; color:{color}'>↑ {subtext}</div>"
     html += "</div>"
     st.markdown(html, unsafe_allow_html=True)
 
