@@ -196,22 +196,19 @@ with col2:
         st.markdown("---")  # separator between entries
 
 
-for insight in insights:
-    st.markdown(f"""
-    <div style="
-        background-color: #f8f9fa;
-        border-left: 5px solid #198754;
-        border-radius: 8px;
-        padding: 12px 18px;
-        margin-bottom: 12px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    ">
-        <p style="margin:0; font-size: 15px; line-height: 1.5;">
-            {insight}
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+import altair as alt
 
+for pool_name in top_spikes["pool"].unique():
+    subset = df_sorted[df_sorted["pool"] == pool_name]
+    chart = alt.Chart(subset).mark_line().encode(
+        x="date:T",
+        y="volume:Q"
+    ).properties(
+        title=pool_name,
+        height=100,
+        width=250
+    )
+    st.altair_chart(chart, use_container_width=False)
 
 st.markdown(" ")
 st.markdown("---")
