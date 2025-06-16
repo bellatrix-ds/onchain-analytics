@@ -38,18 +38,16 @@ st.markdown("""
 <div style="
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 10px;
-    padding: 20px 25px;
-    margin-bottom: 25px;
+    border-radius: 8px;
+    padding: 14px 12px;
+    margin-bottom: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 ">
-    <h3 style="margin-top: 0;">📊 Key Market-Making Insights (last 7 days)</h3>
-    <p style="color: #333; font-size: 16px;">
+    <p style="color: #333; font-size: 8px;">
     👀 Let’s take a quick glance at what stood out over the past 7 days —
     top pools, wild spreads, and where the action’s been.
     </p>
 
-    <!-- You can now place metric cards or columns below -->
 </div>
 """, unsafe_allow_html=True)
 
