@@ -285,7 +285,7 @@ st.markdown(" ")
 st.markdown(" ")
 
 
-st.markdown("##### 🌀 3.1: Swap & Size Market Share")
+st.markdown("##### 🌀 3.1: Pool Share by Activity & Volume")
 
 grouped = filtered_data.groupby("pool").agg({
     "swap_count": "sum",
