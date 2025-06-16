@@ -163,6 +163,8 @@ with col_right:
 
 
 st.markdown(" ")
+st.markdown(" ")
+
 
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
 
@@ -202,7 +204,7 @@ display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("#### 💡 2.1: Low-Competition Pools")
+    st.markdown("##### 💡 2.1: Low-Competition Pools")
     st.markdown("""
 These are the **Top 5 Pools** where:
 
