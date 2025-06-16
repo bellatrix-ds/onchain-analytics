@@ -147,7 +147,7 @@ for _, row in top_spikes.iterrows():
 
 spike_table_df = pd.DataFrame(table_rows)
 
-col_left, col_right = st.columns([1, 1])
+
 
 col_left, col_right = st.columns([1, 1])
 
@@ -163,6 +163,9 @@ with col_left:
 with col_right:
     st.markdown("#### 📋 Spike Summary Table")
     st.dataframe(spike_display, use_container_width=True)
+
+
+
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
 
 df = data.copy()
