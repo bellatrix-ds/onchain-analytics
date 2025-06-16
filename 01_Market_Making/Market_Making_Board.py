@@ -66,13 +66,19 @@ def custom_metric(title, value, subtext, color="green"):
         </div>
     """, unsafe_allow_html=True)
 
+
 col1, col2, col3, col4, col5 = st.columns(5)
 
-custom_metric("🏆 Top Pool by MM Score", "DAI-USDC", "Score: 0.938")
-custom_metric("💸 Highest Volume Pool", "USDC-USDT", "$388,382,574")
-custom_metric("⚠️ Most Volatile Pool", "ANGLE-EURA", "Spread Std: 263.1414")
-custom_metric("🚨 Risky Pool", "FRAX-USDC", "")
-custom_metric("📉 Most Efficient DEX", "pancakeswap", "Median Spread: 2.2400%")
+with col1:
+    custom_metric("🏆 Top Pool by MM Score", "DAI-USDC", "Score: 0.938")
+with col2:
+    custom_metric("💸 Highest Volume Pool", "USDC-USDT", "$388,382,574")
+with col3:
+    custom_metric("⚠️ Most Volatile Pool", "ANGLE-EURA", "Spread Std: 263.1414")
+with col4:
+    custom_metric("🚨 Risky Pool", "FRAX-USDC", "")
+with col5:
+    custom_metric("📉 Most Efficient DEX", "pancakeswap", "Median Spread: 2.2400%")
 
 st.markdown("---")
 
