@@ -286,8 +286,6 @@ st.markdown(" ")
 
 st.markdown("##### 📈 3.1: Spread vs. Trade Size")
 
-st.subheader("")
-
 filtered_data['Spread'] = filtered_data['Spread'] / 100
 
 trade_size_order = [
@@ -327,7 +325,7 @@ def compute_slopes(filtered_data, allowed_bins):
                 result.append(pool)
     return result
 
-steep_pools = compute_slopes(filtered_data, selected_threshold)
+steep_pools = compute_slopes(filtered_data, min_trade_size)
 filtered_chart_data = filtered_data[filtered_data["pool"].isin(steep_pools)]
 
 with col_chart1:
