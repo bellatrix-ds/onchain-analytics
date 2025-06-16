@@ -43,7 +43,7 @@ st.markdown("""
     margin-bottom: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 ">
-    <p style="color: #333; font-size: 8px;">
+    <p style="color: #333; font-size: 14px;">
     👀 Let’s take a quick glance at what stood out over the past 7 days —
     top pools, wild spreads, and where the action’s been.
     </p>
