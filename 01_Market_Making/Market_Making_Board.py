@@ -216,6 +216,7 @@ Perfect opportunities for early MM entry before competition intensifies.
 """)
 
 with col2:
+    st.markdown(" ")
     st.dataframe(
         display_df.style.format({
             "APR (%)": "{:.2f}",
