@@ -101,7 +101,6 @@ st.markdown(" ")
 st.markdown(" ")
 st.markdown("---")
 st.markdown(" ")
-st.markdown(" ")
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
 
@@ -227,6 +226,11 @@ with col2:
         }),
         use_container_width=True
     )
+
+
+st.markdown(" ")
+st.markdown("---")
+st.markdown(" ")
 
 # __________________ Build Filters ______________________________________________________________________
 
