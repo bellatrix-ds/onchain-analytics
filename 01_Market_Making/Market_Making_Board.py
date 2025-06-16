@@ -143,6 +143,8 @@ spike_summary_df["Spread"] = spike_summary_df["Spread"].apply(lambda x: f"{x*100
 spike_summary_df["🔥 Note"] = "Pool just woke up"
 display_table = spike_summary_df[["Date", "pool", "Volume", "% Change", "Spread", "🔥 Note"]]
 
+st.markdown(" ")
+
 # --- Streamlit layout ---
 col_left, col_right = st.columns([1, 1])
 
@@ -157,7 +159,6 @@ with col_left:
 
 # --- Right column: summary table ---
 with col_right:
-    st.markdown("##### 📋 Spike Summary Table")
     st.dataframe(display_table, use_container_width=True)
 
 
