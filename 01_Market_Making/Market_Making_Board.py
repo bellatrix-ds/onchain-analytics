@@ -108,10 +108,8 @@ st.markdown("  🧭 Find pools where the big guys are missing, low competition, 
 
 # __________________ 2.1: ⚡ Recent Spike Alerts______________________________________________________________________
 
-import streamlit as st
-import pandas as pd
+df = data.copy()
 
-# فرض بر این است که df از قبل بارگذاری و پردازش شده باشد
 df['date'] = pd.to_datetime(df['date'])
 df_sorted = df.sort_values(by=['pool', 'date'])
 df_sorted['volume_2d_change'] = df_sorted.groupby('pool')['volume'].pct_change(periods=2)
