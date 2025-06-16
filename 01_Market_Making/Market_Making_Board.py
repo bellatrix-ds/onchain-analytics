@@ -280,9 +280,13 @@ if min_trade_size != "All":
 
 
 
-# __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
+# __________________ Part 3.1: Trade Size vs. Slippage ______________________________________________________________________
 
-st.subheader("📈 Spread vs. Trade Size")
+st.markdown(" ")
+
+st.markdown("##### 📈 3.1: Spread vs. Trade Size")
+
+st.subheader("")
 
 filtered_data['Spread'] = filtered_data['Spread'] / 100
 
@@ -296,14 +300,6 @@ trade_size_options = ["All"] + trade_size_order
 col_text1, col_chart1 = st.columns([1, 1])
 
 with col_text1:
-    selected_threshold = st.selectbox(
-        "📊 Filter: Show pools with steep slope beyond:",
-        trade_size_options,
-        index=0,  # default to "All"
-        label_visibility="visible"
-    )
-
-    st.markdown("### What to look for?")
     st.markdown(f"""
     - 🔍 Here, we want to understand how the spread percentage changes in a pool relative to the trade size.
     - **Use case**: We want to know what trade size we can enter with, in order to avoid slippage risk while still capturing a good profit opportunity.
