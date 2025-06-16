@@ -415,7 +415,7 @@ with col_text2:
     st.markdown("### What to look for?")
     st.markdown("""
     - **Goal**: Spot liquidity weakness by order size and pool.
-    - **Look for**: Brighter red blocks—higher slippage means riskier for MM.
+    - **Look for**: Brighter red blocks >> higher slippage means riskier for MM.
     """)
 
 st.markdown("---")
