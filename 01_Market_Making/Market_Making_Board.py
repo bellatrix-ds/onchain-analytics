@@ -266,7 +266,8 @@ with col_text1:
 
     st.markdown("### What to look for?")
     st.markdown(f"""
-    - **Goal**: Assess how trade size affects slippage.
+    - Here, we want to understand how the spread percentage changes in a pool relative to the trade size.
+    - **Use case**: We want to know what trade size we can enter with, in order to avoid slippage risk while still capturing a good profit opportunity.
     - **Look for**: Pools with **steep spread increase** {f"after `{selected_threshold}`" if selected_threshold != "All" else "at any trade size"}.
     - 🔍 These pools show **critical price slippage {f"after {selected_threshold} trades" if selected_threshold != "All" else "across ranges"}**.  
       If you can provide depth, you’ll dominate pricing.
