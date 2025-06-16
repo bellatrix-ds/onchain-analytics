@@ -427,7 +427,7 @@ with col_right:
     st.markdown("#### 🏆 Top 20 Pools")
     st.dataframe(pool_stats_normalized.sort_values("mm_score", ascending=False)[
         ["blockchain", "dex", "pool", "mm_score"]
-    ].head(20), use_container_width=True)
+    ].head(20).reset_index(drop=True), use_container_width=True)
 
 # __________________ Part4: Boxplot ______________________________________________________________________
 
