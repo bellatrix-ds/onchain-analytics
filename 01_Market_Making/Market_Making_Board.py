@@ -102,47 +102,67 @@ st.markdown("---")
 st.markdown(" ")
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
+
 st.markdown("#### 💡 Part 2: Opportunity Scanner")
 st.markdown("  🧭 Find pools where the big guys are missing, low competition, juicy spreads, and solid trade volume.")
 
 # __________________ 2.1: ⚡ Recent Spike Alerts______________________________________________________________________
 
+import streamlit as st
+import pandas as pd
+
+# فرض بر این است که df از قبل بارگذاری و پردازش شده باشد
+df['date'] = pd.to_datetime(df['date'])
+df_sorted = df.sort_values(by=['pool', 'date'])
+df_sorted['volume_2d_change'] = df_sorted.groupby('pool')['volume'].pct_change(periods=2)
+
+spike_df = df_sorted[
+    (df_sorted['volume_2d_change'] > 3.0) &  # +300% change
+    (df_sorted['Spread'] < 0.01)
+].copy()
+
+top_spikes = spike_df.sort_values(by='volume_2d_change', ascending=False).head(3)
+
+# تولید متن هشدار برای ستون چپ
+spike_texts = []
+table_rows = []
+
+for _, row in top_spikes.iterrows():
+    pool = row['pool']
+    date_str = row['date'].strftime("%B %d")
+    volume = f"${row['volume'] / 1_000_000:.1f}M"
+    change_pct = f"+{int(row['volume_2d_change'] * 100):,}%"
+    spread_pct = f"{row['Spread']*100:.2f}%"
+
+    spike_texts.append(
+        f"📉 On **{date_str}**, **{pool}** traded at **{volume}** — a **{change_pct} jump**. "
+        f"Spread was still **{spread_pct}**. This pool just woke up."
+    )
+
+    table_rows.append({
+        "Date": date_str,
+        "Pool": pool,
+        "Volume": volume,
+        "% Change": change_pct,
+        "Spread": spread_pct,
+        "🔥 Note": "Pool just woke up"
+    })
+
+# ساخت DataFrame برای جدول سمت راست
+spike_table_df = pd.DataFrame(table_rows)
+
+# نمایش در دو ستون
 col_left, col_right = st.columns([1, 1])
 
-# --- Left Column: Text Insights ---
 with col_left:
-    st.markdown("#### ⚡ Recent Spike Alerts")
-    
-    for _, row in top_spikes.iterrows():
-        date_str = row['date'].strftime("%B %d")
-        pool = row['pool']
-        volume = f"${row['volume'] / 1_000_000:.1f}M"
-        change_pct = f"{int(row['volume_2d_change'] * 100):,}%"
-        spread_pct = f"{row['Spread']*100:.2f}%"
-        
-        st.markdown(f"""
-        📈 On **{date_str}**, **{pool}** traded at **{volume}** — a **{change_pct} jump**.  
-        Spread was still **{spread_pct}**. This pool just woke up.
-        """)
+    st.markdown("### ⚡ Recent Spike Alerts")
+    for t in spike_texts:
+        st.markdown(t)
         st.markdown("---")
 
-# --- Right Column: Table View ---
 with col_right:
-    # Format table
-    top_3 = top_spikes[["date", "pool", "volume", "volume_2d_change", "Spread"]].copy()
-    top_3["Date"] = top_3["date"].dt.strftime("%B %d")
-    top_3["Volume"] = top_3["volume"].apply(lambda x: f"${x/1_000_000:.1f}M")
-    top_3["% Change"] = top_3["volume_2d_change"].apply(lambda x: f"+{int(x*100):,}%")
-    top_3["Spread"] = top_3["Spread"].apply(lambda x: f"{x*100:.2f}%")
-    top_3["🔥 Note"] = "Pool just woke up"
-
-    # Select display columns
-    display_table = top_3[["Date", "pool", "Volume", "% Change", "Spread", "🔥 Note"]]
-
-    st.markdown("#### 📊 Volume Spike Table")
-    st.dataframe(display_table, use_container_width=True)
-
-
+    st.markdown("### 📋 Spike Summary Table")
+    st.table(spike_table_df)
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
 
 df = data.copy()
