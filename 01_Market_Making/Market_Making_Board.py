@@ -20,18 +20,27 @@ data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analy
 st.set_page_config(layout="wide")
 st.title("🔍 Stable Pools Market Maker Radar")
 
+def custom_metric(title, value, subtext=None, color="green"):
+    html = f"""
+        <div style='text-align: center; padding: 6px'>
+            <div style='font-size:13px; color: gray'>{title}</div>
+            <div style='font-size:18px; font-weight:600'>{value}</div>
+    """
+    if subtext:
+        html += f"<div style='font-size:13px; color:{color}'>↑ {subtext}</div>"
+    html += "</div>"
+    st.markdown(html, unsafe_allow_html=True)
+
 
 # __________________ Key KPIs ______________________________________________________________________
-
-st.markdown("---")
-
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
-# Filter time windows
+
+# Define rolling time windows
 latest_7d = data[data["date"] >= data["date"].max() - pd.Timedelta(days=7)]
 latest_3d = data[data["date"] >= data["date"].max() - pd.Timedelta(days=3)]
 latest_14d = data[data["date"] >= data["date"].max() - pd.Timedelta(days=14)]
 
-# Compute MM Score
+# Top MM score pool
 latest_7d["mm_score"] = (
     latest_7d["volume"].rank(pct=True) * 0.3 +
     latest_7d["swap_count"].rank(pct=True) * 0.2 +
@@ -39,46 +48,52 @@ latest_7d["mm_score"] = (
     (1 - latest_7d["Spread"].rank(pct=True)) * 0.3
 )
 top_mm_row = latest_7d.loc[latest_7d["mm_score"].idxmax()]
+top_pool_name = top_mm_row["pool"]
+top_pool_score = f"Score: {top_mm_row['mm_score']:.3f}"
 
-# Highest volume
+# Highest volume pool
 top_volume_row = latest_7d.loc[latest_7d["volume"].idxmax()]
+top_volume_pool = top_volume_row["pool"]
+top_volume_val = f"${top_volume_row['volume']:,.0f}"
 
-# Spread Volatility
+# Most volatile pool
 spread_vol = latest_3d.groupby("pool")["Spread"].std()
-most_volatile_pool = spread_vol.idxmax()
-most_volatile_value = spread_vol.max()
+if not spread_vol.empty:
+    most_volatile_pool = spread_vol.idxmax()
+    most_volatile_val = f"Spread Std: {spread_vol.max():.4f}"
+else:
+    most_volatile_pool, most_volatile_val = "N/A", None
 
-# Risky Pool (Spread > 5%)
-risky_pool = latest_7d[latest_7d["Spread"] > 0.05]["pool"].value_counts().idxmax()
+# Risky pool with most occurrences of Spread > 5%
+risky_pool_series = latest_7d[latest_7d["Spread"] > 0.05]["pool"]
+if not risky_pool_series.empty:
+    risky_pool_name = risky_pool_series.value_counts().idxmax()
+    risky_pool_val = f"Spread > 5% x {risky_pool_series.value_counts().max()}"
+else:
+    risky_pool_name, risky_pool_val = "N/A", None
 
-# Most Efficient DEX (Lowest Median Spread)
-dex_spread_score = latest_14d.groupby("dex")["Spread"].median()
-top_dex = dex_spread_score.idxmin()
-top_dex_value = dex_spread_score.min()
+# Most efficient DEX (lowest median spread)
+dex_median_spread = latest_14d.groupby("dex")["Spread"].median()
+if not dex_median_spread.empty:
+    best_dex = dex_median_spread.idxmin()
+    best_dex_val = f"Median Spread: {dex_median_spread.min():.4%}"
+else:
+    best_dex, best_dex_val = "N/A", None
 
-# Display
-def custom_metric(title, value, subtext, color="green"):
-    st.markdown(f"""
-        <div style='text-align: center; padding: 10px'>
-            <div style='font-size:14px; color: gray'>{title}</div>
-            <div style='font-size:20px; font-weight:600'>{value}</div>
-            <div style='font-size:14px; color:{color}'>↑ {subtext}</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-
+# Final display
+st.markdown("## 📊 Key Market-Making Insights (last 7 days)")
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
-    custom_metric("🏆 Top Pool by MM Score", "DAI-USDC", "Score: 0.938")
+    custom_metric("🏆 Top Pool by MM Score", top_pool_name, top_pool_score)
 with col2:
-    custom_metric("💸 Highest Volume Pool", "USDC-USDT", "$388,382,574")
+    custom_metric("💸 Highest Volume Pool", top_volume_pool, top_volume_val)
 with col3:
-    custom_metric("⚠️ Most Volatile Pool", "ANGLE-EURA", "Spread Std: 263.1414")
+    custom_metric("⚠️ Most Volatile Pool", most_volatile_pool, most_volatile_val)
 with col4:
-    custom_metric("🚨 Risky Pool", "FRAX-USDC", "")
+    custom_metric("🚨 Risky Pool", risky_pool_name, risky_pool_val)
 with col5:
-    custom_metric("📉 Most Efficient DEX", "pancakeswap", "Median Spread: 2.2400%")
+    custom_metric("📉 Most Efficient DEX", best_dex, best_dex_val)
 
 st.markdown("---")
 
