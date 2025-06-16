@@ -34,7 +34,24 @@ def custom_metric(title, value, subtext=None, color="green"):
 
 # __________________ Key KPIs ______________________________________________________________________
 
-st.markdown("##### 👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
+st.markdown("""
+<div style="
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+">
+    <h3 style="margin-top: 0;">📊 Key Market-Making Insights (last 7 days)</h3>
+    <p style="color: #333; font-size: 16px;">
+    👀 Let’s take a quick glance at what stood out over the past 7 days —
+    top pools, wild spreads, and where the action’s been.
+    </p>
+
+    <!-- You can now place metric cards or columns below -->
+</div>
+""", unsafe_allow_html=True)
 
 
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
