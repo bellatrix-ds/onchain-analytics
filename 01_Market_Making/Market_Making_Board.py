@@ -336,6 +336,101 @@ with col_text2:
     """)
 
 st.markdown("---")
+
+# __________________ Part4: Scoring System ______________________________________________________________________
+
+import streamlit as st
+from sklearn.preprocessing import MinMaxScaler
+import pandas as pd
+
+st.subheader("🧠 Pool Scoring System")
+st.markdown("### 🎯 Choose a Scoring Profile")
+
+# Preset selector
+preset = st.selectbox("Select your market making strategy profile:", [
+    "🐢 Low-risk, deep pool hunter",
+    "⚡ High-APR sniper",
+    "🎯 Balance seeker (PnL max)"
+])
+
+# Set weights based on preset
+if preset == "🐢 Low-risk, deep pool hunter":
+    volume_w = 0.15
+    swap_w = 0.10
+    order_size_w = 0.15
+    trade_size_w = 0.20
+    spread_mean_w = 0.25
+    spread_std_w = 0.15
+elif preset == "⚡ High-APR sniper":
+    volume_w = 0.30
+    swap_w = 0.25
+    order_size_w = 0.10
+    trade_size_w = 0.15
+    spread_mean_w = 0.10
+    spread_std_w = 0.10
+else:  # 🎯 Balance seeker (PnL max)
+    volume_w = 0.25
+    swap_w = 0.20
+    order_size_w = 0.10
+    trade_size_w = 0.15
+    spread_mean_w = 0.20
+    spread_std_w = 0.10
+
+# Normalize total weight
+total_weight = volume_w + swap_w + order_size_w + spread_mean_w + spread_std_w + trade_size_w
+
+# --- Score Calculation ---
+pool_stats = data.groupby(["blockchain", "dex", "pool"]).agg({
+    "volume": "mean",
+    "swap_count": "mean",
+    "order_size": "mean",
+    "Spread": ["mean", "std"],
+    "Trade_size": "mean"
+})
+pool_stats.columns = ['volume_mean', 'swap_count_mean', 'order_size_mean', 'spread_mean', 'spread_std', 'trade_size_mean']
+pool_stats = pool_stats.reset_index()
+
+# Normalize metrics
+scaler = MinMaxScaler()
+metrics = ['volume_mean', 'swap_count_mean', 'order_size_mean', 'spread_mean', 'spread_std', 'trade_size_mean']
+pool_stats_normalized = pool_stats.copy()
+pool_stats_normalized[metrics] = scaler.fit_transform(pool_stats[metrics])
+
+# MM Score formula
+pool_stats_normalized["mm_score"] = (
+    (pool_stats_normalized["volume_mean"] * volume_w) +
+    (pool_stats_normalized["swap_count_mean"] * swap_w) +
+    (pool_stats_normalized["order_size_mean"] * order_size_w) +
+    ((1 - pool_stats_normalized["spread_mean"]) * spread_mean_w) +
+    ((1 - pool_stats_normalized["spread_std"]) * spread_std_w) +
+    (pool_stats_normalized["trade_size_mean"] * trade_size_w)
+) / total_weight
+
+# --- Display Layout ---
+st.markdown("### 🔍 Results & Interpretation")
+col_left, col_right = st.columns([1, 1])
+
+with col_left:
+    st.markdown("#### ℹ️ How This Scoring Works")
+    st.markdown(f"""
+    This scoring system evaluates how suitable a pool is for **market making** based on the selected strategy preset:
+    
+    **Selected Profile:** `{preset}`
+    
+    **Metrics considered:**
+    - ✅ High volume, trade size, swap activity
+    - ⚠️ Low average spread and spread volatility
+
+    The higher the score, the more promising the pool is for stable MM profits.
+    """)
+
+with col_right:
+    st.markdown("#### 🏆 Top 20 Pools")
+    st.dataframe(pool_stats_normalized.sort_values("mm_score", ascending=False)[
+        ["blockchain", "dex", "pool", "mm_score"]
+    ].head(20), use_container_width=True)
+
+
 # __________________ Part4: Boxplot ______________________________________________________________________
 
 st.subheader("📊 Spread Distribution by DEX")
