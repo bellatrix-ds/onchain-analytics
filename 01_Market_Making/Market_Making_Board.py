@@ -23,6 +23,7 @@ st.title("🔍 Stable Pools Market Maker Radar")
 
 # __________________ Key KPIs ______________________________________________________________________
 
+st.markdown("---")
 
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
 # Filter time windows
@@ -56,14 +57,25 @@ top_dex = dex_spread_score.idxmin()
 top_dex_value = dex_spread_score.min()
 
 # Display
-st.markdown("## 📊 Key Market-Making Insights (last 7 days)")
-k1, k2, k3, k4, k5 = st.columns(5)
+def custom_metric(title, value, subtext, color="green"):
+    st.markdown(f"""
+        <div style='text-align: center; padding: 10px'>
+            <div style='font-size:14px; color: gray'>{title}</div>
+            <div style='font-size:20px; font-weight:600'>{value}</div>
+            <div style='font-size:14px; color:{color}'>↑ {subtext}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-k1.metric("🏆 Top Pool by MM Score", top_mm_row["pool"], f"Score: {top_mm_row['mm_score']:.3f}")
-k2.metric("💸 Highest Volume Pool", top_volume_row["pool"], f"${top_volume_row['volume']:,.0f}")
-k3.metric("⚠️ Most Volatile Pool", most_volatile_pool, f"Spread Std: {most_volatile_value:.4f}")
-k4.metric("🚨 Risky Pool (Spread > 5%)", risky_pool, "")
-k5.metric("📉 Most Efficient DEX", top_dex, f"Median Spread: {top_dex_value:.4%}")
+col1, col2, col3, col4, col5 = st.columns(5)
+
+custom_metric("🏆 Top Pool by MM Score", "DAI-USDC", "Score: 0.938")
+custom_metric("💸 Highest Volume Pool", "USDC-USDT", "$388,382,574")
+custom_metric("⚠️ Most Volatile Pool", "ANGLE-EURA", "Spread Std: 263.1414")
+custom_metric("🚨 Risky Pool", "FRAX-USDC", "")
+custom_metric("📉 Most Efficient DEX", "pancakeswap", "Median Spread: 2.2400%")
+
+st.markdown("---")
+
 # __________________ Filters ______________________________________________________________________
 
 trade_size_order = [
