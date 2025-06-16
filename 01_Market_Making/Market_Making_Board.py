@@ -101,7 +101,6 @@ st.markdown("---")
 st.markdown("## 🔍 Low-Competition Opportunities")
 df = data.copy()
 
-Low Competition
 df["liquidity_est"] = df["order_size"] * 2
 df["estimated_fee"] = df["volume"] * df["Spread"]
 df["APR"] = (df["estimated_fee"] / df["liquidity_est"]) * 365
