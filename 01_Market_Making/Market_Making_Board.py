@@ -164,6 +164,8 @@ with col_right:
 
 st.markdown(" ")
 st.markdown(" ")
+st.markdown(" ")
+st.markdown(" ")
 
 
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
