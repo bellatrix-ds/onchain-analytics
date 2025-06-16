@@ -152,7 +152,7 @@ with col_left:
     st.markdown("##### ⚡ 2.1: Recent Spike Alerts")
     for _, row in spike_summary_df.iterrows():
         st.markdown(
-            f"📉 **{row['Date']}** — `{row['pool']}` traded at **{row['Volume']}** with a "
+            f"📉 **{row['Date']}** : `{row['pool']}` traded at **{row['Volume']}** with a "
             f"**{row['% Change']} jump** (spread: **{row['Spread']}**) 🔥"
         )
 
