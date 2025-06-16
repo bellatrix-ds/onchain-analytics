@@ -105,7 +105,7 @@ st.markdown(" ")
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
 
-st.markdown("#### 💡 Part 2: Opportunity Scanner")
+st.markdown("### 💡 Part 2: Opportunity Scanner")
 st.markdown("  🧭 Find pools where the big guys are missing, low competition, juicy spreads, and solid trade volume.")
 
 # __________________ 2.1: ⚡ Recent Spike Alerts______________________________________________________________________
@@ -119,15 +119,15 @@ df_sorted['volume_2d_change'] = df_sorted.groupby('pool')['volume'].pct_change(p
 
 # --- Filter for spike conditions ---
 spike_df = df_sorted[
-    (df_sorted['volume_2d_change'] > 3.0) &  # بیش از ۳۰۰٪ افزایش
-    (df_sorted['Spread'] < 0.01)            # اسپرد کمتر از ۱٪
+    (df_sorted['volume_2d_change'] > 3.0) & 
+    (df_sorted['Spread'] < 0.01)            
 ].copy()
 
 # --- Pick top 6 spikes from different pools ---
 unique_pools = []
 final_spikes = []
 
-for _, row in spike_df.sort_values(by='volume_2d_change', ascending=False).iterrows():
+for _, row in spike_df.sort_values(by='volume_2d_change', ascending=False).reset_index().iterrows():
     if row['pool'] not in unique_pools:
         final_spikes.append(row)
         unique_pools.append(row['pool'])
@@ -148,7 +148,7 @@ col_left, col_right = st.columns([1, 1])
 
 # --- Left column: compact insights ---
 with col_left:
-    st.markdown("#### ⚡ Recent Spike Alerts")
+    st.markdown("##### ⚡ 2.1: Recent Spike Alerts")
     for _, row in spike_summary_df.iterrows():
         st.markdown(
             f"📉 **{row['Date']}** — `{row['pool']}` traded at **{row['Volume']}** with a "
@@ -157,9 +157,11 @@ with col_left:
 
 # --- Right column: summary table ---
 with col_right:
-    st.markdown("#### 📋 Spike Summary Table")
+    st.markdown("##### 📋 Spike Summary Table")
     st.dataframe(display_table, use_container_width=True)
 
+
+st.markdown(" ")
 
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
 
