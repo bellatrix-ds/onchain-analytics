@@ -81,7 +81,7 @@ else:
     best_dex, best_dex_val = "N/A", None
 
 # Final display
-st.markdown("## 📊 Key Market-Making Insights (last 7 days)")
+st.markdown("### 📊 Key Market-Making Insights (last 7 days)")
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
