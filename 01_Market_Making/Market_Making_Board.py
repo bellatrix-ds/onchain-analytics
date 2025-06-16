@@ -285,7 +285,7 @@ st.markdown(" ")
 st.markdown(" ")
 
 
-st.markdown("##### 📈 3.1: Pie chart + Pool Count")
+st.markdown("##### 🌀 3.1: Swap & Size Market Share")
 
 grouped = filtered_data.groupby("pool").agg({
     "swap_count": "sum",
@@ -322,7 +322,7 @@ with col2:
 
 
 
-st.markdown("---")
+st.markdown("")
 
 
 # __________________ Part 3.2: Trade Size vs. Slippage ______________________________________________________________________
@@ -390,15 +390,9 @@ st.markdown("---")
 st.markdown(" ")
 
 
+# __________________ Part3.3: Heatmap ______________________________________________________________________
 
-
-
-
-
-
-# __________________ Part3: Heatmap ______________________________________________________________________
-
-st.subheader("🔥 Slippage Heatmap (Pool vs Order Size)")
+st.markdown("##### 📈 3.3: 🔥 Slippage Heatmap (Pool vs Order Size)")
 
 order_size_order = [
     "≤1k", "1k–5k", "5k–10k", "10k–25k", "25k–50k",
