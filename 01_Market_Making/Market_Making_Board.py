@@ -239,13 +239,16 @@ st.markdown("  📍 Big picture time. Want to zoom into a chain, DEX, or pool? G
 
 # __________________ Build Filters ______________________________________________________________________
 
+st.markdown(" ")
+
+
 trade_size_order = [
     "All", "≤10k", "10k–50k", "50k–100k", "100k–200k",
     "200k–300k", "300k–400k", "400k–500k",
     "500k–750k", "750k–1M", ">1M"
 ]
 
-col1, col2, col3, col4, col5 = st.columns(5)
+col1, col2, col3, col4 = st.columns(4)
 selected_chain = col1.selectbox("Select Blockchain", ["All"] + sorted(data["blockchain"].unique().tolist()))
 selected_dex = col2.selectbox("Select DEX", ["All"] + sorted(data["dex"].unique().tolist()))
 
@@ -256,7 +259,6 @@ else:
 
 selected_pool = col3.selectbox("Select Pool", ["All"] + sorted(filtered_pool_options))
 min_trade_size = col4.selectbox("Minimum Trade Size ($)", options=trade_size_order, index=0)
-min_spread = col5.number_input("Minimum Spread (%)", value=0)
 
 filtered_data = data.copy()
 if selected_chain != "All":
@@ -277,7 +279,6 @@ if min_trade_size != "All":
 
 
 
-filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
 
 # __________________ Part2: Trade Size vs. Slippage ______________________________________________________________________
 
