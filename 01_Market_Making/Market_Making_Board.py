@@ -459,9 +459,9 @@ with col_text3:
 
 st.markdown("---")
 #----
-
+st.markdown("Contact me: bellabahramii@gmail.com")
 st.caption("Contact me: bellabahramii@gmail.com")
 st.caption("Youtube: https://www.youtube.com/@bella_trickss")
-st.caption("Github: github.com/bellatrix-ds")
+st.caption("Github: https://github.com/bellatrix-ds")
 
 
