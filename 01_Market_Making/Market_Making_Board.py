@@ -98,56 +98,69 @@ with col5:
 st.markdown("---")
 
 # __________________ Low-Competition Opportunities ______________________________________________________________________
+
 st.markdown("## 🔍 Low-Competition Opportunities")
 df = data.copy()
+grouped = df.groupby(["pool", "pool_id"]).agg({
+    "volume": "sum",
+    "Spread": "mean",
+    "order_size": "mean",
+    "swap_count": "mean",
+    "date": "count"
+}).rename(columns={"date": "num_days"})
 
-df["liquidity_est"] = df["order_size"] * 2
-df["estimated_fee"] = df["volume"] * df["Spread"]
-df["APR"] = (df["estimated_fee"] / df["liquidity_est"]) * 365
+# --- Compute liquidity estimate
+grouped["liquidity_est"] = grouped["order_size"] * 2
 
-# فیلتر استخرهای فرصت طلایی
-df["low_competition"] = (
-    (df["APR"] > 0.10) & 
-    (df["Spread"] > 0.02) & 
-    (df["swap_count"] < 100)
-)
+# --- Estimate total fee and APR
+grouped["estimated_fee_total"] = grouped["volume"] * grouped["Spread"]
+grouped["fee_per_day"] = grouped["estimated_fee_total"] / grouped["num_days"]
+grouped["APR"] = (grouped["fee_per_day"] / grouped["liquidity_est"]) * 365
 
-# انتخاب فقط ۵ استخر برتر با APR بالا
-top_opps = df[df["low_competition"]].sort_values(by="APR", ascending=False).head(5)
+# --- Reset index for display
+grouped = grouped.reset_index()
 
-# فرمت جدول
-top_opps_display = top_opps[["pool", "APR", "Spread", "swap_count", "volume"]].copy()
-top_opps_display.columns = ["Pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]
+# --- Format display columns
+grouped["APR (%)"] = (grouped["APR"] * 100).round(2)
+grouped["Spread (%)"] = (grouped["Spread"] * 100).round(2)
+grouped["Swap Count"] = grouped["swap_count"].round(0).astype(int)
+grouped["Volume ($)"] = (grouped["volume"] / 1_000_000).round(1).astype(str) + "M"
 
-top_opps_display["APR (%)"] = (top_opps_display["APR (%)"] * 100).round(2)
-top_opps_display["Spread (%)"] = (top_opps_display["Spread (%)"] * 100).round(2)
-top_opps_display["Volume ($)"] = top_opps_display["Volume ($)"] / 1_000_000
-top_opps_display["Volume ($)"] = top_opps_display["Volume ($)"].round(1).astype(str) + "M"
+# --- Apply Low-Competition Filter
+filtered = grouped[
+    (grouped["APR (%)"] > 10) &
+    (grouped["Spread (%)"] > 2) &
+    (grouped["Swap Count"] < 100)
+]
 
-# -------------------------------
-# نمایش دو ستونی
+top5 = filtered.sort_values("APR (%)", ascending=False).head(5)
+display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
+
+# --- Two-column layout
 col1, col2 = st.columns([1, 1])
 
 with col1:
     st.markdown("### 💡 Low-Competition Opportunities")
     st.markdown("""
-    These are the **top 5 pools** with:
-    - ✅ High APR (great fee generation)
-    - ❌ High spread (inefficient pricing)
-    - ❌ Low swap activity (weak competition)
+These are the **Top 5 Pools** where:
 
-    Ideal for **early market maker entry** before others react.
-    """)
+- ✅ APR is high → lots of fees to capture  
+- ❌ Spread is wide → inefficient pricing  
+- ❌ Swap activity is low → weak or no market makers  
+
+Perfect opportunities for early MM entry before competition intensifies.
+""")
 
 with col2:
     st.dataframe(
-        top_opps_display.style.format({
+        display_df.style.format({
             "APR (%)": "{:.2f}",
             "Spread (%)": "{:.2f}",
-            "Swap Count": "{:,.0f}",
+            "Swap Count": "{:,.0f}"
         }),
         use_container_width=True
     )
+
 
 st.markdown("---")
 
