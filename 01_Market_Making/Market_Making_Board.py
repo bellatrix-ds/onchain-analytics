@@ -121,7 +121,6 @@ spike_df = df_sorted[
 
 top_spikes = spike_df.sort_values(by='volume_2d_change', ascending=False).head(3)
 
-# تولید متن هشدار برای ستون چپ
 spike_texts = []
 table_rows = []
 
@@ -146,21 +145,24 @@ for _, row in top_spikes.iterrows():
         "🔥 Note": "Pool just woke up"
     })
 
-# ساخت DataFrame برای جدول سمت راست
 spike_table_df = pd.DataFrame(table_rows)
 
-# نمایش در دو ستون
 col_left, col_right = st.columns([1, 1])
 
-with col_left:
-    st.markdown("### ⚡ Recent Spike Alerts")
-    for t in spike_texts:
-        st.markdown(t)
-        st.markdown("---")
+col_left, col_right = st.columns([1, 1])
 
+# --- Left: Compact Text Insights (کم‌فاصله و مرتب) ---
+with col_left:
+    st.markdown("#### ⚡ Recent Spike Alerts")
+    for _, row in spike_summary_df.iterrows():
+        st.markdown(
+            f"📉 **{row['Date']}** — `{row['pool']}` traded at **{row['Volume']}** with a **{row['% Change']} jump** (spread: **{row['Spread']}**) 🔥"
+        )
+
+# --- Right: Expanded Table (6 items) ---
 with col_right:
-    st.markdown("### 📋 Spike Summary Table")
-    st.table(spike_table_df)
+    st.markdown("#### 📋 Spike Summary Table")
+    st.dataframe(spike_display, use_container_width=True)
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
 
 df = data.copy()
