@@ -99,7 +99,7 @@ with col5:
     custom_metric("📉 Most Efficient DEX", best_dex, best_dex_val)
 
 st.markdown("---")
-st.markdown()
+st.markdown(" ")
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
 
