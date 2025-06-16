@@ -429,6 +429,10 @@ with col_right:
         ["blockchain", "dex", "pool", "mm_score"]
     ].head(20).reset_index(drop=True), use_container_width=True)
 
+
+st.markdown("---")
+
+
 # __________________ Part4: Boxplot ______________________________________________________________________
 
 st.subheader("📊 Spread Distribution by DEX")
