@@ -104,23 +104,20 @@ df = data.copy()
 
 grouped = df.groupby(["pool", "pool_id"]).agg({
     "volume": "sum",
-    "Spread": "mean",          # normalized value (e.g., 0.025)
+    "Spread": "mean",          
     "order_size": "mean",
     "swap_count": "mean",
     "date": "count"
 }).rename(columns={"Spread": "Spread_raw", "date": "num_days"})
 
-# --- Compute estimated liquidity
 grouped["liquidity_est"] = grouped["order_size"] * 2
 
-# --- Estimate total fee and APR
 grouped["estimated_fee_total"] = grouped["volume"] * grouped["Spread_raw"]
 grouped["fee_per_day"] = grouped["estimated_fee_total"] / grouped["num_days"]
 grouped["APR"] = (grouped["fee_per_day"] / grouped["liquidity_est"]) * 365
 
-# --- Format for display
 grouped = grouped.reset_index()
-grouped["APR (%)"] = (grouped["APR"] * 100).round(2)
+grouped["APR (%)"] = (grouped["APR"] ).round(2)
 grouped["Spread (%)"] = (grouped["Spread_raw"] ).round(2)
 grouped["Swap Count"] = grouped["swap_count"].round(0).astype(int)
 grouped["Volume ($)"] = (grouped["volume"] / 1_000_000).round(1).astype(str) + "M"
