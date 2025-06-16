@@ -20,6 +20,56 @@ data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analy
 st.set_page_config(layout="wide")
 st.title("🔍 Stable Pools Market Maker Radar")
 
+
+data["date"] = pd.to_datetime(data["date"], errors="coerce")
+
+# Define time windows
+latest_3d = data[data["date"] >= data["date"].max() - pd.Timedelta(days=3)]
+latest_7d = data[data["date"] >= data["date"].max() - pd.Timedelta(days=7)]
+latest_14d = data[data["date"] >= data["date"].max() - pd.Timedelta(days=14)]
+
+st.title("📊 KPI Panel for Market Making Radar")
+
+# 1. Top MM Score (7d)
+if not latest_7d.empty:
+    latest_7d["mm_score"] = (
+        latest_7d["volume"].rank(pct=True) * 0.3 +
+        latest_7d["swap_count"].rank(pct=True) * 0.2 +
+        latest_7d["Trade_size"].rank(pct=True) * 0.2 +
+        (1 - latest_7d["Spread"].rank(pct=True)) * 0.3
+    )
+    top_3_mm = latest_7d.sort_values("mm_score", ascending=False).head(3)
+    st.subheader("🏆 Top 3 Pools by MM Score (7d)")
+    for _, row in top_3_mm.iterrows():
+        st.markdown(f"**{row['pool']}** | Score: `{row['mm_score']:.3f}` | Spread: `{row['Spread']:.3%}`")
+
+# 2. Spread Volatility (3d)
+spread_vol = latest_3d.groupby("pool")["Spread"].std().sort_values(ascending=False).head(3)
+st.subheader("📉 Spread Volatility (3d)")
+for pool, vol in spread_vol.items():
+    st.markdown(f"**{pool}** | Std Dev: `{vol:.4f}`")
+
+# 3. Spread/Volume Ratio (7d)
+latest_7d["spread_vol_ratio"] = latest_7d["Spread"] / latest_7d["volume"]
+best_ratio = latest_7d.sort_values("spread_vol_ratio").head(1)
+if not best_ratio.empty:
+    row = best_ratio.iloc[0]
+    st.subheader("⚖️ Best Spread/Volume Ratio (7d)")
+    st.markdown(f"**{row['pool']}** | Ratio: `{row['spread_vol_ratio']:.6f}` | Volume: `${row['volume']:,.0f}`")
+
+# 4. Median Spread by DEX (14d)
+dex_median_spread = latest_14d.groupby("dex")["Spread"].median().sort_values(ascending=False).head(5)
+st.subheader("📊 Median Spread by DEX (14d)")
+for dex, spread in dex_median_spread.items():
+    st.markdown(f"**{dex}** | Median Spread: `{spread:.4%}`")
+
+# 5. Risky Pools (Spread > 5%) in 7d
+risky_pools = latest_7d[latest_7d["Spread"] > 0.05]["pool"].value_counts().head(3)
+st.subheader("⚠️ Risky Pools (Spread > 5%) - Last 7d")
+for pool, count in risky_pools.items():
+    st.markdown(f"**{pool}** | Occurrences: `{count}`")
+
+st.success("✅ KPI panel (7d/3d/14d) loaded successfully.")
 # __________________ Filters ______________________________________________________________________
 
 trade_size_order = [
