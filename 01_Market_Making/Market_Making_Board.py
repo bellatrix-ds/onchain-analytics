@@ -99,7 +99,6 @@ st.markdown("---")
 
 # __________________ Low-Competition Opportunities ______________________________________________________________________
 
-st.markdown("## 🔍 Low-Competition Opportunities")
 df = data.copy()
 
 grouped = df.groupby(["pool", "pool_id"]).agg({
