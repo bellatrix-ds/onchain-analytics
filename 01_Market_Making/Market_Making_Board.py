@@ -34,7 +34,7 @@ def custom_metric(title, value, subtext=None, color="green"):
 
 # __________________ Key KPIs ______________________________________________________________________
 
-st.markdown("👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
+st.markdown("### 👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
 
 
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
