@@ -278,13 +278,61 @@ if min_trade_size != "All":
     filtered_data = filtered_data[filtered_data["trade_size_bin"].isin(allowed_bins)]
 
 
-
-
-# __________________ Part 3.1: Trade Size vs. Slippage ______________________________________________________________________
+# __________________ Part3.1: Pie chart + Pool Count  ______________________________________________________________________
 
 st.markdown(" ")
+st.markdown(" ")
+st.markdown(" ")
 
-st.markdown("##### 📈 3.1: Spread vs. Trade Size")
+
+st.markdown("##### 📈 3.1: Pie chart + Pool Count")
+
+grouped = filtered_data.groupby("pool").agg({
+    "swap_count": "sum",
+    "Trade_size": "mean"
+}).reset_index()
+
+grouped.rename(columns={"pool": "pool_name"}, inplace=True)
+
+grouped["swap_share"] = grouped["swap_count"] / grouped["swap_count"].sum()
+grouped["trade_size_share"] = grouped["Trade_size"] / grouped["Trade_size"].sum()
+
+fig1 = px.pie(
+    grouped,
+    values='swap_share',
+    names='pool_name',
+    title=f"📌 Market Share by Swap Count on {selected_dex} ({selected_chain})",
+    hole=0.45
+)
+
+fig2 = px.pie(
+    grouped,
+    values='trade_size_share',
+    names='pool_name',
+    title=f"📌 Market Share by Trade Size on {selected_dex} ({selected_chain})",
+    hole=0.45
+)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.plotly_chart(fig1, use_container_width=True)
+
+with col2:
+    st.plotly_chart(fig2, use_container_width=True)
+
+
+
+st.markdown("---")
+
+
+# __________________ Part 3.2: Trade Size vs. Slippage ______________________________________________________________________
+
+st.markdown(" ")
+st.markdown(" ")
+st.markdown(" ")
+
+
+st.markdown("##### 📈 3.2: Spread vs. Trade Size")
 
 filtered_data['Spread'] = filtered_data['Spread'] / 100
 
@@ -344,44 +392,7 @@ st.markdown(" ")
 
 
 
-# __________________ Part1: Pie chart + Pool Count  ______________________________________________________________________
 
-grouped = filtered_data.groupby("pool").agg({
-    "swap_count": "sum",
-    "Trade_size": "mean"
-}).reset_index()
-
-grouped.rename(columns={"pool": "pool_name"}, inplace=True)
-
-grouped["swap_share"] = grouped["swap_count"] / grouped["swap_count"].sum()
-grouped["trade_size_share"] = grouped["Trade_size"] / grouped["Trade_size"].sum()
-
-fig1 = px.pie(
-    grouped,
-    values='swap_share',
-    names='pool_name',
-    title=f"📌 Market Share by Swap Count on {selected_dex} ({selected_chain})",
-    hole=0.45
-)
-
-fig2 = px.pie(
-    grouped,
-    values='trade_size_share',
-    names='pool_name',
-    title=f"📌 Market Share by Trade Size on {selected_dex} ({selected_chain})",
-    hole=0.45
-)
-
-col1, col2 = st.columns(2)
-with col1:
-    st.plotly_chart(fig1, use_container_width=True)
-
-with col2:
-    st.plotly_chart(fig2, use_container_width=True)
-
-
-
-st.markdown("---")
 
 
 
