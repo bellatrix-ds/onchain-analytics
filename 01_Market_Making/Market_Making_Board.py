@@ -82,7 +82,7 @@ else:
     best_dex, best_dex_val = "N/A", None
 
 # Final display
-st.markdown("#### 📊 Key Market-Making Insights (last 7 days)")
+st.markdown("#### 📊 Part1: Key Market-Making Insights (last 7 days)")
 st.markdown(" 👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
 
 col1, col2, col3, col4, col5 = st.columns(5)
@@ -143,7 +143,7 @@ display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("#### 💡 Low-Competition Opportunities")
+    st.markdown("#### 💡 Low-Competition Pools")
     st.markdown("""
 These are the **Top 5 Pools** where:
 
@@ -167,7 +167,36 @@ with col2:
 st.markdown(" ")
 st.markdown("---")
 st.markdown(" ")
-# __________________ Filters ______________________________________________________________________
+
+# --- Generate Volume Spike Insights ---
+df['date'] = pd.to_datetime(df['date'])
+df_sorted = df.sort_values(by=['pool', 'date'])
+df_sorted['volume_2d_change'] = df_sorted.groupby('pool')['volume'].pct_change(periods=2)
+
+spike_df = df_sorted[
+    (df_sorted['volume_2d_change'] > 3.0) &  # 300% jump
+    (df_sorted['Spread'] < 0.01)
+].copy()
+
+top_spikes = spike_df.sort_values(by='volume_2d_change', ascending=False).head(3)
+
+insights = []
+for _, row in top_spikes.iterrows():
+    pool = row['pool']
+    date_str = row['date'].strftime("%B %d")
+    volume = f"${row['volume'] / 1_000_000:.1f}M"
+    change_pct = int(row['volume_2d_change'] * 100)
+    spread_pct = f"{row['Spread']*100:.2f}%"
+    
+    insight = f"📈 On {date_str}, **{pool}** traded at **{volume}** — a **{change_pct:,}% jump**.\nSpread was still **{spread_pct}**. This pool just woke up."
+    insights.append(insight)
+
+with col2:
+    st.markdown("#### ⚡ Recent Spike Alerts")
+    for insight in insights:
+        st.markdown(insight)
+        st.markdown("---")  # separator between entries
+# __________________ Build Filters ______________________________________________________________________
 
 trade_size_order = [
     "All", "≤10k", "10k–50k", "50k–100k", "100k–200k",
