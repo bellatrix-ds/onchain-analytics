@@ -168,7 +168,7 @@ st.markdown(" ")
 st.markdown(" ")
 
 
-# __________________ 2.1: Low-Competition Pools______________________________________________________________________
+# __________________ 2.2: Low-Competition Pools______________________________________________________________________
 
 df = data.copy()
 
@@ -206,7 +206,7 @@ display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("##### 💡 2.1: Low-Competition Pools")
+    st.markdown("##### 💡 2.2: Low-Competition Pools")
     st.markdown("""
 These are the **Top 5 Pools** where:
 
@@ -227,56 +227,6 @@ with col2:
         }),
         use_container_width=True
     )
-
-# __________________ 2.2: Recent Spike Alerts______________________________________________________________________
-
-# --- Generate Volume Spike Insights ---
-df['date'] = pd.to_datetime(df['date'])
-df_sorted = df.sort_values(by=['pool', 'date'])
-df_sorted['volume_2d_change'] = df_sorted.groupby('pool')['volume'].pct_change(periods=2)
-
-spike_df = df_sorted[
-    (df_sorted['volume_2d_change'] > 3.0) &  # 300% jump
-    (df_sorted['Spread'] < 0.01)
-].copy()
-
-top_spikes = spike_df.sort_values(by='volume_2d_change', ascending=False).head(3)
-
-insights = []
-for _, row in top_spikes.iterrows():
-    pool = row['pool']
-    date_str = row['date'].strftime("%B %d")
-    volume = f"${row['volume'] / 1_000_000:.1f}M"
-    change_pct = int(row['volume_2d_change'] * 100)
-    spread_pct = f"{row['Spread']*100:.2f}%"
-    
-    insight = f"📈 On {date_str}, **{pool}** traded at **{volume}** — a **{change_pct:,}% jump**.\nSpread was still **{spread_pct}**. This pool just woke up."
-    insights.append(insight)
-
-with col2:
-    st.markdown("#### ⚡ Recent Spike Alerts")
-    for insight in insights:
-        st.markdown(insight)
-        st.markdown("---")  # separator between entries
-
-
-import altair as alt
-
-for pool_name in top_spikes["pool"].unique():
-    subset = df_sorted[df_sorted["pool"] == pool_name]
-    chart = alt.Chart(subset).mark_line().encode(
-        x="date:T",
-        y="volume:Q"
-    ).properties(
-        title=pool_name,
-        height=100,
-        width=250
-    )
-    st.altair_chart(chart, use_container_width=False)
-
-st.markdown(" ")
-st.markdown("---")
-st.markdown(" ")
 
 # __________________ Build Filters ______________________________________________________________________
 
