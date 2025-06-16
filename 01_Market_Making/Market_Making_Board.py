@@ -116,7 +116,7 @@ grouped["fee_per_day"] = grouped["estimated_fee_total"] / grouped["num_days"]
 grouped["APR"] = (grouped["fee_per_day"] / grouped["liquidity_est"]) * 365
 
 grouped = grouped.reset_index()
-grouped["APR (%)"] = (grouped["APR"] ).round(2)
+grouped["APR (%)"] = (grouped["APR"].mean() ).round(2)
 grouped["Spread (%)"] = (grouped["Spread_raw"] ).round(2)
 grouped["Swap Count"] = grouped["swap_count"].round(0).astype(int)
 grouped["Volume ($)"] = (grouped["volume"] / 1_000_000).round(1).astype(str) + "M"
