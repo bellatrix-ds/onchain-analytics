@@ -33,6 +33,10 @@ def custom_metric(title, value, subtext=None, color="green"):
 
 
 # __________________ Key KPIs ______________________________________________________________________
+
+st.markdown("👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
+
+
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
 
 # Define rolling time windows
@@ -79,6 +83,9 @@ if not dex_median_spread.empty:
     best_dex_val = f"Median Spread: {dex_median_spread.min():.4%}"
 else:
     best_dex, best_dex_val = "N/A", None
+
+
+
 
 # Final display
 st.markdown("### 📊 Key Market-Making Insights (last 7 days)")
