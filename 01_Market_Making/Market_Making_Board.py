@@ -100,7 +100,9 @@ with col5:
 
 st.markdown("---")
 
-# __________________ Part2: Low-Competition Opportunities______________________________________________________________________
+# __________________ Part2: Opportunity Scanner______________________________________________________________________
+
+st.markdown("#### 💡 Opportunity Scanner")
 
 df = data.copy()
 
