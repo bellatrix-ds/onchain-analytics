@@ -99,11 +99,12 @@ with col5:
     custom_metric("📉 Most Efficient DEX", best_dex, best_dex_val)
 
 st.markdown("---")
+st.markdown()
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
 
 st.markdown("#### 💡 Opportunity Scanner")
-st.markdown(" 🧭 Find pools where the big guys are missing, low competition, juicy spreads, and solid trade volume.")
+st.markdown("  🧭 Find pools where the big guys are missing, low competition, juicy spreads, and solid trade volume.")
 
 
 df = data.copy()
