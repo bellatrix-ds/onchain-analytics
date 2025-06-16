@@ -234,6 +234,11 @@ st.markdown(" ")
 
 # __________________ Build Filters ______________________________________________________________________
 
+st.markdown("### 🌐 Part 3: The Big Picture, All Markets")
+st.markdown("  📍 Big picture time. Want to zoom into a chain, DEX, or pool? Go ahead, filters are yours.")
+
+# __________________ Build Filters ______________________________________________________________________
+
 trade_size_order = [
     "All", "≤10k", "10k–50k", "50k–100k", "100k–200k",
     "200k–300k", "300k–400k", "400k–500k",
