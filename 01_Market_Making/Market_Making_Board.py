@@ -32,9 +32,7 @@ def custom_metric(title, value, subtext=None, color="green"):
     st.markdown(html, unsafe_allow_html=True)
 
 
-# __________________ Key KPIs ______________________________________________________________________
-
-
+# __________________ Part1: Key KPIs ______________________________________________________________________
 
 data["date"] = pd.to_datetime(data["date"], errors="coerce")
 
@@ -83,9 +81,6 @@ if not dex_median_spread.empty:
 else:
     best_dex, best_dex_val = "N/A", None
 
-
-
-
 # Final display
 st.markdown("#### 📊 Key Market-Making Insights (last 7 days)")
 st.markdown(" 👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
@@ -105,7 +100,7 @@ with col5:
 
 st.markdown("---")
 
-# __________________ Low-Competition Opportunities ______________________________________________________________________
+# __________________ Part2: Low-Competition Opportunities______________________________________________________________________
 
 df = data.copy()
 
@@ -143,7 +138,7 @@ display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("### 💡 Low-Competition Opportunities")
+    st.markdown("#### 💡 Low-Competition Opportunities")
     st.markdown("""
 These are the **Top 5 Pools** where:
 
