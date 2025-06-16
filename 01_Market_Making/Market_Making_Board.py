@@ -82,7 +82,7 @@ else:
     best_dex, best_dex_val = "N/A", None
 
 # Final display
-st.markdown("#### 📊 Part1: Key Market-Making Insights (last 7 days)")
+st.markdown("#### 📊 Part 1: Key Market-Making Insights (last 7 days)")
 st.markdown(" 👀 Let’s take a quick glance at what stood out over the past 7 days: top pools, wild spreads, and where the action’s been.")
 
 col1, col2, col3, col4, col5 = st.columns(5)
@@ -103,7 +103,7 @@ st.markdown(" ")
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
 
-st.markdown("#### 💡 Part2: Opportunity Scanner")
+st.markdown("#### 💡 Part 2: Opportunity Scanner")
 st.markdown("  🧭 Find pools where the big guys are missing, low competition, juicy spreads, and solid trade volume.")
 
 
@@ -143,7 +143,7 @@ display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("#### 💡 Low-Competition Pools")
+    st.markdown("#### 💡 2.1: Low-Competition Pools")
     st.markdown("""
 These are the **Top 5 Pools** where:
 
@@ -164,9 +164,7 @@ with col2:
         use_container_width=True
     )
 
-st.markdown(" ")
-st.markdown("---")
-st.markdown(" ")
+# __________________ 2.2: Recent Spike Alerts______________________________________________________________________
 
 # --- Generate Volume Spike Insights ---
 df['date'] = pd.to_datetime(df['date'])
@@ -196,6 +194,29 @@ with col2:
     for insight in insights:
         st.markdown(insight)
         st.markdown("---")  # separator between entries
+
+
+for insight in insights:
+    st.markdown(f"""
+    <div style="
+        background-color: #f8f9fa;
+        border-left: 5px solid #198754;
+        border-radius: 8px;
+        padding: 12px 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    ">
+        <p style="margin:0; font-size: 15px; line-height: 1.5;">
+            {insight}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+st.markdown(" ")
+st.markdown("---")
+st.markdown(" ")
+
 # __________________ Build Filters ______________________________________________________________________
 
 trade_size_order = [
