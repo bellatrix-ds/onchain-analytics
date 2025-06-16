@@ -98,7 +98,9 @@ with col4:
 with col5:
     custom_metric("📉 Most Efficient DEX", best_dex, best_dex_val)
 st.markdown(" ")
+st.markdown(" ")
 st.markdown("---")
+st.markdown(" ")
 st.markdown(" ")
 
 # __________________ Part2: Opportunity Scanner______________________________________________________________________
@@ -111,59 +113,52 @@ st.markdown("  🧭 Find pools where the big guys are missing, low competition, 
 df = data.copy()
 
 df['date'] = pd.to_datetime(df['date'])
+
 df_sorted = df.sort_values(by=['pool', 'date'])
 df_sorted['volume_2d_change'] = df_sorted.groupby('pool')['volume'].pct_change(periods=2)
 
+# --- Filter for spike conditions ---
 spike_df = df_sorted[
-    (df_sorted['volume_2d_change'] > 3.0) &  # +300% change
-    (df_sorted['Spread'] < 0.01)
+    (df_sorted['volume_2d_change'] > 3.0) &  # بیش از ۳۰۰٪ افزایش
+    (df_sorted['Spread'] < 0.01)            # اسپرد کمتر از ۱٪
 ].copy()
 
-top_spikes = spike_df.sort_values(by='volume_2d_change', ascending=False).head(3)
+# --- Pick top 6 spikes from different pools ---
+unique_pools = []
+final_spikes = []
 
-spike_texts = []
-table_rows = []
+for _, row in spike_df.sort_values(by='volume_2d_change', ascending=False).iterrows():
+    if row['pool'] not in unique_pools:
+        final_spikes.append(row)
+        unique_pools.append(row['pool'])
+    if len(final_spikes) == 6:
+        break
 
-for _, row in top_spikes.iterrows():
-    pool = row['pool']
-    date_str = row['date'].strftime("%B %d")
-    volume = f"${row['volume'] / 1_000_000:.1f}M"
-    change_pct = f"+{int(row['volume_2d_change'] * 100):,}%"
-    spread_pct = f"{row['Spread']*100:.2f}%"
+# --- Format for display ---
+spike_summary_df = pd.DataFrame(final_spikes)[["date", "pool", "volume", "volume_2d_change", "Spread"]].copy()
+spike_summary_df["Date"] = spike_summary_df["date"].dt.strftime("%B %d")
+spike_summary_df["Volume"] = spike_summary_df["volume"].apply(lambda x: f"${x/1_000_000:.1f}M")
+spike_summary_df["% Change"] = spike_summary_df["volume_2d_change"].apply(lambda x: f"+{int(x*100):,}%")
+spike_summary_df["Spread"] = spike_summary_df["Spread"].apply(lambda x: f"{x*100:.2f}%")
+spike_summary_df["🔥 Note"] = "Pool just woke up"
+display_table = spike_summary_df[["Date", "pool", "Volume", "% Change", "Spread", "🔥 Note"]]
 
-    spike_texts.append(
-        f"📉 On **{date_str}**, **{pool}** traded at **{volume}** — a **{change_pct} jump**. "
-        f"Spread was still **{spread_pct}**. This pool just woke up."
-    )
-
-    table_rows.append({
-        "Date": date_str,
-        "Pool": pool,
-        "Volume": volume,
-        "% Change": change_pct,
-        "Spread": spread_pct,
-        "🔥 Note": "Pool just woke up"
-    })
-
-spike_table_df = pd.DataFrame(table_rows)
-
-
-
+# --- Streamlit layout ---
 col_left, col_right = st.columns([1, 1])
 
-# --- Left: Compact Text Insights (کم‌فاصله و مرتب) ---
+# --- Left column: compact insights ---
 with col_left:
     st.markdown("#### ⚡ Recent Spike Alerts")
     for _, row in spike_summary_df.iterrows():
         st.markdown(
-            f"📉 **{row['Date']}** — `{row['pool']}` traded at **{row['Volume']}** with a **{row['% Change']} jump** (spread: **{row['Spread']}**) 🔥"
+            f"📉 **{row['Date']}** — `{row['pool']}` traded at **{row['Volume']}** with a "
+            f"**{row['% Change']} jump** (spread: **{row['Spread']}**) 🔥"
         )
 
-# --- Right: Expanded Table (6 items) ---
+# --- Right column: summary table ---
 with col_right:
     st.markdown("#### 📋 Spike Summary Table")
-    st.dataframe(spike_display, use_container_width=True)
-
+    st.dataframe(display_table, use_container_width=True)
 
 
 # __________________ 2.1: Low-Competition Pools______________________________________________________________________
