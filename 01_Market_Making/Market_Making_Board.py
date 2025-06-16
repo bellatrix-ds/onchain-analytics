@@ -126,7 +126,7 @@ top_opps_display["Volume ($)"] = top_opps_display["Volume ($)"].round(1).astype(
 
 # -------------------------------
 # نمایش دو ستونی
-col1, col2 = st.columns([1.2, 2])
+col1, col2 = st.columns([1, 1])
 
 with col1:
     st.markdown("### 💡 Low-Competition Opportunities")
@@ -148,6 +148,8 @@ with col2:
         }),
         use_container_width=True
     )
+
+st.markdown("---")
 
 # __________________ Filters ______________________________________________________________________
 
