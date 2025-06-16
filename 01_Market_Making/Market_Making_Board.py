@@ -386,7 +386,6 @@ with col_chart1:
     st.altair_chart(chart, use_container_width=True)
 
 
-st.markdown("---")
 st.markdown(" ")
 
 
@@ -418,14 +417,41 @@ with col_text2:
     - **Look for**: Brighter red blocks >> higher slippage means riskier for MM.
     """)
 
+
+# __________________ Part3.4: Boxplot ______________________________________________________________________
+
+st.markdown("##### 📊 3.4: Spread Distribution by DEX")
+
+col_text3, col_chart3 = st.columns([1, 1])
+
+with col_chart3:
+    box_plot = alt.Chart(filtered_data).mark_boxplot(extent='min-max').encode(
+        x=alt.X("dex:N", title="DEX"),
+        y=alt.Y("Spread", title="Spread (%)", scale=alt.Scale(type='log')),
+        color="dex:N"
+    ).properties(
+        height=400,
+        width=600
+    )
+    st.altair_chart(box_plot, use_container_width=True)
+
+with col_text3:
+    st.markdown("### What to look for?")
+    st.markdown("""
+    - **Goal**: Compare how well different DEXs manage slippage (spread).
+    - **Look for**: DEXs with higher median or wider spread distribution; these may indicate weaker liquidity providers, offering **market making opportunities**.
+    """)
+
 st.markdown("---")
 
 # __________________ Part4: Scoring System ______________________________________________________________________
-import streamlit as st
-import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 
-st.subheader("🧠 Pool Scoring System")
+st.markdown("### 🧠 Part 4: Pool Scoring System")
+st.markdown("  📍 This tool ranks pools based on your strategy — low-risk, high-APR, or balanced. It helps you find the best spots for consistent and profitable market making.")
+
+
+
+
 
 col_left, col_right = st.columns([1, 1])
 
@@ -514,31 +540,6 @@ with col_right:
 
 
 st.markdown("---")
-
-
-# __________________ Part4: Boxplot ______________________________________________________________________
-
-st.subheader("📊 Spread Distribution by DEX")
-
-col_text3, col_chart3 = st.columns([1, 1])
-
-with col_chart3:
-    box_plot = alt.Chart(filtered_data).mark_boxplot(extent='min-max').encode(
-        x=alt.X("dex:N", title="DEX"),
-        y=alt.Y("Spread", title="Spread (%)", scale=alt.Scale(type='log')),
-        color="dex:N"
-    ).properties(
-        height=400,
-        width=600
-    )
-    st.altair_chart(box_plot, use_container_width=True)
-
-with col_text3:
-    st.markdown("### What to look for?")
-    st.markdown("""
-    - **Goal**: Compare how well different DEXs manage slippage (spread).
-    - **Look for**: DEXs with higher median or wider spread distribution; these may indicate weaker liquidity providers, offering **market making opportunities**.
-    """)
 
 st.markdown("---")
 #----
