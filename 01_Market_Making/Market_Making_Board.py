@@ -539,9 +539,7 @@ with col_right:
     ].head(20).reset_index(drop=True), use_container_width=True)
 
 
-st.markdown("---")
-
-st.markdown("---")
+st.markdown("___")
 #----
 st.markdown("Contact me:")
 st.markdown("Email: bellabahramii@gmail.com")
