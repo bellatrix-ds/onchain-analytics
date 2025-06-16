@@ -342,13 +342,10 @@ import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
-# Sample header
 st.subheader("🧠 Pool Scoring System")
 
-# ---- Columns Layout ----
 col_left, col_right = st.columns([1, 1])
 
-# ---- Strategy Preset Selection ----
 with col_left:
     preset = st.radio(
         "Choose your market making strategy profile:",
@@ -360,7 +357,6 @@ with col_left:
         index=0
     )
 
-# ---- Set Weights Based on Preset ----
 if preset == "🐢 Low-risk, deep pool hunter":
     volume_w = 0.15
     swap_w = 0.10
@@ -383,10 +379,8 @@ else:  # 🎯 Balance seeker (PnL max)
     spread_mean_w = 0.20
     spread_std_w = 0.10
 
-# Normalize total weight
 total_weight = volume_w + swap_w + order_size_w + spread_mean_w + spread_std_w + trade_size_w
 
-# ---- Sample data aggregation (replace 'data' with your real df) ----
 # Make sure your DataFrame is called `data` and has the required columns
 pool_stats = data.groupby(["blockchain", "dex", "pool"]).agg({
     "volume": "mean",
@@ -416,11 +410,11 @@ pool_stats_normalized["mm_score"] = (
 
 # ---- Results and Layout ----
 with col_left:
-    st.markdown("#### ℹ️ How This Scoring Works")
+    st.markdown("###### ℹ️ How This Scoring Works")
     st.markdown(f"""
     This scoring system evaluates how suitable a pool is for **market making** based on the selected strategy preset:
     
-    **Selected Profile:** `{preset}`
+    -- **Selected Profile:** `{preset}`
     
     **Metrics considered:**
     - ✅ High volume, trade size, swap activity
