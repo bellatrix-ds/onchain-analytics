@@ -308,11 +308,11 @@ with col_text1:
       If you can provide depth, you’ll dominate pricing.
     """)
 
-def compute_slopes(df, threshold_bin):
-    if threshold_bin == "All":
+def compute_slopes(filtered_data, allowed_bins):
+    if allowed_bins == "All":
         return df["pool"].unique().tolist()
     
-    threshold_idx = trade_size_order.index(threshold_bin)
+    threshold_idx = trade_size_order.index(allowed_bins)
     result = []
     for pool, group in df.groupby("pool"):
         group = group.copy()
