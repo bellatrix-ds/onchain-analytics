@@ -20,33 +20,6 @@ data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analy
 st.set_page_config(layout="wide")
 st.title("🔍 Stable Pools Market Maker Radar")
 
-filtered_data["date"] = pd.to_datetime(filtered_data["date"], errors='coerce')
-latest_data = filtered_data[filtered_data["date"] >= filtered_data["date"].max() - pd.Timedelta(days=7)]
-
-if not latest_data.empty:
-    # محاسبه MM Score ترکیبی
-    latest_data["mm_score"] = (
-        latest_data["volume"].rank(pct=True) * 0.3 +
-        latest_data["swap_count"].rank(pct=True) * 0.2 +
-        latest_data["Trade_size"].rank(pct=True) * 0.2 +
-        (1 - latest_data["Spread"].rank(pct=True)) * 0.3
-    )
-
-    top_pool_row = latest_data.loc[latest_data["mm_score"].idxmax()]
-    top_volume_row = latest_data.loc[latest_data["volume"].idxmax()]
-    spread_vol = latest_data.groupby("pool")["Spread"].std()
-    max_vol_pool = spread_vol.idxmax()
-    max_vol_value = spread_vol.max()
-
-    st.markdown("### 📊 Key Market-Making Insights (last 7 days)")
-    col_kpi1, col_kpi2, col_kpi3 = st.columns(3)
-
-    col_kpi1.metric("🏆 Top Pool by MM Score", f"{top_pool_row['pool']}", f"Score: {top_pool_row['mm_score']:.3f}")
-    col_kpi2.metric("💸 Highest Volume Pool", f"{top_volume_row['pool']}", f"${top_volume_row['volume']:,.0f}")
-    col_kpi3.metric("⚠️ Most Volatile Pool", f"{max_vol_pool}", f"Spread Std: {max_vol_value:.4f}")
-else:
-    st.info("Not enough data available in the selected filters to compute KPIs.")
-
 # __________________ Filters ______________________________________________________________________
 
 trade_size_order = [
@@ -88,6 +61,36 @@ if min_trade_size != "All":
 
 
 filtered_data = filtered_data[filtered_data["Spread"] >= min_spread]
+
+# __________________ Introduction ______________________________________________________________________
+
+filtered_data["date"] = pd.to_datetime(filtered_data["date"], errors='coerce')
+latest_data = filtered_data[filtered_data["date"] >= filtered_data["date"].max() - pd.Timedelta(days=7)]
+
+if not latest_data.empty:
+    # محاسبه MM Score ترکیبی
+    latest_data["mm_score"] = (
+        latest_data["volume"].rank(pct=True) * 0.3 +
+        latest_data["swap_count"].rank(pct=True) * 0.2 +
+        latest_data["Trade_size"].rank(pct=True) * 0.2 +
+        (1 - latest_data["Spread"].rank(pct=True)) * 0.3
+    )
+
+    top_pool_row = latest_data.loc[latest_data["mm_score"].idxmax()]
+    top_volume_row = latest_data.loc[latest_data["volume"].idxmax()]
+    spread_vol = latest_data.groupby("pool")["Spread"].std()
+    max_vol_pool = spread_vol.idxmax()
+    max_vol_value = spread_vol.max()
+
+    st.markdown("### 📊 Key Market-Making Insights (last 7 days)")
+    col_kpi1, col_kpi2, col_kpi3 = st.columns(3)
+
+    col_kpi1.metric("🏆 Top Pool by MM Score", f"{top_pool_row['pool']}", f"Score: {top_pool_row['mm_score']:.3f}")
+    col_kpi2.metric("💸 Highest Volume Pool", f"{top_volume_row['pool']}", f"${top_volume_row['volume']:,.0f}")
+    col_kpi3.metric("⚠️ Most Volatile Pool", f"{max_vol_pool}", f"Spread Std: {max_vol_value:.4f}")
+else:
+    st.info("Not enough data available in the selected filters to compute KPIs.")
+
 
 
 
