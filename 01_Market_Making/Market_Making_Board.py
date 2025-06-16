@@ -101,28 +101,27 @@ st.markdown("---")
 
 st.markdown("## 🔍 Low-Competition Opportunities")
 df = data.copy()
+
 grouped = df.groupby(["pool", "pool_id"]).agg({
     "volume": "sum",
-    "Spread": "mean",
+    "Spread": "mean",          # normalized value (e.g., 0.025)
     "order_size": "mean",
     "swap_count": "mean",
     "date": "count"
-}).rename(columns={"date": "num_days"})
+}).rename(columns={"Spread": "Spread_raw", "date": "num_days"})
 
-# --- Compute liquidity estimate
+# --- Compute estimated liquidity
 grouped["liquidity_est"] = grouped["order_size"] * 2
 
 # --- Estimate total fee and APR
-grouped["estimated_fee_total"] = grouped["volume"] * grouped["Spread"]
+grouped["estimated_fee_total"] = grouped["volume"] * grouped["Spread_raw"]
 grouped["fee_per_day"] = grouped["estimated_fee_total"] / grouped["num_days"]
 grouped["APR"] = (grouped["fee_per_day"] / grouped["liquidity_est"]) * 365
 
-# --- Reset index for display
+# --- Format for display
 grouped = grouped.reset_index()
-
-# --- Format display columns
 grouped["APR (%)"] = (grouped["APR"] * 100).round(2)
-grouped["Spread (%)"] = (grouped["Spread"] * 100).round(2)
+grouped["Spread (%)"] = (grouped["Spread_raw"] * 100).round(2)
 grouped["Swap Count"] = grouped["swap_count"].round(0).astype(int)
 grouped["Volume ($)"] = (grouped["volume"] / 1_000_000).round(1).astype(str) + "M"
 
@@ -160,7 +159,6 @@ with col2:
         }),
         use_container_width=True
     )
-
 
 st.markdown("---")
 
