@@ -97,7 +97,7 @@ with col4:
     custom_metric("🚨 Risky Pool", risky_pool_name, risky_pool_val)
 with col5:
     custom_metric("📉 Most Efficient DEX", best_dex, best_dex_val)
-
+st.markdown(" ")
 st.markdown("---")
 st.markdown(" ")
 
