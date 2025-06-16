@@ -100,41 +100,55 @@ st.markdown("---")
 # __________________ Low-Competition Opportunities ______________________________________________________________________
 st.markdown("## 🔍 Low-Competition Opportunities")
 df = data.copy()
-st.markdown("""
-This section highlights **pools that are high-potential for early market makers**:
-- ✅ **High APR** → good fee potential
-- ❌ **High spread** → low pricing competition
-- ❌ **Low swap count** → weak MM presence
 
-These are your best shots at dominating an LP opportunity before others move in.
-""")
-
-# --- Estimate liquidity (simple approximation)
+Low Competition
 df["liquidity_est"] = df["order_size"] * 2
-
-# --- Estimate fee income from spread × volume
 df["estimated_fee"] = df["volume"] * df["Spread"]
-
-# --- Calculate APR
 df["APR"] = (df["estimated_fee"] / df["liquidity_est"]) * 365
 
-# --- Apply low-competition filter
+# فیلتر استخرهای فرصت طلایی
 df["low_competition"] = (
-    (df["APR"] > 0.10) &         # APR > 10%
-    (df["Spread"] > 0.02) &      # spread > 2%
-    (df["swap_count"] < 100)     # less than 100 swaps/day
+    (df["APR"] > 0.10) & 
+    (df["Spread"] > 0.02) & 
+    (df["swap_count"] < 100)
 )
 
-# --- Display filtered results
-filtered = df[df["low_competition"]][
-    ["pool", "APR", "Spread", "swap_count", "volume"]
-].sort_values(by="APR", ascending=False)
+# انتخاب فقط ۵ استخر برتر با APR بالا
+top_opps = df[df["low_competition"]].sort_values(by="APR", ascending=False).head(5)
 
-st.dataframe(filtered.style.format({
-    "APR": "{:.2%}",
-    "Spread": "{:.2%}",
-    "volume": "{:,.0f}"
-}))
+# فرمت جدول
+top_opps_display = top_opps[["pool", "APR", "Spread", "swap_count", "volume"]].copy()
+top_opps_display.columns = ["Pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]
+
+top_opps_display["APR (%)"] = (top_opps_display["APR (%)"] * 100).round(2)
+top_opps_display["Spread (%)"] = (top_opps_display["Spread (%)"] * 100).round(2)
+top_opps_display["Volume ($)"] = top_opps_display["Volume ($)"] / 1_000_000
+top_opps_display["Volume ($)"] = top_opps_display["Volume ($)"].round(1).astype(str) + "M"
+
+# -------------------------------
+# نمایش دو ستونی
+col1, col2 = st.columns([1.2, 2])
+
+with col1:
+    st.markdown("### 💡 Low-Competition Opportunities")
+    st.markdown("""
+    These are the **top 5 pools** with:
+    - ✅ High APR (great fee generation)
+    - ❌ High spread (inefficient pricing)
+    - ❌ Low swap activity (weak competition)
+
+    Ideal for **early market maker entry** before others react.
+    """)
+
+with col2:
+    st.dataframe(
+        top_opps_display.style.format({
+            "APR (%)": "{:.2f}",
+            "Spread (%)": "{:.2f}",
+            "Swap Count": "{:,.0f}",
+        }),
+        use_container_width=True
+    )
 
 # __________________ Filters ______________________________________________________________________
 
