@@ -554,7 +554,7 @@ st.markdown("___")
 
 API_KEY = "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"
 
-df = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip',encoding="utf-8", index=False)
+df = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip',encoding="utf-8")
 
 
 st.title("📊 Market Making AI Agent - DeepSeek Model")
