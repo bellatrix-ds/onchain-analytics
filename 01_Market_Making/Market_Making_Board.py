@@ -580,7 +580,7 @@ question = st.text_input("Ask your market-making agent a question:")
 
 # --- LLM call ---
 def ask_openrouter(question: str, context: str):
-    url = "https://openrouter.ai/api/v1/chat/completions"
+    url = "https://openrouter.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
