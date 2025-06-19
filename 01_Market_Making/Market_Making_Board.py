@@ -198,8 +198,8 @@ filtered = grouped[
     (grouped["Swap Count"] < 100)
 ]
 
-top5 = filtered.sort_values("APR (%)", ascending=False).head(5)
-display_df = top5[["pool", "APR (%)", "Spread (%)", "Swap Count", "Volume ($)"]]
+top5 = filtered.sort_values("APR", ascending=False).head(5)
+display_df = top5[["pool", "APR", "Spread (%)", "Swap Count", "Volume ($)"]]
 
 # --- Two-column layout
 col1, col2 = st.columns([1, 1])
@@ -220,7 +220,7 @@ with col2:
     st.markdown(" ")
     st.dataframe(
         display_df.style.format({
-            "APR (%)": "{:.2f}",
+            "APR": "{:.2f}",
             "Spread (%)": "{:.2f}",
             "Swap Count": "{:,.0f}"
         }),
