@@ -3,6 +3,21 @@
 
 # In[ ]:
 
+
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+from matplotlib.dates import DateFormatter
+import numpy as np
+import altair as alt
+from sklearn.preprocessing import MinMaxScaler
+import requests
+
+
 import requests
 import json
 
@@ -27,18 +42,6 @@ st.write("✅ Status:", res.status_code)
 st.json(res.json() if res.ok else res.text)
 
 
-
-import streamlit as st
-import pandas as pd
-import plotly.graph_objects as go
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
-from matplotlib.dates import DateFormatter
-import numpy as np
-import altair as alt
-from sklearn.preprocessing import MinMaxScaler
-import requests
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip')
