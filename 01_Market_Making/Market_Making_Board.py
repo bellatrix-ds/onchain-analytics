@@ -550,28 +550,34 @@ import requests
 df = data.copy()
 st.title("📈 Market Making AI Agent (Online)")
 
-# 🔐 API KEY
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
 
-st.text(f"🔐 API_KEY preview: {API_KEY[:100]}")
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
 
-if not API_KEY:
-    st.error("❌ API_KEY is empty! Streamlit secrets not loaded.")
+def ask_openrouter(question, summary_text):
+    payload = {
+        "model": "moonshotai/kimi-dev-72b:free",
+        "messages": [
+            {"role": "system", "content": "You are a market making analyst."},
+            {"role": "user", "content": summary_text},
+            {"role": "user", "content": question}
+        ]
+    }
 
-# --- Pool selection ---
-selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
-filtered = df[df["pool"] == selected_pool]
+    url = "https://openrouter.ai/v1/chat/completions"
+    response = requests.post(url, headers=headers, json=payload)
 
-# --- Prepare summary for LLM ---
-def make_summary(data: pd.DataFrame):
-    summary = ""
-    for _, row in data.iterrows():
-        summary += (
-            f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
-            f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
-            f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
-        )
-    return summary
+    if response.status_code != 200:
+        raise Exception(f"Status: {response.status_code}, Body: {response.text}")
+
+    return response.json()["choices"][0]["message"]["content"]
+
+
+
+
 
 summary_text = make_summary(filtered)
 
