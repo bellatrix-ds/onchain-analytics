@@ -558,20 +558,26 @@ st.markdown("  💬 Have specific questions about a pool's performance or marke
 
 
 # --- بارگذاری کلید API از Streamlit Secrets ---
+# مطمئن شوید در فایل .streamlit/secrets.toml دارید:
+# GOOGLE_API_KEY="AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 try:
-    API_KEY = st.secrets["OPENROUTER_API_KEY"]
-    st.text(f"🔐 Loaded API_KEY: {API_KEY[:20]}...")
+    API_KEY = st.secrets["GOOGLE_API_KEY"]
+    st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 except KeyError:
-    st.error("Error: OPENROUTER_API_KEY not found in Streamlit secrets. Please configure your .streamlit/secrets.toml file.")
-    st.stop() # اگر کلید API پیدا نشد، اجرای برنامه متوقف می‌شود
+    st.error("Error: GOOGLE_API_KEY not found in Streamlit secrets. Please configure your .streamlit/secrets.toml file.")
+    st.stop()
 
-# df از ابتدای اسکریپت در دسترس است، نیازی به تعریف مجدد نیست.
-# اطمینان حاصل می‌کنیم که ستون 'pool' در df وجود دارد
-if "pool" not in df.columns:
-    st.error("Error: 'pool' column not found in your data. Please check your data structure.")
-    st.stop() # اگر ستون اصلی پیدا نشد، متوقف شوید
+# پیکربندی مدل Gemini
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel('gemini-pro')
+
+# df از ابتدای اسکریپت در دسترس است
 
 # --- سلکت باکس انتخاب Pool ---
+if "pool" not in df.columns:
+    st.error("Error: 'pool' column not found in your data. Please check your data structure.")
+    st.stop()
+
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
@@ -581,13 +587,11 @@ def make_summary(data: pd.DataFrame) -> str:
     خلاصه‌ای از داده‌های pool را برای ارسال به مدل LLM ایجاد می‌کند.
     """
     summary = ""
-    # ستون‌های لازم برای خلاصه را بررسی می‌کنیم
     required_columns = ['date', 'volume', 'Spread', 'order_size', 'Trade_size', 'swap_count']
     if not all(col in data.columns for col in required_columns):
         return f"Error: Missing one or more required columns for summary generation: {', '.join(col for col in required_columns if col not in data.columns)}"
 
     for _, row in data.iterrows():
-        # مطمئن شوید که فرمت تاریخ مناسب است
         date_str = row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])
         summary += (
             f"Date: {date_str}, Volume: ${row['volume']:.2f}, "
@@ -596,42 +600,23 @@ def make_summary(data: pd.DataFrame) -> str:
         )
     return summary
 
-def ask_openrouter(question: str, context: str, api_key: str) -> str:
+def ask_gemini(question: str, context: str) -> str:
     """
-    سوال را به API OpenRouter ارسال کرده و پاسخ را دریافت می‌کند.
+    سوال را به مدل Gemini ارسال کرده و پاسخ را دریافت می‌کند.
     """
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://marketmakingboard.streamlit.app/", # مطمئن شوید این URL سایت واقعی شماست
-        "X-Title": "Market Making AI Agent"
-    }
-
-    payload = {
-        "model": "sarvamai/sarvam-m:free", # <<< مدل جدید
-        "messages": [
-            {"role": "system", "content": "You are a DeFi market-making analyst specializing in stable pools."},
-            {"role": "user", "content": f"Context:\n{context}"},
-            {"role": "user", "content": question}
-        ]
-    }
-
     try:
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
-        response.raise_for_status() # برای خطاهای HTTP (4xx یا 5xx) یک Exception ایجاد می‌کند
-        return response.json()["choices"][0]["message"]["content"]
-    except requests.exceptions.RequestException as e:
-        # مدیریت خطاهای درخواست شبکه، Timeout و ...
-        st.error(f"❌ API Request Error: Please check your internet connection or API server. Details: {e}")
-        return f"Error: Failed to connect to AI agent. {e}"
-    except KeyError:
-        # مدیریت خطاهایی که ساختار پاسخ JSON غیرمنتظره است
-        st.error(f"❌ API Response Error: Unexpected JSON structure from API. Response: {response.text}")
-        return f"Error: Unexpected response from AI agent. Raw response: {response.text}"
+        # ساخت پیام‌ها برای مدل
+        messages = [
+            {"role": "user", "parts": "You are a DeFi market-making analyst specializing in stable pools."},
+            {"role": "model", "parts": "Okay, I understand. I will analyze the provided data from a market-making perspective."},
+            {"role": "user", "parts": f"Context:\n{context}"},
+            {"role": "user", "parts": question}
+        ]
+
+        response = model.generate_content(messages)
+        return response.text
     except Exception as e:
-        # مدیریت سایر خطاهای غیرمنتظره
-        st.error(f"❌ An unexpected error occurred with the AI agent: {e}")
+        st.error(f"❌ An error occurred with the AI agent: {e}")
         return f"Error: An unexpected problem occurred. {e}"
 
 
@@ -644,7 +629,7 @@ if question:
         st.warning("No data for this pool. Please select a pool with available data to analyze.")
     else:
         summary_text = make_summary(filtered)
-        if "Error:" in summary_text: # اگر make_summary خطا برگرداند
+        if "Error:" in summary_text:
             st.error(summary_text)
         else:
             st.markdown("---")
@@ -654,12 +639,14 @@ if question:
 
             with st.spinner("🤖 Thinking..."):
                 try:
-                    answer = ask_openrouter(question, summary_text, API_KEY)
+                    # فراخوانی تابع جدید ask_gemini
+                    answer = ask_gemini(question, summary_text)
                     st.markdown("### 🧠 Agent Response:")
                     st.write(answer)
                 except Exception as e:
-                    # خطاهای مطرح شده توسط ask_openrouter در اینجا گرفته می‌شوند
                     st.error(f"An error occurred while getting AI response: {e}")
+
+
 
 st.markdown("___")
 
