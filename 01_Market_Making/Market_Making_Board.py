@@ -597,10 +597,20 @@ def ask_openrouter(question, context):
     res_json = response.json()
 
     # Check if response has 'choices'
-    if "choices" not in res_json:
-        raise Exception(f"Unexpected response: {res_json}")
+    if question:
+    if filtered.empty:
+        st.warning("No data for this pool.")
+    else:
+        st.markdown("**🔎 Summary sent to LLM:**")
+        st.code(summary_text)
 
-    return res_json["choices"][0]["message"]["content"]
+        with st.spinner("🤖 Thinking..."):
+            try:
+                answer = ask_openrouter(question, summary_text)
+                st.markdown("**🧠 Agent Response:**")
+                st.write(answer)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
 
 st.markdown("___")
 
