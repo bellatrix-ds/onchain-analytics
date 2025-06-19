@@ -553,8 +553,6 @@ st.markdown("___")
 
 df = data.copy()
 
-# __________________ Part5: Ai Agent ______________________________________________________________________
----
 st.markdown("### 🤖 Part 5: Ask Your Market-Making AI Agent")
 st.markdown("  💬 Have specific questions about a pool's performance or market conditions? Ask your AI analyst for insights.")
 
@@ -562,7 +560,7 @@ st.markdown("  💬 Have specific questions about a pool's performance or marke
 # --- بارگذاری کلید API از Streamlit Secrets ---
 try:
     API_KEY = st.secrets["OPENROUTER_API_KEY"]
-    st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
+    st.text(f"🔐 Loaded API_KEY: {API_KEY[:20]}...")
 except KeyError:
     st.error("Error: OPENROUTER_API_KEY not found in Streamlit secrets. Please configure your .streamlit/secrets.toml file.")
     st.stop() # اگر کلید API پیدا نشد، اجرای برنامه متوقف می‌شود
