@@ -549,7 +549,24 @@ st.title("📈 Market Making AI Agent (Online)")
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
 MODEL = "mistralai/mistral-7b-instruct"
 
+API_KEY = st.secrets["OPENROUTER_API_KEY"]
 
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+payload = {
+    "model": "mistralai/mistral-7b-instruct",
+    "messages": [
+        {"role": "user", "content": "Say hello"}
+    ]
+}
+
+response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+
+st.code(f"Status Code: {response.status_code}")
+st.text(response.text)
 # --- Pool selection ---
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
