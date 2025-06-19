@@ -549,28 +549,28 @@ st.title("📈 Market Making AI Agent (Online)")
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
 MODEL = "mistralai/mistral-7b-instruct"
 
-# --- Pool selection for filtered context (optional) ---
+
+# --- Pool selection ---
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-# --- Prepare summarized context ---
+# --- Prepare summary for LLM ---
 def make_summary(data: pd.DataFrame):
     summary = ""
     for _, row in data.iterrows():
         summary += (
             f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
             f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
-            f"Trade Size: {row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
+            f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
         )
     return summary
 
 summary_text = make_summary(filtered)
 
-# --- User input ---
+# --- Ask user for a question ---
 question = st.text_input("Ask your market-making agent a question:")
 
-# --- Function to call OpenRouter API ---
-
+# --- LLM call ---
 def ask_openrouter(question, context):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -584,20 +584,20 @@ def ask_openrouter(question, context):
         ]
     }
 
-    response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers=headers,
-        json=payload
-    )
+    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
 
-    # Defensive parsing
     if response.status_code != 200:
         raise Exception(f"API Error {response.status_code}: {response.text}")
 
     res_json = response.json()
 
-    # Check if response has 'choices'
-    if question:
+    if "choices" not in res_json:
+        raise Exception(f"Unexpected response: {res_json}")
+
+    return res_json["choices"][0]["message"]["content"]
+
+# --- Handle question ---
+if question:
     if filtered.empty:
         st.warning("No data for this pool.")
     else:
@@ -611,6 +611,8 @@ def ask_openrouter(question, context):
                 st.write(answer)
             except Exception as e:
                 st.error(f"❌ Error: {e}")
+
+
 
 st.markdown("___")
 
