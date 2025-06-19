@@ -554,18 +554,17 @@ import pandas as pd
 import requests
 import json
 
-
 df = data.copy()
-st.title("📈 Market Making AI Agent (Online)")
 
-API_KEY = st.secrets["OPENROUTER_API_KEY"]
+
+# --- Replace this with your real key ---
+API_KEY = "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"
 st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
-# --- Select pool
+# --- Assume df is already defined above ---
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-# --- Summary function
 def make_summary(data: pd.DataFrame) -> str:
     summary = ""
     for _, row in data.iterrows():
@@ -576,17 +575,14 @@ def make_summary(data: pd.DataFrame) -> str:
         )
     return summary
 
-# --- LLM request
 def ask_openrouter(question: str, context: str, api_key: str) -> str:
     url = "https://openrouter.ai/api/v1/chat/completions"
-
-
     headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json",
-    "HTTP-Referer": "https://marketmakingboard.streamlit.app/",  # 🔁 آدرس واقعی اپلیکیشن
-    "X-Title": "Market Making AI Agent"
-}
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://marketmakingboard.streamlit.app/",
+        "X-Title": "Market Making AI Agent"
+    }
 
     payload = {
         "model": "moonshotai/kimi-dev-72b:free",
@@ -603,7 +599,7 @@ def ask_openrouter(question: str, context: str, api_key: str) -> str:
     else:
         raise Exception(f"❌ Error: Status: {response.status_code}, Body: {response.text}")
 
-# --- Question input
+# --- Ask
 question = st.text_input("Ask your market-making agent a question:")
 
 if question:
@@ -621,6 +617,7 @@ if question:
                 st.write(answer)
             except Exception as e:
                 st.error(str(e))
+
 
 st.markdown("___")
 
