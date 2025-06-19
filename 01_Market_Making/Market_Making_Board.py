@@ -17,7 +17,7 @@ import altair as alt
 from sklearn.preprocessing import MinMaxScaler
 import requests
 import json
-
+import google.generativeai as genai
 
 # __________________ Import Data ______________________________________________________________________
 
