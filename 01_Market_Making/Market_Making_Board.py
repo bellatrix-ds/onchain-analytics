@@ -622,6 +622,35 @@ if question:
 st.write("🔐 Loaded API_KEY:", API_KEY)
 
 st.markdown("___")
+import streamlit as st
+import requests
+
+API_KEY = st.secrets["OPENROUTER_API_KEY"]
+st.write("🔐 Loaded API_KEY:", API_KEY[:10] + "...")
+
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+payload = {
+    "model": "moonshotai/kimi-dev-72b:free",
+    "messages": [{"role": "user", "content": "Say hello"}]
+}
+
+url = "https://openrouter.ai/v1/chat/completions"
+
+response = requests.post(url, headers=headers, json=payload)
+
+st.write("Status Code:", response.status_code)
+st.write("Raw Text Response:", repr(response.text))  # ❗ دقیق نشون میده چی برگشته
+
+try:
+    result = response.json()
+    st.json(result)
+except Exception as e:
+    st.error(f"❌ Error parsing JSON: {e}")
 
 #----
 st.markdown("Contact me:")
