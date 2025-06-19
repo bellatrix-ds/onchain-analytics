@@ -552,7 +552,8 @@ st.title("📈 Market Making AI Agent (Online)")
 
 # 🔐 API KEY
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
-st.text(f"🔐 API_KEY preview: {API_KEY[:10]}")
+
+st.text(f"🔐 API_KEY preview: {API_KEY[:100]}")
 
 if not API_KEY:
     st.error("❌ API_KEY is empty! Streamlit secrets not loaded.")
@@ -616,6 +617,10 @@ if question:
                 st.write(answer)
             except Exception as e:
                 st.error(f"❌ Error: {e}")
+
+
+st.write("🔐 Loaded API_KEY:", API_KEY)
+
 st.markdown("___")
 
 #----
