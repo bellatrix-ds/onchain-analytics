@@ -16,7 +16,7 @@ import numpy as np
 import altair as alt
 from sklearn.preprocessing import MinMaxScaler
 import requests
-
+import json
 
 
 # __________________ Import Data ______________________________________________________________________
@@ -549,10 +549,7 @@ st.markdown("___")
 
 # __________________ Part5: Ai Agent ______________________________________________________________________
 
-import streamlit as st
-import pandas as pd
-import requests
-import json
+
 
 df = data.copy()
 
