@@ -12,7 +12,8 @@ from matplotlib.dates import DateFormatter
 import numpy as np
 import altair as alt
 from sklearn.preprocessing import MinMaxScaler
-
+import ollama
+ollama run llama3
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip')
@@ -540,6 +541,56 @@ with col_right:
 
 
 st.markdown("___")
+
+# __________________ Part5: Ai Agent ______________________________________________________________________
+
+df = data.copy()
+st.title("📈 DeFi Market Making AI Agent")
+st.write("Latest Pool Data:")
+st.dataframe(df)
+
+# Select a specific pool (optional)
+selected_pool = st.selectbox("Choose a pool to analyze:", df['pool'].unique())
+filtered = df[df['pool'] == selected_pool]
+
+# User's question
+question = st.text_input("Ask your AI Agent about this market (e.g., Is spread too high?):")
+
+# Prepare summary for AI
+def make_summary(data: pd.DataFrame):
+    summary = ""
+    for _, row in data.iterrows():
+        summary += (
+            f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
+            f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
+            f"Trade Size: {row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
+        )
+    return summary
+
+summary_text = make_summary(filtered)
+
+# Send to Ollama LLM
+if question:
+    with st.spinner("Thinking..."):
+        prompt = f"""
+You are a DeFi expert AI agent. Below is historical data for the liquidity pool "{selected_pool}":
+
+{summary_text}
+
+Now analyze this data and answer the user’s question:
+"{question}"
+"""
+        response = ollama.chat(
+            model="llama3",
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+        st.markdown("**🤖 Agent’s Answer:**")
+        st.write(response["message"]["content"])
+
+st.markdown("___")
+
 #----
 st.markdown("Contact me:")
 st.markdown("Email: bellabahramii@gmail.com")
