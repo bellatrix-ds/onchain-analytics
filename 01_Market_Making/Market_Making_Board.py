@@ -593,6 +593,7 @@ def ask_openrouter(question: str, context: str) -> str:
             {"role": "user", "content": question}
         ]
     }
+    print(headers)
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     if response.status_code == 200:
@@ -601,7 +602,7 @@ def ask_openrouter(question: str, context: str) -> str:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
 
-print(headers)
+
 
 
 # --- گرفتن سوال از کاربر
