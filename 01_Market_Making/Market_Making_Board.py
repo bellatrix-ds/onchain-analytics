@@ -619,12 +619,15 @@ def ask_openrouter(question, context):
 
 # --- Handle question ---
 if question:
+
+
+
+    
     if filtered.empty:
         st.warning("No data for this pool.")
     else:
         st.markdown("**🔎 Summary sent to LLM:**")
         st.code(summary_text)
-
         with st.spinner("🤖 Thinking..."):
             try:
                 answer = ask_openrouter(question, summary_text)
@@ -632,8 +635,6 @@ if question:
                 st.write(answer)
             except Exception as e:
                 st.error(f"❌ Error: {e}")
-
-
 
 st.markdown("___")
 
