@@ -569,7 +569,7 @@ except KeyError:
 
 # پیکربندی مدل Gemini
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.5-pro')
 
 # df از ابتدای اسکریپت در دسترس است
 
