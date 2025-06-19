@@ -553,100 +553,66 @@ st.markdown("___")
 
 df = data.copy()
 
-st.markdown("### 🤖 Part 5: Ask Your Market-Making AI Agent")
-st.markdown("  💬 Have specific questions about a pool's performance or market conditions? Ask your AI analyst for insights.")
+API_KEY = "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"
+st.text(f"🔐 Loaded API_KEY: {API_KEY[:20]}...")
 
-
-# --- بارگذاری کلید API از Streamlit Secrets ---
-# مطمئن شوید در فایل .streamlit/secrets.toml دارید:
-# GOOGLE_API_KEY="AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-try:
-    API_KEY = st.secrets["GOOGLE_API_KEY"]
-    st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
-except KeyError:
-    st.error("Error: GOOGLE_API_KEY not found in Streamlit secrets. Please configure your .streamlit/secrets.toml file.")
-    st.stop()
-
-# پیکربندی مدل Gemini
-genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-1.5-pro')
-
-# df از ابتدای اسکریپت در دسترس است
-
-# --- سلکت باکس انتخاب Pool ---
-if "pool" not in df.columns:
-    st.error("Error: 'pool' column not found in your data. Please check your data structure.")
-    st.stop()
 
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-
 def make_summary(data: pd.DataFrame) -> str:
-    """
-    خلاصه‌ای از داده‌های pool را برای ارسال به مدل LLM ایجاد می‌کند.
-    """
     summary = ""
-    required_columns = ['date', 'volume', 'Spread', 'order_size', 'Trade_size', 'swap_count']
-    if not all(col in data.columns for col in required_columns):
-        return f"Error: Missing one or more required columns for summary generation: {', '.join(col for col in required_columns if col not in data.columns)}"
-
     for _, row in data.iterrows():
-        date_str = row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])
         summary += (
-            f"Date: {date_str}, Volume: ${row['volume']:.2f}, "
+            f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
             f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
             f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
         )
     return summary
 
-def ask_gemini(question: str, context: str) -> str:
-    """
-    سوال را به مدل Gemini ارسال کرده و پاسخ را دریافت می‌کند.
-    """
-    try:
-        # ساخت پیام‌ها برای مدل
-        messages = [
-            {"role": "user", "parts": "You are a DeFi market-making analyst specializing in stable pools."},
-            {"role": "model", "parts": "Okay, I understand. I will analyze the provided data from a market-making perspective."},
-            {"role": "user", "parts": f"Context:\n{context}"},
-            {"role": "user", "parts": question}
-        ]
+def ask_groq(question: str, context: str) -> str:
+    url = "https://api.groq.com/openai/v1/chat/completions"
 
-        response = model.generate_content(messages)
-        return response.text
-    except Exception as e:
-        st.error(f"❌ An error occurred with the AI agent: {e}")
-        return f"Error: An unexpected problem occurred. {e}"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
 
+    payload = {
+        "model": "mixtral-8x7b-32768",
+        "messages": [
+            {"role": "system", "content": "You are a DeFi market-making analyst."},
+            {"role": "user", "content": f"Context:\n{context}"},
+            {"role": "user", "content": question}
+        ],
+        "temperature": 0.3
+    }
 
-# --- بخش پرسش و پاسخ ---
-st.markdown(" ")
-question = st.text_input("Ask your market-making agent a question about the selected pool's performance:")
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+
+    if response.status_code == 200:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
+
+# --- پرسش کاربر ---
+question = st.text_input("Ask your market-making agent a question:")
 
 if question:
     if filtered.empty:
-        st.warning("No data for this pool. Please select a pool with available data to analyze.")
+        st.warning("No data for this pool.")
     else:
         summary_text = make_summary(filtered)
-        if "Error:" in summary_text:
-            st.error(summary_text)
-        else:
-            st.markdown("---")
-            st.markdown("🔎 **Summary sent to LLM:**")
-            st.code(summary_text)
-            st.markdown("---")
+        st.markdown("🔎 **Summary sent to LLM:**")
+        st.code(summary_text)
 
-            with st.spinner("🤖 Thinking..."):
-                try:
-                    # فراخوانی تابع جدید ask_gemini
-                    answer = ask_gemini(question, summary_text)
-                    st.markdown("### 🧠 Agent Response:")
-                    st.write(answer)
-                except Exception as e:
-                    st.error(f"An error occurred while getting AI response: {e}")
-
-
+        with st.spinner("🤖 Thinking..."):
+            try:
+                answer = ask_groq(question, summary_text)
+                st.markdown("🧠 **Agent Response:**")
+                st.write(answer)
+            except Exception as e:
+                st.error(str(e))
 
 st.markdown("___")
 
