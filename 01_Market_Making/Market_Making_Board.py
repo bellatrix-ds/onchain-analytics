@@ -12,7 +12,7 @@ from matplotlib.dates import DateFormatter
 import numpy as np
 import altair as alt
 from sklearn.preprocessing import MinMaxScaler
-import ollama
+
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip')
@@ -543,19 +543,17 @@ st.markdown("___")
 
 # __________________ Part5: Ai Agent ______________________________________________________________________
 
-df = data.copy()
-st.title("📈 DeFi Market Making AI Agent")
-st.write("Latest Pool Data:")
-st.dataframe(df)
+df = data.copy()  
+st.title("📈 Market Making AI Agent (Online)")
 
-# Select a specific pool (optional)
-selected_pool = st.selectbox("Choose a pool to analyze:", df['pool'].unique())
-filtered = df[df['pool'] == selected_pool]
+API_KEY = st.secrets["OPENROUTER_API_KEY"]
+MODEL = "mistralai/mistral-7b-instruct"
 
-# User's question
-question = st.text_input("Ask your AI Agent about this market (e.g., Is spread too high?):")
+# --- Pool selection for filtered context (optional) ---
+selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
+filtered = df[df["pool"] == selected_pool]
 
-# Prepare summary for AI
+# --- Prepare summarized context ---
 def make_summary(data: pd.DataFrame):
     summary = ""
     for _, row in data.iterrows():
@@ -568,25 +566,36 @@ def make_summary(data: pd.DataFrame):
 
 summary_text = make_summary(filtered)
 
-# Send to Ollama LLM
+# --- User input ---
+question = st.text_input("Ask your market-making agent a question:")
+
+# --- Function to call OpenRouter API ---
+def ask_openrouter(question, context):
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": "You are a DeFi market analyst."},
+            {"role": "user", "content": f"Pool data:\n{context}\n\nUser question: {question}"}
+        ]
+    }
+    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+    return response.json()["choices"][0]["message"]["content"]
+
+# --- Trigger the agent ---
 if question:
-    with st.spinner("Thinking..."):
-        prompt = f"""
-You are a DeFi expert AI agent. Below is historical data for the liquidity pool "{selected_pool}":
+    with st.spinner("🤖 Thinking..."):
+        try:
+            answer = ask_openrouter(question, summary_text)
+            st.markdown("**🧠 Agent Response:**")
+            st.write(answer)
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
 
-{summary_text}
 
-Now analyze this data and answer the user’s question:
-"{question}"
-"""
-        response = ollama.chat(
-            model="llama3",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        st.markdown("**🤖 Agent’s Answer:**")
-        st.write(response["message"]["content"])
 
 st.markdown("___")
 
