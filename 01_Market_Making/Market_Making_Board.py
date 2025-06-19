@@ -13,7 +13,6 @@ import numpy as np
 import altair as alt
 from sklearn.preprocessing import MinMaxScaler
 import ollama
-ollama run llama3
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/01_Market_Making/df_main_1.csv', on_bad_lines='skip')
