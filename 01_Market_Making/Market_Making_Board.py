@@ -567,7 +567,7 @@ payload = {
     ]
 }
 
-response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+response = requests.post("https://openrouter.ai/v1/chat/completions", headers=headers, json=payload)
 
 st.code(f"Status Code: {response.status_code}")
 st.text(response.text)
