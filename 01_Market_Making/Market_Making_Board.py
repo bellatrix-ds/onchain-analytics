@@ -569,7 +569,7 @@ selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
 # 📝 تابع خلاصه‌سازی داده‌ها
-def make_summary(data: pd.DataFrame) -> str:
+def make_summary(data: pd.DataFrame, limit=5) -> str:
     summary = ""
     for _, row in data.iterrows():
         summary += (
