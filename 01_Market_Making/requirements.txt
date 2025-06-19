@@ -10,3 +10,4 @@ altair
 sklearn.preprocessing
 ollama
 requests
+google.generativeai
