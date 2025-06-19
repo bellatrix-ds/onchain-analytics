@@ -2,6 +2,32 @@
 # coding: utf-8
 
 # In[ ]:
+
+import requests
+import json
+
+API_KEY = st.secrets["OPENROUTER_API_KEY"]
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json",
+    "HTTP-Referer": "https://marketmakingboard.streamlit.app/",  # 🔁 حتماً با آدرس اپ خودت جایگزین کن
+    "X-Title": "Market Making AI Agent"
+}
+
+payload = {
+    "model": "moonshotai/kimi-dev-72b:free",
+    "messages": [
+        {"role": "user", "content": "Hello, are you working?"}
+    ]
+}
+
+res = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, data=json.dumps(payload))
+st.write("✅ Status:", res.status_code)
+st.json(res.json() if res.ok else res.text)
+
+
+
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -574,12 +600,13 @@ def make_summary(data: pd.DataFrame) -> str:
 def ask_openrouter(question: str, context: str, api_key: str) -> str:
     url = "https://openrouter.ai/api/v1/chat/completions"
 
+
     headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://marketmakingboard.streamlit.app/",   # 🔁 تغییر بده به URL اپلیکیشن Streamlit خودت
-        "X-Title": "Market Making AI Agent"
-    }
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json",
+    "HTTP-Referer": "https://marketmakingboard.streamlit.app/",  # 🔁 آدرس واقعی اپلیکیشن
+    "X-Title": "Market Making AI Agent"
+}
 
     payload = {
         "model": "moonshotai/kimi-dev-72b:free",
