@@ -595,30 +595,38 @@ summary_text = make_summary(filtered)
 question = st.text_input("Ask your market-making agent a question:")
 
 # --- LLM call ---
+
+import requests
+
 def ask_openrouter(question, context):
+    api_url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer {st.secrets['OPENROUTER_API_KEY']}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": MODEL,
+        "model": "openai/gpt-3.5-turbo",
         "messages": [
-            {"role": "system", "content": "You are a helpful DeFi market-making assistant."},
-            {"role": "user", "content": f"Pool data:\n{context}\n\nUser question: {question}"}
+            {"role": "system", "content": "You are a DeFi market-making expert."},
+            {"role": "user", "content": f"Data summary: {context}"},
+            {"role": "user", "content": question}
         ]
     }
 
-    response = requests.post("https://openrouter.ai/v1/chat/completions", headers=headers, json=payload)
+    try:
+        response = requests.post(api_url, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+    except requests.exceptions.RequestException as e:
+        st.error(f"HTTP error: {e}")
+    except ValueError:
+        st.error(f"Response not in JSON format:\n\n{response.text}")
+    except KeyError:
+        st.error("Unexpected response format:\n\n" + str(response.json()))
 
-    if response.status_code != 200:
-        raise Exception(f"API Error {response.status_code}: {response.text}")
 
-    res_json = response.json()
 
-    if "choices" not in res_json:
-        raise Exception(f"Unexpected response: {res_json}")
 
-    return res_json["choices"][0]["message"]["content"]
 
 # --- Handle question ---
 if question:
