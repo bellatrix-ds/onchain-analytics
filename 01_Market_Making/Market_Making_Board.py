@@ -546,27 +546,21 @@ st.markdown("___")
 import streamlit as st
 import pandas as pd
 import requests
+import json
+
 
 df = data.copy()
-
 st.title("📈 Market Making AI Agent (Online)")
 
-# --- API Key ---
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
 st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
-# --- Headers ---
-headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json"
-}
-
-# --- Pool selection ---
+# --- Select pool
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-# --- Summary generator ---
-def make_summary(data: pd.DataFrame):
+# --- Summary function
+def make_summary(data: pd.DataFrame) -> str:
     summary = ""
     for _, row in data.iterrows():
         summary += (
@@ -576,9 +570,17 @@ def make_summary(data: pd.DataFrame):
         )
     return summary
 
-# --- LLM call ---
-def ask_openrouter(question: str, context: str):
-    url = "https://openrouter.ai/v1/chat/completions"
+# --- LLM request
+def ask_openrouter(question: str, context: str, api_key: str) -> str:
+    url = "https://openrouter.ai/api/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://marketmakingboard.streamlit.app/",   # 🔁 تغییر بده به URL اپلیکیشن Streamlit خودت
+        "X-Title": "Market Making AI Agent"
+    }
+
     payload = {
         "model": "moonshotai/kimi-dev-72b:free",
         "messages": [
@@ -587,13 +589,14 @@ def ask_openrouter(question: str, context: str):
             {"role": "user", "content": question}
         ]
     }
-    response = requests.post(url, headers=headers, json=payload)
-    if response.ok:
+
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
     else:
-        raise Exception(f"Status: {response.status_code}, Body: {response.text}")
+        raise Exception(f"❌ Error: Status: {response.status_code}, Body: {response.text}")
 
-# --- Main logic ---
+# --- Question input
 question = st.text_input("Ask your market-making agent a question:")
 
 if question:
@@ -601,17 +604,16 @@ if question:
         st.warning("No data for this pool.")
     else:
         summary_text = make_summary(filtered)
-        st.markdown("**🔎 Summary sent to LLM:**")
+        st.markdown("🔎 **Summary sent to LLM:**")
         st.code(summary_text)
+
         with st.spinner("🤖 Thinking..."):
             try:
-                answer = ask_openrouter(question, summary_text)
-                st.markdown("**🧠 Agent Response:**")
+                answer = ask_openrouter(question, summary_text, API_KEY)
+                st.markdown("🧠 **Agent Response:**")
                 st.write(answer)
             except Exception as e:
-                st.error(f"❌ Error: {e}")
-
-
+                st.error(str(e))
 
 st.markdown("___")
 
