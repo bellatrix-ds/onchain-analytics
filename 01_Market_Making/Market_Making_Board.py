@@ -548,72 +548,59 @@ import pandas as pd
 import requests
 
 df = data.copy()
+
 st.title("📈 Market Making AI Agent (Online)")
 
+# --- API Key ---
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
+st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
+# --- Headers ---
 headers = {
     "Authorization": f"Bearer {API_KEY}",
     "Content-Type": "application/json"
 }
 
-def ask_openrouter(question, summary_text):
-    payload = {
-        "model": "moonshotai/kimi-dev-72b:free",
-        "messages": [
-            {"role": "system", "content": "You are a market making analyst."},
-            {"role": "user", "content": summary_text},
-            {"role": "user", "content": question}
-        ]
-    }
+# --- Pool selection ---
+selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
+filtered = df[df["pool"] == selected_pool]
 
-    url = "https://openrouter.ai/v1/chat/completions"
-    response = requests.post(url, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        raise Exception(f"Status: {response.status_code}, Body: {response.text}")
-
-    return response.json()["choices"][0]["message"]["content"]
-
-
-
-
-
-summary_text = make_summary(filtered)
-
-# --- Ask user for a question ---
-question = st.text_input("Ask your market-making agent a question:")
+# --- Summary generator ---
+def make_summary(data: pd.DataFrame):
+    summary = ""
+    for _, row in data.iterrows():
+        summary += (
+            f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
+            f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
+            f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
+        )
+    return summary
 
 # --- LLM call ---
 def ask_openrouter(question: str, context: str):
     url = "https://openrouter.ai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-
     payload = {
         "model": "moonshotai/kimi-dev-72b:free",
         "messages": [
-            {"role": "system", "content": "You are a DeFi data expert."},
+            {"role": "system", "content": "You are a DeFi market-making analyst."},
             {"role": "user", "content": f"Context:\n{context}"},
             {"role": "user", "content": question}
         ]
     }
-
     response = requests.post(url, headers=headers, json=payload)
-
     if response.ok:
-        result = response.json()
-        return result["choices"][0]["message"]["content"]
+        return response.json()["choices"][0]["message"]["content"]
     else:
         raise Exception(f"Status: {response.status_code}, Body: {response.text}")
 
-# --- Handle question ---
+# --- Main logic ---
+question = st.text_input("Ask your market-making agent a question:")
+
 if question:
     if filtered.empty:
         st.warning("No data for this pool.")
     else:
+        summary_text = make_summary(filtered)
         st.markdown("**🔎 Summary sent to LLM:**")
         st.code(summary_text)
         with st.spinner("🤖 Thinking..."):
@@ -625,7 +612,6 @@ if question:
                 st.error(f"❌ Error: {e}")
 
 
-st.write("🔐 Loaded API_KEY:", API_KEY)
 
 st.markdown("___")
 
