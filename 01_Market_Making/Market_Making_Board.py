@@ -193,7 +193,7 @@ grouped["Volume ($)"] = (grouped["volume"] / 1_000_000).round(1).astype(str) + "
 
 # --- Apply Low-Competition Filter
 filtered = grouped[
-    (grouped["APR (%)"] > 10) &
+    (grouped["APR (%)"] > 1000) &
     (grouped["Spread (%)"] > 2) &
     (grouped["Swap Count"] < 100)
 ]
