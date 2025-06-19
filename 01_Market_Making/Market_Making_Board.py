@@ -557,9 +557,11 @@ API_KEY = "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"
 st.text(f"🔐 Loaded API_KEY: {API_KEY[:20]}...")
 
 
+# --- Select pool
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
+# --- Summary function
 def make_summary(data: pd.DataFrame) -> str:
     summary = ""
     for _, row in data.iterrows():
@@ -570,22 +572,23 @@ def make_summary(data: pd.DataFrame) -> str:
         )
     return summary
 
-def ask_groq(question: str, context: str) -> str:
-    url = "https://api.groq.com/openai/v1/chat/completions"
-
+# --- LLM request using llama3-8b-8192
+def ask_openrouter(question: str, context: str) -> str:
+    url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://marketmakingboard.streamlit.app/",  # آدرس واقعی اپت
+        "X-Title": "Market Making AI Agent"
     }
 
     payload = {
-        "model": "mixtral-8x7b-32768",
+        "model": "meta-llama/llama-3-8b-instruct:free",  # ✅ مدل رایگان و در دسترس
         "messages": [
             {"role": "system", "content": "You are a DeFi market-making analyst."},
             {"role": "user", "content": f"Context:\n{context}"},
             {"role": "user", "content": question}
-        ],
-        "temperature": 0.3
+        ]
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
@@ -595,7 +598,7 @@ def ask_groq(question: str, context: str) -> str:
     else:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
-# --- پرسش کاربر ---
+# --- User input
 question = st.text_input("Ask your market-making agent a question:")
 
 if question:
@@ -608,7 +611,7 @@ if question:
 
         with st.spinner("🤖 Thinking..."):
             try:
-                answer = ask_groq(question, summary_text)
+                answer = ask_openrouter(question, summary_text)
                 st.markdown("🧠 **Agent Response:**")
                 st.write(answer)
             except Exception as e:
