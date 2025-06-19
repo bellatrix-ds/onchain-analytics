@@ -610,23 +610,36 @@ def ask_deepseek(question: str, context: str) -> str:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
 # --- پرسش ---
-question = st.text_input("Ask your market-making agent a question:")
+question = st.text_input("💬 Ask a market-making question:")
 
+# 📌 اگر سوال وارد شده
 if question:
-    if filtered.empty:
-        st.warning("No data for this pool.")
-    else:
-        summary = make_summary(filtered)
-        st.markdown("🔎 **Summary sent to LLM:**")
-        st.code(summary)
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
 
-        with st.spinner("🤖 Thinking..."):
-            try:
-                response = ask_deepseek(question, summary)
-                st.markdown("🧠 **Agent Response:**")
-                st.write(response)
-            except Exception as e:
-                st.error(str(e))
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You are a professional DeFi market-making assistant."},
+            {"role": "user", "content": question}
+        ]
+    }
+
+    with st.spinner("🤖 Thinking..."):
+        response = requests.post(
+            "https://api.deepseek.com/v1/chat/completions",
+            headers=headers,
+            data=json.dumps(payload)
+        )
+
+        if response.status_code == 200:
+            answer = response.json()["choices"][0]["message"]["content"]
+            st.markdown("🧠 **Model Response:**")
+            st.write(answer)
+        else:
+            st.error(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
 
 st.markdown("___")
