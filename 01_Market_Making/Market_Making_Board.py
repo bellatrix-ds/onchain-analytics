@@ -543,36 +543,20 @@ st.markdown("___")
 
 # __________________ Part5: Ai Agent ______________________________________________________________________
 
-df = data.copy()  
+import streamlit as st
+import pandas as pd
+import requests
+
+df = data.copy()
 st.title("📈 Market Making AI Agent (Online)")
 
+# 🔐 API KEY
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
-"model": "moonshotai/kimi-dev-72b:free"
-
 st.text(f"🔐 API_KEY preview: {API_KEY[:10]}")
 
 if not API_KEY:
     st.error("❌ API_KEY is empty! Streamlit secrets not loaded.")
 
-
-
-headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json",
-}
-
-
-payload = {
-    "model": "mistralai/mistral-7b-instruct",
-    "messages": [
-        {"role": "user", "content": "Say hello"}
-    ]
-}
-
-response = requests.post("https://openrouter.ai/v1/chat/completions", headers=headers, json=payload)
-
-st.code(f"Status Code: {response.status_code}")
-st.text(response.text)
 # --- Pool selection ---
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
@@ -594,38 +578,32 @@ summary_text = make_summary(filtered)
 question = st.text_input("Ask your market-making agent a question:")
 
 # --- LLM call ---
-import os
-import requests
+def ask_openrouter(question: str, context: str):
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
 
-url = "https://openrouter.ai/api/v1/chat/completions"
-headers = {
-    "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
-    "Content-Type": "application/json"
-}
+    payload = {
+        "model": "moonshotai/kimi-dev-72b:free",
+        "messages": [
+            {"role": "system", "content": "You are a DeFi data expert."},
+            {"role": "user", "content": f"Context:\n{context}"},
+            {"role": "user", "content": question}
+        ]
+    }
 
-payload = {
-    "model": "moonshotai/kimi-dev-72b:free",
-    "messages": [
-        {"role": "user", "content": "What's the meaning of life?"}
-    ]
-}
+    response = requests.post(url, headers=headers, json=payload)
 
-response = requests.post(url, headers=headers, json=payload)
-
-if response.ok:
-    print(response.json())
-else:
-    print("ERROR", response.status_code, response.text)
-
-
-
+    if response.ok:
+        result = response.json()
+        return result["choices"][0]["message"]["content"]
+    else:
+        raise Exception(f"Status: {response.status_code}, Body: {response.text}")
 
 # --- Handle question ---
 if question:
-
-
-
-    
     if filtered.empty:
         st.warning("No data for this pool.")
     else:
@@ -638,12 +616,6 @@ if question:
                 st.write(answer)
             except Exception as e:
                 st.error(f"❌ Error: {e}")
-
-
-
-print("🔵 API raw response:", response.text)
-st.code(response.text, language="json")
-
 st.markdown("___")
 
 #----
