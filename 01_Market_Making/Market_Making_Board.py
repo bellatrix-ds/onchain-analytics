@@ -554,61 +554,66 @@ st.markdown("___")
 df = data.copy()
 
 # __________________ Part5: Ai Agent ______________________________________________________________________
-
+---
 st.markdown("### 🤖 Part 5: Ask Your Market-Making AI Agent")
 st.markdown("  💬 Have specific questions about a pool's performance or market conditions? Ask your AI analyst for insights.")
 
 
-# --- از Streamlit Secrets برای بارگذاری امن کلید API استفاده کنید ---
-# اطمینان حاصل کنید که فایل .streamlit/secrets.toml با کلید OPENROUTER_API_KEY تنظیم شده است
+# --- بارگذاری کلید API از Streamlit Secrets ---
 try:
     API_KEY = st.secrets["OPENROUTER_API_KEY"]
     st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 except KeyError:
     st.error("Error: OPENROUTER_API_KEY not found in Streamlit secrets. Please configure your .streamlit/secrets.toml file.")
-    st.stop() # اگر کلید API پیدا نشد، اجرا را متوقف کن
+    st.stop() # اگر کلید API پیدا نشد، اجرای برنامه متوقف می‌شود
 
 # df از ابتدای اسکریپت در دسترس است، نیازی به تعریف مجدد نیست.
-
-# --- سلکت باکس انتخاب پول ---
-# اطمینان حاصل کنید که 'pool' ستونی معتبر در DataFrame شما است.
-if "pool" in df.columns:
-    selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
-    filtered = df[df["pool"] == selected_pool]
-else:
+# اطمینان حاصل می‌کنیم که ستون 'pool' در df وجود دارد
+if "pool" not in df.columns:
     st.error("Error: 'pool' column not found in your data. Please check your data structure.")
-    selected_pool = None # مقدار دهی پیش فرض برای جلوگیری از خطا
-    filtered = pd.DataFrame()
+    st.stop() # اگر ستون اصلی پیدا نشد، متوقف شوید
+
+# --- سلکت باکس انتخاب Pool ---
+selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
+filtered = df[df["pool"] == selected_pool]
 
 
 def make_summary(data: pd.DataFrame) -> str:
+    """
+    خلاصه‌ای از داده‌های pool را برای ارسال به مدل LLM ایجاد می‌کند.
+    """
     summary = ""
-    # بررسی کنید که ستون‌های مورد نیاز برای summary وجود دارند
+    # ستون‌های لازم برای خلاصه را بررسی می‌کنیم
     required_columns = ['date', 'volume', 'Spread', 'order_size', 'Trade_size', 'swap_count']
     if not all(col in data.columns for col in required_columns):
-        return "Error: Missing required columns for summary generation."
+        return f"Error: Missing one or more required columns for summary generation: {', '.join(col for col in required_columns if col not in data.columns)}"
 
     for _, row in data.iterrows():
+        # مطمئن شوید که فرمت تاریخ مناسب است
+        date_str = row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])
         summary += (
-            f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
+            f"Date: {date_str}, Volume: ${row['volume']:.2f}, "
             f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
             f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
         )
     return summary
 
 def ask_openrouter(question: str, context: str, api_key: str) -> str:
+    """
+    سوال را به API OpenRouter ارسال کرده و پاسخ را دریافت می‌کند.
+    """
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://marketmakingboard.streamlit.app/", # مطمئن شوید این URL صحیح است
+        "HTTP-Referer": "https://marketmakingboard.streamlit.app/", # مطمئن شوید این URL سایت واقعی شماست
         "X-Title": "Market Making AI Agent"
     }
 
     payload = {
-        "model": "moonshotai/kimi-dev-72b:free", # بررسی کنید این مدل هنوز رایگان و در دسترس باشد
+        "model": "sarvamai/sarvam-m:free", # <<< مدل جدید
         "messages": [
-            {"role": "system", "content": "You are a DeFi market-making analyst."},
+            {"role": "system", "content": "You are a DeFi market-making analyst specializing in stable pools."},
             {"role": "user", "content": f"Context:\n{context}"},
             {"role": "user", "content": question}
         ]
@@ -619,34 +624,44 @@ def ask_openrouter(question: str, context: str, api_key: str) -> str:
         response.raise_for_status() # برای خطاهای HTTP (4xx یا 5xx) یک Exception ایجاد می‌کند
         return response.json()["choices"][0]["message"]["content"]
     except requests.exceptions.RequestException as e:
-        raise Exception(f"❌ API Request Error: {e}")
+        # مدیریت خطاهای درخواست شبکه، Timeout و ...
+        st.error(f"❌ API Request Error: Please check your internet connection or API server. Details: {e}")
+        return f"Error: Failed to connect to AI agent. {e}"
     except KeyError:
-        raise Exception(f"❌ API Response Error: Unexpected JSON structure. Response: {response.text}")
+        # مدیریت خطاهایی که ساختار پاسخ JSON غیرمنتظره است
+        st.error(f"❌ API Response Error: Unexpected JSON structure from API. Response: {response.text}")
+        return f"Error: Unexpected response from AI agent. Raw response: {response.text}"
     except Exception as e:
-        raise Exception(f"❌ An unexpected error occurred: {e}. Response: {response.text}")
+        # مدیریت سایر خطاهای غیرمنتظره
+        st.error(f"❌ An unexpected error occurred with the AI agent: {e}")
+        return f"Error: An unexpected problem occurred. {e}"
 
 
-# --- بخش پرسش ---
-question = st.text_input("Ask your market-making agent a question:")
+# --- بخش پرسش و پاسخ ---
+st.markdown(" ")
+question = st.text_input("Ask your market-making agent a question about the selected pool's performance:")
 
 if question:
     if filtered.empty:
-        st.warning("No data for this pool. Please select a pool with available data.")
+        st.warning("No data for this pool. Please select a pool with available data to analyze.")
     else:
         summary_text = make_summary(filtered)
-        if "Error:" in summary_text: # اگر make_summary با خطا مواجه شد
+        if "Error:" in summary_text: # اگر make_summary خطا برگرداند
             st.error(summary_text)
         else:
+            st.markdown("---")
             st.markdown("🔎 **Summary sent to LLM:**")
             st.code(summary_text)
+            st.markdown("---")
 
             with st.spinner("🤖 Thinking..."):
                 try:
                     answer = ask_openrouter(question, summary_text, API_KEY)
-                    st.markdown("🧠 **Agent Response:**")
+                    st.markdown("### 🧠 Agent Response:")
                     st.write(answer)
                 except Exception as e:
-                    st.error(str(e))
+                    # خطاهای مطرح شده توسط ask_openrouter در اینجا گرفته می‌شوند
+                    st.error(f"An error occurred while getting AI response: {e}")
 
 st.markdown("___")
 
