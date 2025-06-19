@@ -547,8 +547,7 @@ df = data.copy()
 st.title("📈 Market Making AI Agent (Online)")
 
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
-MODEL = "mistralai/mistral-7b-instruct"
-
+"model": "moonshotai/kimi-dev-72b:free"
 
 st.text(f"🔐 API_KEY preview: {API_KEY[:10]}")
 
@@ -595,35 +594,28 @@ summary_text = make_summary(filtered)
 question = st.text_input("Ask your market-making agent a question:")
 
 # --- LLM call ---
-
+import os
 import requests
 
-def ask_openrouter(question, context):
-    api_url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {st.secrets['OPENROUTER_API_KEY']}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "openai/gpt-3.5-turbo",
-        "messages": [
-            {"role": "system", "content": "You are a DeFi market-making expert."},
-            {"role": "user", "content": f"Data summary: {context}"},
-            {"role": "user", "content": question}
-        ]
-    }
+url = "https://openrouter.ai/api/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+    "Content-Type": "application/json"
+}
 
-    try:
-        response = requests.post(api_url, headers=headers, json=payload)
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
-    except requests.exceptions.RequestException as e:
-        st.error(f"HTTP error: {e}")
-    except ValueError:
-        st.error(f"Response not in JSON format:\n\n{response.text}")
-    except KeyError:
-        st.error("Unexpected response format:\n\n" + str(response.json()))
+payload = {
+    "model": "moonshotai/kimi-dev-72b:free",
+    "messages": [
+        {"role": "user", "content": "What's the meaning of life?"}
+    ]
+}
 
+response = requests.post(url, headers=headers, json=payload)
+
+if response.ok:
+    print(response.json())
+else:
+    print("ERROR", response.status_code, response.text)
 
 
 
