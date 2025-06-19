@@ -576,7 +576,7 @@ def make_summary(data: pd.DataFrame) -> str:
 
 # --- تابع ارسال به OpenRouter
 def ask_openrouter(question: str, context: str) -> str:
-    url = "https://openrouter.ai/api/v1/chat/completions"
+    url = "https://openrouter.ai/api/v2/chat/completions"
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
