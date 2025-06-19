@@ -605,7 +605,7 @@ def ask_openrouter(question, context):
         ]
     }
 
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+    response = requests.post(""https://openrouter.ai/v1/chat/completions"", headers=headers, json=payload)
 
     if response.status_code != 200:
         raise Exception(f"API Error {response.status_code}: {response.text}")
