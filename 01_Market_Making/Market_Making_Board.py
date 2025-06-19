@@ -549,98 +549,47 @@ st.markdown("___")
 
 # __________________ Part5: Ai Agent ______________________________________________________________________
 
-
 import streamlit as st
-import pandas as pd
 import requests
 import json
 
-# --- تنظیمات ---
-st.set_page_config(page_title="Market Making AI Agent - DeepSeek", page_icon="📊")
+# 🧠 مدل مورد استفاده
+MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-st.title("📊 Market Making AI Agent - DeepSeek Model")
+# 🔐 کلید API
+API_KEY = "79e7ccd7e568ae5694594efe5e318a03fc42a64d4c7bc2dc491a6e2123404fd9"  # کلید خودتو اینجا بذار
 
-API_KEY = "sk-f6de655351464a91a281556f393670bf"
+# 📝 ورودی کاربر
+question = st.text_input("💬 Ask your question:")
 
-if not API_KEY or "sk-" not in API_KEY:
-    st.error("❌ API Key is missing or invalid.")
-    st.stop()
-else:
-    st.success(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
-
-df = data.copy()
-
-# --- انتخاب استخر ---
-selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
-filtered = df[df["pool"] == selected_pool]
-
-# --- خلاصه‌سازی ---
-def make_summary(data: pd.DataFrame) -> str:
-    summary = ""
-    for _, row in data.iterrows():
-        summary += (
-            f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
-            f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
-            f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
-        )
-    return summary.strip()
-
-# --- تابع فراخوانی DeepSeek ---
-def ask_deepseek(question: str, context: str) -> str:
-    url = "https://api.deepseek.com/v1/chat/completions"
+# 🧠 درخواست به Together.ai
+def ask_togetherai(prompt: str):
+    url = "https://api.together.xyz/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "deepseek-chat",
+        "model": MODEL,
         "messages": [
-            {"role": "system", "content": "You are a DeFi market-making analyst."},
-            {"role": "user", "content": f"Here is the market data:\n{context}"},
-            {"role": "user", "content": question}
-        ],
-        "temperature": 0.7
+            {"role": "user", "content": prompt}
+        ]
     }
-
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-
+    response = requests.post(url, headers=headers, json=payload)
     if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
     else:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
-# --- پرسش ---
-question = st.text_input("💬 Ask a market-making question:")
-
-# 📌 اگر سوال وارد شده
+# ⚙️ اجرای درخواست
 if question:
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": "deepseek-chat",
-        "messages": [
-            {"role": "system", "content": "You are a professional DeFi market-making assistant."},
-            {"role": "user", "content": question}
-        ]
-    }
-
     with st.spinner("🤖 Thinking..."):
-        response = requests.post(
-            "https://api.deepseek.com/v1/chat/completions",
-            headers=headers,
-            data=json.dumps(payload)
-        )
-
-        if response.status_code == 200:
-            answer = response.json()["choices"][0]["message"]["content"]
-            st.markdown("🧠 **Model Response:**")
+        try:
+            answer = ask_togetherai(question)
+            st.markdown("🧠 **Response:**")
             st.write(answer)
-        else:
-            st.error(f"❌ Error: Status {response.status_code}, Body: {response.text}")
-
+        except Exception as e:
+            st.error(str(e))
 
 st.markdown("___")
 
