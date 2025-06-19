@@ -549,16 +549,19 @@ st.title("📈 Market Making AI Agent (Online)")
 API_KEY = st.secrets["OPENROUTER_API_KEY"]
 MODEL = "mistralai/mistral-7b-instruct"
 
+
 st.text(f"🔐 API_KEY preview: {API_KEY[:10]}")
 
 if not API_KEY:
     st.error("❌ API_KEY is empty! Streamlit secrets not loaded.")
 
 
+
 headers = {
     "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
 }
+
 
 payload = {
     "model": "mistralai/mistral-7b-instruct",
