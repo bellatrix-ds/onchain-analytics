@@ -558,7 +558,6 @@ df = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analyti
 
 
 st.title("📊 Market Making AI Agent - DeepSeek Model")
-st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
 # --- انتخاب استخر
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
@@ -600,6 +599,10 @@ def ask_openrouter(question: str, context: str) -> str:
         return response.json()["choices"][0]["message"]["content"]
     else:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
+
+
+print(headers)
+
 
 # --- گرفتن سوال از کاربر
 question = st.text_input("Ask your market-making agent a question:")
