@@ -583,7 +583,7 @@ def ask_openrouter(question: str, context: str) -> str:
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
         "HTTP-Referer": "https://marketmakingboard.streamlit.app/",
-        "X-Title": "🔍 Stable Pools Market Maker Radar"
+        "X-Title": "Stable Pools Market Maker Radar"
     }
 
     payload = {
