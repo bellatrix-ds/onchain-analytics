@@ -570,6 +570,7 @@ summary_text = make_summary(filtered)
 question = st.text_input("Ask your market-making agent a question:")
 
 # --- Function to call OpenRouter API ---
+
 def ask_openrouter(question, context):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -578,24 +579,28 @@ def ask_openrouter(question, context):
     payload = {
         "model": MODEL,
         "messages": [
-            {"role": "system", "content": "You are a DeFi market analyst."},
+            {"role": "system", "content": "You are a helpful DeFi market-making assistant."},
             {"role": "user", "content": f"Pool data:\n{context}\n\nUser question: {question}"}
         ]
     }
-    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-    return response.json()["choices"][0]["message"]["content"]
 
-# --- Trigger the agent ---
-if question:
-    with st.spinner("🤖 Thinking..."):
-        try:
-            answer = ask_openrouter(question, summary_text)
-            st.markdown("**🧠 Agent Response:**")
-            st.write(answer)
-        except Exception as e:
-            st.error(f"❌ Error: {e}")
+    response = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers=headers,
+        json=payload
+    )
 
+    # Defensive parsing
+    if response.status_code != 200:
+        raise Exception(f"API Error {response.status_code}: {response.text}")
 
+    res_json = response.json()
+
+    # Check if response has 'choices'
+    if "choices" not in res_json:
+        raise Exception(f"Unexpected response: {res_json}")
+
+    return res_json["choices"][0]["message"]["content"]
 
 st.markdown("___")
 
