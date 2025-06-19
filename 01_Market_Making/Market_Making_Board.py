@@ -647,6 +647,11 @@ if question:
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
+
+
+print("🔵 API raw response:", response.text)
+st.code(response.text, language="json")
+
 st.markdown("___")
 
 #----
