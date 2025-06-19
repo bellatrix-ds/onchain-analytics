@@ -550,19 +550,31 @@ st.markdown("___")
 # __________________ Part5: Ai Agent ______________________________________________________________________
 
 
+import streamlit as st
+import pandas as pd
+import requests
+import json
 
+# --- تنظیمات ---
+st.set_page_config(page_title="Market Making AI Agent - DeepSeek", page_icon="📊")
 
-API_KEY = "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"
+st.title("📊 Market Making AI Agent - DeepSeek Model")
+
+API_KEY = "sk-f6de655351464a91a281556f393670bf"
+
+if not API_KEY or "sk-" not in API_KEY:
+    st.error("❌ API Key is missing or invalid.")
+    st.stop()
+else:
+    st.success(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
 df = data.copy()
-st.title("📊 Market Making AI Agent - DeepSeek Model")
-st.success(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
-# -- انتخاب استخر
+# --- انتخاب استخر ---
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-# -- تابع ساخت خلاصه برای مدل
+# --- خلاصه‌سازی ---
 def make_summary(data: pd.DataFrame) -> str:
     summary = ""
     for _, row in data.iterrows():
@@ -571,51 +583,50 @@ def make_summary(data: pd.DataFrame) -> str:
             f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
             f"Trade Size: ${row['Trade_size']:.2f}, Swaps: {row['swap_count']}\n"
         )
-    return summary
+    return summary.strip()
 
-# -- تابع فراخوانی مدل OpenRouter
-def ask_openrouter(question: str, context: str) -> str:
-    url = "https://api.openrouter.ai/v1/chat/completions"
+# --- تابع فراخوانی DeepSeek ---
+def ask_deepseek(question: str, context: str) -> str:
+    url = "https://api.deepseek.com/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://marketmakingboard.streamlit.app",  # آدرس معتبر
-        "X-Title": "Market Making AI Agent"
+        "Content-Type": "application/json"
     }
     payload = {
-        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "model": "deepseek-chat",
         "messages": [
             {"role": "system", "content": "You are a DeFi market-making analyst."},
-            {"role": "user", "content": f"Context:\n{context}"},
+            {"role": "user", "content": f"Here is the market data:\n{context}"},
             {"role": "user", "content": question}
-        ]
+        ],
+        "temperature": 0.7
     }
+
     response = requests.post(url, headers=headers, data=json.dumps(payload))
+
     if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
     else:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
-# -- ورودی کاربر
+# --- پرسش ---
 question = st.text_input("Ask your market-making agent a question:")
 
 if question:
     if filtered.empty:
         st.warning("No data for this pool.")
     else:
-        summary_text = make_summary(filtered)
+        summary = make_summary(filtered)
         st.markdown("🔎 **Summary sent to LLM:**")
-        st.code(summary_text)
+        st.code(summary)
 
         with st.spinner("🤖 Thinking..."):
             try:
-                answer = ask_openrouter(question, summary_text)
+                response = ask_deepseek(question, summary)
                 st.markdown("🧠 **Agent Response:**")
-                st.write(answer)
+                st.write(response)
             except Exception as e:
                 st.error(str(e))
-
-
 
 
 st.markdown("___")
