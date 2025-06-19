@@ -551,17 +551,19 @@ st.markdown("___")
 
 
 
+
+API_KEY = "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"
+
 df = data.copy()
 
-API_KEY = "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"
-st.text(f"🔐 Loaded API_KEY: {API_KEY[:20]}...")
+st.title("📊 Market Making AI Agent - DeepSeek Model")
+st.text(f"🔐 Loaded API_KEY: {API_KEY[:10]}...")
 
-
-# --- Select pool
+# --- انتخاب استخر
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-# --- Summary function
+# --- خلاصه‌سازی دیتا برای ارسال به مدل
 def make_summary(data: pd.DataFrame) -> str:
     summary = ""
     for _, row in data.iterrows():
@@ -572,18 +574,19 @@ def make_summary(data: pd.DataFrame) -> str:
         )
     return summary
 
-# --- LLM request using llama3-8b-8192
+# --- تابع ارسال به OpenRouter
 def ask_openrouter(question: str, context: str) -> str:
     url = "https://openrouter.ai/api/v1/chat/completions"
+
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://marketmakingboard.streamlit.app/",  # آدرس واقعی اپت
+        "HTTP-Referer": "https://marketmakingboard.streamlit.app/",
         "X-Title": "Market Making AI Agent"
     }
 
     payload = {
-        "model": "meta-llama/llama-3-8b-instruct:free",  # ✅ مدل رایگان و در دسترس
+        "model": "deepseek/deepseek-chat-v3-0324:free",
         "messages": [
             {"role": "system", "content": "You are a DeFi market-making analyst."},
             {"role": "user", "content": f"Context:\n{context}"},
@@ -592,13 +595,12 @@ def ask_openrouter(question: str, context: str) -> str:
     }
 
     response = requests.post(url, headers=headers, data=json.dumps(payload))
-
     if response.status_code == 200:
         return response.json()["choices"][0]["message"]["content"]
     else:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
-# --- User input
+# --- گرفتن سوال از کاربر
 question = st.text_input("Ask your market-making agent a question:")
 
 if question:
@@ -616,6 +618,7 @@ if question:
                 st.write(answer)
             except Exception as e:
                 st.error(str(e))
+
 
 st.markdown("___")
 
