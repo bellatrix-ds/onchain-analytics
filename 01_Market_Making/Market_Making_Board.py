@@ -549,6 +549,11 @@ st.markdown("___")
 
 # __________________ Part5: Ai Agent ______________________________________________________________________
 
+st.markdown("### 🤖 Part 5: Ask the AI about this pool")
+st.markdown("Type your question (e.g. “Is this pool showing healthy volume?”), and the agent will analyze key metrics like spread, volume, and trade size 📊✨")
+
+
+
 import streamlit as st
 import requests
 import json
