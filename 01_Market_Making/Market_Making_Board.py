@@ -561,17 +561,15 @@ API_KEY = "79e7ccd7e568ae5694594efe5e318a03fc42a64d4c7bc2dc491a6e2123404fd9"  # 
 
 df = data.copy()
 
-# 🎯 انتخاب استخر
-st.title("📊 Market Making AI Agent - Together AI")
-st.text(f"🔐 API_KEY Loaded: {API_KEY[:10]}...")
-
 selected_pool = st.selectbox("Select a pool to analyze:", df["pool"].unique())
 filtered = df[df["pool"] == selected_pool]
 
-# 📝 تابع خلاصه‌سازی داده‌ها
+question = st.text_input("💬 Ask your question:")
+
+# --- Summary Builder ---
 def make_summary(data: pd.DataFrame, limit=5) -> str:
     summary = ""
-    for _, row in data.iterrows():
+    for _, row in data.head(limit).iterrows():
         summary += (
             f"Date: {row['date']}, Volume: ${row['volume']:.2f}, "
             f"Spread: {row['Spread']:.4f}, Order Size: ${row['order_size']:.2f}, "
@@ -579,43 +577,47 @@ def make_summary(data: pd.DataFrame, limit=5) -> str:
         )
     return summary
 
-# 🧠 ارسال به Together.ai
-def ask_togetherai(question: str, context: str):
+# --- API Call ---
+def ask_together_api(question: str, context: str) -> str:
     url = "https://api.together.xyz/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
+
     payload = {
-        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        "model": "togethercomputer/llama-2-13b-chat",
         "messages": [
-            {"role": "system", "content": "You are a DeFi market-making analyst. Use the provided context to answer the user's question."},
+            {"role": "system", "content": "You are a DeFi market-making analyst."},
             {"role": "user", "content": f"Context:\n{context}"},
             {"role": "user", "content": question}
-        ]
+        ],
+        "temperature": 0.7,
+        "top_p": 0.7
     }
+
     response = requests.post(url, headers=headers, json=payload)
     if response.ok:
         return response.json()["choices"][0]["message"]["content"]
     else:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
-# 🔍 سؤال از کاربر
-question = st.text_input("💬 Ask your question:")
-
-# 🧠 اگر سؤال وارد شده و دیتا وجود داره، خلاصه بده
+# --- Execution ---
 if question:
     if filtered.empty:
-        st.warning("No data for this pool.")
+        st.warning("No data for selected pool.")
     else:
-        summary = make_summary(filtered)
+        context = make_summary(filtered)
         with st.spinner("🤖 Thinking..."):
             try:
-                answer = ask_togetherai(question, summary)
-                st.markdown("🧠 **Response:**")
+                answer = ask_together_api(question, context)
+                st.markdown("**🧠 Response:**")
                 st.write(answer)
             except Exception as e:
                 st.error(str(e))
+
+
+
 st.markdown("___")
 
 #----
