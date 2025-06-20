@@ -586,7 +586,7 @@ def ask_together_api(question: str, context: str) -> str:
     }
 
     payload = {
-        "model": "togethercomputer/llama-2-13b-chat",
+        "model": "mistralai/Mistral-7B-Instruct-v0.2",
         "messages": [
             {"role": "system", "content": "You are a DeFi market-making analyst."},
             {"role": "user", "content": f"Context:\n{context}"},
