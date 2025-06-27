@@ -28,7 +28,7 @@ st.title("Uniswap Onchain LP Activity & Yield Monitor")
 
 df = pd.DataFrame(data)
 
-df['date'] = pd.to_datetime(df['date'])
+df['date'] = pd.to_datetime(df['date'] , errors="coerce")
 
 fig = make_subplots(rows=1, cols=2, subplot_titles=("Mint vs Burn", "Swap Volume"))
 
