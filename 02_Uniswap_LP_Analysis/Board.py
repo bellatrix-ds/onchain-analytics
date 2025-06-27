@@ -24,7 +24,7 @@ from plotly.subplots import make_subplots
 
 df = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/02_Uniswap_LP_Analysis/01_uniswap_daily_events_count.csv', on_bad_lines='skip')
 
-st.set_page_config(layout="wide")
+# st.set_page_config(layout="wide")
 st.title("Uniswap Onchain LP Activity & Yield Monitor")
 
 
