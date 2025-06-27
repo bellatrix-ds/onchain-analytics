@@ -34,13 +34,13 @@ df['date'] = pd.to_datetime(df['date'] , errors="coerce")
 
 st.subheader("Mint Events")
 fig1 = go.Figure()
-fig1.add_trace(go.Scatter(x=df['date'], y=df['Mint'], mode='lines+markers', name='Mint', line=dict(color='green')))
+fig1.add_trace(go.Scatter(x=df['date'], y=df['Mint'], mode='lines', name='Mint', line=dict(color='green')))
 fig1.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
 st.plotly_chart(fig1, use_container_width=True)
 
 st.subheader("Burn Events")
 fig2 = go.Figure()
-fig2.add_trace(go.Scatter(x=df['date'], y=df['Burn'], mode='lines+markers', name='Burn', line=dict(color='red')))
+fig2.add_trace(go.Scatter(x=df['date'], y=df['Burn'], mode='lines', name='Burn', line=dict(color='red')))
 fig2.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
 st.plotly_chart(fig2, use_container_width=True)
 
