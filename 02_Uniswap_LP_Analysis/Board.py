@@ -57,6 +57,26 @@ fig.add_hline(y=0, line=dict(color='gray', dash='dash'))
 fig.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
 st.plotly_chart(fig, use_container_width=True)
 
+# بخش دوم: Area Chart Mint vs Burn
+st.subheader("🏞️ Mint vs Burn (Area Chart)")
+fig2 = go.Figure()
+fig2.add_trace(go.Scatter(x=df['date'], y=df['Mint'], fill='tozeroy', name='Mint', line=dict(color='green')))
+fig2.add_trace(go.Scatter(x=df['date'], y=df['Burn'], fill='tonexty', name='Burn', line=dict(color='red')))
+fig2.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
+st.plotly_chart(fig2, use_container_width=True)
+
+
+
+
+# ──────────────────────
+# بخش سوم: Moving Average Chart
+# ──────────────────────
+st.subheader("📈 7-Day Moving Average of Mint and Burn")
+fig3 = go.Figure()
+fig3.add_trace(go.Scatter(x=df['date'], y=df['Mint_smooth'], name='Mint (7d avg)', line=dict(color='green')))
+fig3.add_trace(go.Scatter(x=df['date'], y=df['Burn_smooth'], name='Burn (7d avg)', line=dict(color='red')))
+fig3.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
+st.plotly_chart(fig3, use_container_width=True)
 
 
     
