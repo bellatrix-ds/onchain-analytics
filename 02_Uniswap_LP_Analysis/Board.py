@@ -32,26 +32,30 @@ st.title("Uniswap Onchain LP Activity & Yield Monitor")
 df['date'] = pd.to_datetime(df['date'] , errors="coerce")
 
 
-st.subheader("Mint Events")
-fig1 = go.Figure()
-fig1.add_trace(go.Scatter(x=df['date'], y=df['Mint'], mode='lines', name='Mint', line=dict(color='green')))
-fig1.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
-st.plotly_chart(fig1, use_container_width=True)
-
-st.subheader("Burn Events")
-fig2 = go.Figure()
-fig2.add_trace(go.Scatter(x=df['date'], y=df['Burn'], mode='lines', name='Burn', line=dict(color='red')))
-fig2.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
-st.plotly_chart(fig2, use_container_width=True)
-
-
-
 st.subheader("Mint & Burn Events")
 fig3 = go.Figure()
 fig3.add_trace(go.Scatter(x=df['date'], y=df['Mint'], mode='lines', name='Mint', line=dict(color='green')))
 fig3.add_trace(go.Scatter(x=df['date'], y=df['Burn'], mode='lines', name='Burn', line=dict(color='red')))
 fig3.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
 st.plotly_chart(fig3, use_container_width=True)
+
+
+
+
+
+df['Net_Mint'] = df['Mint'] - df['Burn']
+df['Mint_smooth'] = df['Mint'].rolling(7).mean()
+df['Burn_smooth'] = df['Burn'].rolling(7).mean()
+# ──────────────────────
+# بخش اول: نمودار Net Mint
+# ──────────────────────
+
+st.subheader("📊 Net Mint (Mint - Burn)")
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=df['date'], y=df['Net_Mint'], mode='lines', name='Net Mint', line=dict(color='blue')))
+fig.add_hline(y=0, line=dict(color='gray', dash='dash'))
+fig.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
+st.plotly_chart(fig, use_container_width=True)
 
 
 
