@@ -30,21 +30,19 @@ st.title("Uniswap Onchain LP Activity & Yield Monitor")
 
 
 df['date'] = pd.to_datetime(df['date'] , errors="coerce")
-col1, col2 = st.columns(2)
 
-# چپ: Mint و Burn
-with col1:
-    st.subheader("Mint & Burn Events")
-    fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=df['date'], y=df['Mint'], mode='lines+markers', name='Mint', line=dict(color='green')))
-    fig1.add_trace(go.Scatter(x=df['date'], y=df['Burn'], mode='lines+markers', name='Burn', line=dict(color='red')))
-    fig1.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
-    st.plotly_chart(fig1, use_container_width=True)
 
-# راست: Swap
-with col2:
-    st.subheader("Swap Events")
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(x=df['date'], y=df['Swap'], mode='lines+markers', name='Swap', line=dict(color='orange')))
-    fig2.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
-    st.plotly_chart(fig2, use_container_width=True)
+st.subheader("Mint Events")
+fig1 = go.Figure()
+fig1.add_trace(go.Scatter(x=df['date'], y=df['Mint'], mode='lines+markers', name='Mint', line=dict(color='green')))
+fig1.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
+st.plotly_chart(fig1, use_container_width=True)
+
+st.subheader("Burn Events")
+fig2 = go.Figure()
+fig1.add_trace(go.Scatter(x=df['date'], y=df['Burn'], mode='lines+markers', name='Burn', line=dict(color='red')))
+fig2.update_layout(height=400, margin=dict(l=20, r=20, t=40, b=20))
+st.plotly_chart(fig2, use_container_width=True)
+
+
+    
