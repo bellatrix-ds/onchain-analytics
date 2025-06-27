@@ -1,0 +1,12 @@
+pandas
+streamlit
+plotly
+numpy
+scikit-learn
+seaborn
+datetime
+altair
+sklearn.preprocessing
+ollama
+requests
+google.generativeai
