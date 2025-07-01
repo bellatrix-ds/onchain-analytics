@@ -74,30 +74,42 @@ fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
 st.plotly_chart(fig, use_container_width=True)
 
 # AI analysis
-col1, col2 = st.columns([1,2])
+col1, col2 = st.columns([1, 2])
+
 with col1:
-    st.write("")  # empty to align with AI block
+    st.write("")  # Empty block for spacing
+
 with col2:
     st.markdown("### 🤖 AI Insight")
-    try:
-        tokenizer = AutoTokenizer.from_pretrained("mosaicml/mpt-7b-instruct", trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained("mosaicml/mpt-7b-instruct",
-                      trust_remote_code=True, torch_dtype=torch.bfloat16, device_map="auto")
-        pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, 
-                        device=0 if torch.cuda.is_available() else -1)
 
+    try:
+        @st.cache_resource
+        def load_ai_pipeline():
+            return pipeline(
+                "text-generation",
+                model="NousResearch/Nous-Hermes-2-Mistral-7B-DPO",
+                trust_remote_code=True
+            )
+
+        pipe = load_ai_pipeline()
+
+        # ساختن پرامپت از داده‌ها
         prompt = (
-            "The following is the daily net flow (deposit - withdraw) for a lending pool:\n"
-            + "\n".join(f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
-                        for _, row in filtered[['block_timestamp','net_flow']].sort_values('block_timestamp').iterrows()
-                    ) 
-            + "\n\nProvide 3 concise bullet insights (1-2 lines each)."
+            "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
+            + "\n".join(
+                f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
+                for _, row in filtered_data[['block_timestamp', 'net_flow']].sort_values('block_timestamp').iterrows()
+            )
+            + "\n\nGive 3 smart, non-obvious bullet point insights based on the data above."
         )
-        out = pipe(prompt, max_new_tokens=128, do_sample=False)[0]['generated_text']
-        insights = out.split("\n")
-        for line in insights[-3:]:
-            if line.strip():
+
+        output = pipe(prompt, max_new_tokens=200, do_sample=True, temperature=0.7)[0]['generated_text']
+
+        # فقط سه تا bullet point نهایی رو نمایش بده
+        for line in output.split('\n'):
+            if '-' in line or '•' in line:
                 st.write(line.strip().lstrip('-•'))
+
     except Exception as e:
         st.error(f"AI insight error: {e}")
 
