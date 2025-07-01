@@ -38,9 +38,7 @@ st.markdown("""
 ##### 🛠️ How to use
 - ☝🏼 Select a **lending protocol** (e.g., Radiant, Aave, Compound)  
 - ✌🏼 Choose one or more **blockchains** it’s active on (e.g., Arbitrum, Ethereum)  
-- 🏊🏼‍♂️ Pick a **lending pool** (e.g., USDC pool on Arbitrum)
-
-➡️ The dashboard will update all charts and AI insights based on your selection.
+- 🏊🏼‍♂️ Pick a **lending pool** (e.g., USDC pool on Arbitrum), then the dashboard will update all charts and AI insights based on your selection.
 """)
 
 st.markdown("""
