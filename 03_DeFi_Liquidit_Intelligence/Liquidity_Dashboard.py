@@ -269,7 +269,7 @@ with col2:
         content = result['choices'][0]['message']['content']
         for line in content.strip().split('\n'):
             if line.strip():
-                st.write(f"• {line.strip().lstrip('🟣')}")
+                st.write(f"• {line.strip().lstrip('-•')}")
     except Exception as e:
         st.error(f"AI insight error: {e}")
 
