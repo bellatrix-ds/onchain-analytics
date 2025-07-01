@@ -220,8 +220,8 @@ df_melted = df_amounts.melt(
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type',
-                  title="Lending Pool Activities", markers=False,
+    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type'
+                  , markers=False,
                   color_discrete_map={
                       'deposit_amount': '#4CAF50',
                       'loan_amount': '#2196F3',
@@ -244,7 +244,7 @@ with col2:
     prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols:\n\n"
         f"{formatted_data}\n\n"
-        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily "
+        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily. use each with a relevant emoji (🟣,🔵,🟡,🟢,🟠,🟤) "
     )
 
     headers = {
