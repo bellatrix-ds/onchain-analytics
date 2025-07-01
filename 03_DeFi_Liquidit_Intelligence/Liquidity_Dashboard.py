@@ -76,10 +76,20 @@ st.markdown("___")
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
-with st.container():
-    col1, col2 = st.columns([1, 1])
+insight_types = {
+            "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
+            "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
+            "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
+            "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
+        }
+ selected_type = st.radio("🔴 Select Insight Type", list(insight_types.keys()))
 
-    with col1:
+
+
+
+col6, col7 = st.columns(2)
+
+with col6:
         st.markdown("#### 📉 Net Flow Over Time")
         fig = px.area(
             df_netflow,
@@ -89,17 +99,9 @@ with st.container():
         )
         fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=360)
         st.plotly_chart(fig, use_container_width=True)
-
-    with col2:
-        insight_types = {
-            "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
-            "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
-            "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
-            "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
-        }
-
-        selected_type = st.radio("🔴 Select Insight Type", list(insight_types.keys()))
-        st.markdown("#### 💡 AI Generated Insight")
+    
+with col7:
+            st.markdown("#### 💡 AI Generated Insight")
 
         recent_data = df_netflow.sort_values('block_timestamp').tail(30)
         prompt_data = "\n".join(
@@ -140,3 +142,11 @@ with st.container():
                     st.write(f"• {line.strip().lstrip('-')}")
         except Exception as e:
             st.error(f"AI Insight error: {e}")
+
+
+
+
+
+
+
+
