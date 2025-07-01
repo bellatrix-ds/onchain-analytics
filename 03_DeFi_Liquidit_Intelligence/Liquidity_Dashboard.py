@@ -30,12 +30,19 @@ st.set_page_config(layout="wide")
 
 
 st.markdown("""
-
 This dashboard is fully powered by **raw on‑chain lending data** and **AI‑driven insight engines**.  
-It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns—no manual data wrangling needed.
+It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed.""")
  
 
-**🛠️ How to use** 
+st.markdown("""
+### 🛠️ How to use
+1. Select your target **lending protocol**  
+2. Choose one or more **blockchains** where that protocol is active  
+3. Pick a specific **lending pool**
+The entire dashboard will automatically filter based on your selections.
+""")
+
+st.markdown("""
 - **Net Flow Over Time** – Area chart showing deposit vs withdrawal trends  
 - **Utilization Rate Over Time** – Line chart tracking pool usage and demand  
 - **Core Metrics** (Deposit / Loan / Repay / Withdraw) – Multi-line chart displaying user behavior and liquidity flows  
