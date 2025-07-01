@@ -44,7 +44,7 @@ st.markdown("""
 """)
 
 st.markdown("""
-##### 📊 What's inside?
+##### 📦 What's inside?
 - **Section 1 --> Time Series Overview**  
   Track key DeFi lending metrics over time:  
   Net Flow (💸), Utilization (📈), Core Behaviors (🧾), and APR vs Usage (📉)
