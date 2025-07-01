@@ -64,78 +64,59 @@ with col5:
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
-import requests
-import json
-
-
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import requests
+from together import Together
 
-API_KEY = "79e7ccd7e568ae5694594efe5e318a03fc42a64d4c7bc2dc491a6e2123404fd9"
-
-MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-
+st.subheader("📊 Net Flow Over Time")
 col6, col7 = st.columns(2)
 
 with col6:
     df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
-    df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'], errors='coerce')
-    df_netflow = df_netflow.dropna().sort_values(by="block_timestamp")
+    df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
     fig2 = px.area(df_netflow, x='block_timestamp', y='net_flow',
-                   title='Net Flow Over Time', color_discrete_sequence=['#2196F3'])
+                   color_discrete_sequence=['#2196F3'])
     fig2.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=400)
     st.plotly_chart(fig2, use_container_width=True)
 
-# خلاصه‌ساز امن برای AI
-def make_summary_netflow(data: pd.DataFrame, limit=15) -> str:
-    data = data.dropna(subset=['block_timestamp', 'net_flow']).copy()
-    data['block_timestamp'] = pd.to_datetime(data['block_timestamp'], errors='coerce')
-    data = data.dropna(subset=['block_timestamp']).sort_values(by="block_timestamp", ascending=False).head(limit)
-
-    summary = ""
-    for _, row in data.iterrows():
-        summary += f"Date: {row['block_timestamp'].date()}, Net Flow: {row['net_flow']:.2f}\n"
-    return summary.strip()
-
-# درخواست از مدل Together
-def ask_together_api(context: str) -> str:
-    url = "https://api.together.xyz/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    context_clean = context.encode('ascii', errors='ignore').decode()
-
-    payload = {
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": "You are a DeFi analyst. Provide an analytical summary based on Net Flow trends in a lending protocol."},
-            {"role": "user", "content": f"Here is the Net Flow data:\n{context_clean}"},
-            {"role": "user", "content": "Give a short summary of recent liquidity behavior and possible risks based on this data."}
-        ],
-        "temperature": 0.4,
-        "top_p": 0.7
-    }
-
-    response = requests.post(url, headers=headers, json=payload)
-    if response.ok:
-        return response.json()["choices"][0]["message"]["content"]
-    else:
-        raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
-
-# گرفتن تحلیل و نمایش
 with col7:
-    st.markdown("### 🤖 تحلیل هوشمند Net Flow")
+    st.markdown("### 🤖 تحلیل AI از Net Flow")
+
+    # ایجاد کانتکست متنی از داده‌ها
+    context_lines = []
+    for _, row in df_netflow.tail(20).iterrows():
+        context_lines.append(f"Date: {row['block_timestamp'].strftime('%Y-%m-%d')}, Net Flow: {row['net_flow']:.2f}")
+    context = "\n".join(context_lines)
+
+    # تعریف پیام‌ها برای مدل
+    messages = [
+        {"role": "system", "content": "You are an expert DeFi liquidity analyst."},
+        {"role": "user", "content": f"""
+        Based on the following Net Flow data for a lending pool, write an analytical summary of the liquidity behavior over time.
+        Highlight if there’s any sign of risk (such as consistent negative flow or high volatility), or if it's a healthy pattern.
+
+        Data:
+        {context}
+        """}
+    ]
+
     try:
-        context = make_summary_netflow(df_netflow)
-        with st.spinner("در حال تحلیل نمودار توسط AI..."):
-            explanation = ask_together_api(context)
-            st.write(explanation)
+        client = Together(api_key=st.secrets["5395d02a273146ce23a2d8891979e557c4c7c6365508320760e565ba972a5f12"]) 
+
+        response = client.chat.completions.create(
+            model="Qwen/QwQ-32B",
+            messages=messages,
+            max_tokens=512,
+            stream=False
+        )
+
+        ai_output = response.choices[0].message.content
+        st.success("🧠 تحلیل مدل:")
+        st.write(ai_output)
+
     except Exception as e:
-        st.error(f"❌ خطا در تحلیل AI: {str(e)}")
+        st.error(f"❌ خطا در تحلیل AI: {e}")
 
 st.markdown("___")
