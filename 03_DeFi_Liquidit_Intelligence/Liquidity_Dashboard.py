@@ -424,12 +424,18 @@ with col1:
 
 with col2:
     st.markdown("#### 🎭 Scenario-based Insight")
+
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
         output = result['choices'][0]['message']['content']
-        for line in output.strip().split("\n"):
-            if line.strip():
-                st.write("• " + line.strip().lstrip("-•"))
+        bullets = [
+            f"<li>{line.strip().lstrip('-• ')}</li>"
+            for line in output.strip().split("\n")
+            if line.strip()
+        ]
+        bullet_html = "<ul style='padding-left: 18px; padding-right: 8px;'>" + "\n".join(bullets) + "</ul>"
+        st.markdown(bullet_html, unsafe_allow_html=True)
+
     except Exception as e:
         st.error(f"AI Insight error: {e}")
