@@ -41,6 +41,8 @@ st.markdown("""
 - 🏊🏼‍♂️ Pick a **lending pool** (e.g., USDC pool on Arbitrum), then the dashboard will update all charts and AI insights based on your selection.
 """)
 
+st.markdown(" ")
+
 st.markdown("""
 ##### 📦 What's inside?
 - **Section 1 --> Time Series Overview**  
