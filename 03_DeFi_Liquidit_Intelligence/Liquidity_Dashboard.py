@@ -93,6 +93,9 @@ with col2:
 
         pipe = load_pipe()
 
+        # ✅ fix timestamp format
+        filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'])
+
         prompt = (
             "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
             + "\n".join(
@@ -110,9 +113,6 @@ with col2:
         for line in result.split("\n"):
             if '-' in line or '•' in line:
                 st.write(line.strip().lstrip("-•"))
-
-    except Exception as e:
-        st.error(f"AI insight error: {e}")
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
