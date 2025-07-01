@@ -362,32 +362,28 @@ with col20:
 st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
 
+
+scenario_options = [
+    ("📉 Decreasing Net Flow", "More funds are leaving the pool than entering, a potential sign of capital flight."),
+    ("📈 Increasing Utilization", "Lending demand is rising, possibly reducing idle liquidity and increasing risk."),
+    ("🔁 Sudden APR Changes", "The lending rate has changed sharply, may indicate protocol adjustments or volatility."),
+    ("🧊 Zero Borrow Activity", "No loans are being taken, could suggest lack of demand or overly high borrowing costs."),
+    ("🔥 Liquidity Crunch", "Multiple stress signals suggest borrowers may face trouble getting funds.")
+]
+
 st.markdown("### 🧪 Scenario-based Insight Generator")
+st.markdown("❗️**Choose a scenario to analyze:**")
 
-scenarios = {
-    "📉 Decreasing Net Flow": "More funds are leaving the pool than entering — a potential sign of capital flight.",
-    "📈 Increasing Utilization": "Lending demand is rising, possibly reducing idle liquidity and increasing risk.",
-    "🔁 Sudden APR Changes": "The lending rate has changed sharply — may indicate protocol adjustments or volatility.",
-    "🧊 Zero Borrow Activity": "No loans are being taken — could suggest lack of demand or overly high borrowing costs.",
-    "🔥 Liquidity Crunch": "Multiple stress signals suggest borrowers may face trouble getting funds."
-}
+cols = st.columns([1, 4])
+with cols[0]:
+    selected = st.radio("", [s[0] for s in scenario_options], label_visibility="collapsed")
 
-st.markdown("‼️ Choose a scenario to analyze:")
-
-# Layout: two columns for radio and description
-col1, col2 = st.columns([1, 3])
-
-with col1:
-    selected_scenario = st.radio("", list(scenarios.keys()), label_visibility="collapsed")
-
-with col2:
-    for key in scenarios:
-        if key == selected_scenario:
-            st.markdown(f"**{scenarios[key]}**")
+with cols[1]:
+    for label, description in scenario_options:
+        if label == selected:
+            st.markdown(f"**{description}**")
         else:
-            st.markdown(scenarios[key])
-
-
+            st.markdown(description)
 
 
 
