@@ -76,7 +76,6 @@ fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
 st.plotly_chart(fig, use_container_width=True)
 
 # AI analysis
-# AI analysis section
 col1, col2 = st.columns([1, 2])
 
 with col1:
@@ -89,14 +88,10 @@ with col2:
         from transformers import pipeline
 
         @st.cache_resource
-        def load_pipeline():
-            return pipeline(
-                "text-generation",
-                model="mistralai/Mistral-7B-Instruct-v0.1",
-                trust_remote_code=True
-            )
+        def load_pipe():
+            return pipeline("text2text-generation", model="google/flan-t5-base")
 
-        pipe = load_pipeline()
+        pipe = load_pipe()
 
         prompt = (
             "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
@@ -107,14 +102,17 @@ with col2:
                 .sort_values('block_timestamp')
                 .iterrows()
             )
-            + "\n\nGive 3 smart, concise, non-obvious bullet point insights based on the above data."
+            + "\n\nGive 3 concise, smart insights in bullet points."
         )
 
-        output = pipe(prompt, max_new_tokens=200, do_sample=True)[0]["generated_text"]
+        result = pipe(prompt, max_new_tokens=256)[0]['generated_text']
 
-        for line in output.split("\n"):
+        for line in result.split("\n"):
             if '-' in line or '•' in line:
                 st.write(line.strip().lstrip("-•"))
+
+    except Exception as e:
+        st.error(f"AI insight error: {e}")
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
