@@ -98,7 +98,7 @@ with col2:
     }
 
     selected_type = st.radio("🔴 Select Insight Type", list(insight_types.keys()))
-    st.markdown("💡 AI Generated Insight")
+    st.markdown("**💡 AI Generated Insight**")
 
     recent_data = df_netflow.sort_values('block_timestamp').tail(30)
     prompt_data = "\n".join(
