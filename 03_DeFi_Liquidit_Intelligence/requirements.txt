@@ -10,3 +10,4 @@ sklearn.preprocessing
 ollama
 requests
 google.generativeai
+together
