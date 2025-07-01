@@ -17,6 +17,11 @@ import plotly.express as px
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from transformers import pipeline
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+from transformers import pipeline
+from datetime import datetime
 
 # __________________ Import Data ______________________________________________________________________
 
@@ -70,48 +75,49 @@ with col5:
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
+filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'])
+
 insight_types = {
-    "📈 Trend Analysis": "Analyze the overall trend and pattern of net flows in this lending pool. Look for growth, decline, or stability.",
-    "⚠️ Risk Alerts": "Look for large negative flows or frequent withdrawals that may indicate potential liquidity risks.",
-    "📊 Volatility Summary": "Summarize the volatility of the net flows. Highlight sudden spikes or reversals.",
-    "🧠 User Behavior Insights": "Infer user behavior from the net flow pattern. Are users yield-farming, exiting, or coming back?",
-    "🔍 Interesting Events": "Identify 3 interesting or unusual moments from this net flow time series and explain briefly."
+    "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
+    "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
+    "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
+    "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
 }
 
-selected_scenario = st.selectbox("🧠 What kind of AI insight do you want?", list(insight_types.keys()))
+# دو ستون برای layout
+col1, col2 = st.columns([2, 1])
 
-if selected_scenario:
-    try:
-        from transformers import pipeline
+# ستون چپ = نمودار Net Flow
+with col1:
+    fig = px.area(filtered_data, x='block_timestamp', y='net_flow', title="Net Flow Over Time", color_discrete_sequence=['#2196F3'])
+    fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
+    st.plotly_chart(fig, use_container_width=True)
 
-        @st.cache_resource
-        def load_pipe():
-            return pipeline("text2text-generation", model="google/flan-t5-base")
+# ستون راست = انتخاب نوع تحلیل + نمایش پاسخ
+with col2:
+    st.markdown("### 🤖 AI Insight Type")
+    selected_scenario = st.radio("Choose insight type:", list(insight_types.keys()))
 
-        pipe = load_pipe()
+    if selected_scenario:
+        try:
+            # مدل رایگان، بدون نیاز به API Key
+            @st.cache_resource
+            def load_pipe():
+                return pipeline("text2text-generation", model="google/flan-t5-base")
 
-        # اطمینان از اینکه زمان datetime هست
-        filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'])
+            pipe = load_pipe()
 
-        prompt = (
-            f"{insight_types[selected_scenario]}\n\n"
-            "Here is the net flow data:\n"
-            + "\n".join(
-                f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
-                for _, row in filtered_data[['block_timestamp', 'net_flow']]
-                .dropna()
-                .sort_values('block_timestamp')
-                .iterrows()
-            )
-            + "\n\nPlease summarize 3 smart insights in bullet points."
-        )
+            # ساختن prompt
+            sample = filtered_data[['block_timestamp', 'net_flow']].dropna().sort_values("block_timestamp").tail(20)
+            context = "\n".join([f"{d.date()}: {v:.2f}" for d, v in zip(sample['block_timestamp'], sample['net_flow'])])
 
-        result = pipe(prompt, max_new_tokens=256)[0]['generated_text']
+            prompt = f"{insight_types[selected_scenario]}\nData:\n{context}\n\nWrite 3 smart insights as bullet points."
 
-        st.markdown(f"### 🤖 AI Insight: {selected_scenario}")
-        for line in result.split("\n"):
-            if '-' in line or '•' in line:
-                st.write(line.strip().lstrip("-•"))
-
-    except Exception as e:
-        st.error(f"AI insight error: {e}")
+            # اجرای مدل
+            result = pipe(prompt, max_new_tokens=256)[0]['generated_text']
+            st.markdown("### 📌 AI Observations")
+            for line in result.split("\n"):
+                if "-" in line or "•" in line:
+                    st.write("• " + line.strip().lstrip("-•"))
+        except Exception as e:
+            st.error(f"AI insight error: {e}")
