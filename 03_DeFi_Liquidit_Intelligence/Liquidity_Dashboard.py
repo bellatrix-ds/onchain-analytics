@@ -221,18 +221,18 @@ col1, col2 = st.columns([1, 1])
 
 with col1:
     fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type',
-                  title="Lending Pool Activities", markers=True,
+                  title="Lending Pool Activities", markers=False,
                   color_discrete_map={
                       'deposit_amount': '#4CAF50',
                       'loan_amount': '#2196F3',
                       'repay_amount': '#FFC107',
                       'withdraw_amount': '#F44336'
                   })
-    fig.update_layout(height=380, xaxis_title="Date", yaxis_title="Amount (WETH)")
+    fig.update_layout(height=380, xaxis_title="Date", yaxis_title="Amount (WETH)", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5))
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.markdown("### 💡 AI Generated Insight")
+    st.markdown("### 💡 Lending Behavior Insights - AI Generated")
 
     recent_data = df_amounts.sort_values("block_timestamp").tail(30)
     formatted_data = "\n".join(
@@ -242,9 +242,9 @@ with col2:
     )
 
     prompt = (
-        "You are a DeFi analyst. Here is the daily lending pool activity:\n\n"
+        "You are a blockchain DeFi analyst focused on lending protocols:\n\n"
         f"{formatted_data}\n\n"
-        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw."
+        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily "
     )
 
     headers = {
