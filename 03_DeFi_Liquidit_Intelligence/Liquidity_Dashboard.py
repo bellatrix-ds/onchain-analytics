@@ -74,7 +74,7 @@ with right_col:
 col6, col7 = st.columns(2)
 
 with col6:
-    df_netflow = filtered_df[['block_timestamp', 'net_flow']].dropna()
+    df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
     df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
     fig2 = px.area(df_netflow, x='block_timestamp', y='net_flow',
