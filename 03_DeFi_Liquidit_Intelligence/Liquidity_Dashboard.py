@@ -14,6 +14,6 @@ import google.generativeai as genai
 
 # __________________ Import Data ______________________________________________________________________
 
-data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/Untitled%20Folder/df_main.csv', on_bad_lines='skip')
+data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
 
 st.title("🔍 Pool Liquidity")
