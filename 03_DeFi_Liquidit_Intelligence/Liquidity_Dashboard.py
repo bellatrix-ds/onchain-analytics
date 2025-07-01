@@ -20,6 +20,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from transformers import pipeline
 from transformers import pipeline
 from datetime import datetime
+import scipy
 
 # __________________ Import Data ______________________________________________________________________
 
