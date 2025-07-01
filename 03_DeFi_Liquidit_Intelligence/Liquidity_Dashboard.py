@@ -198,14 +198,7 @@ with main_col2:
 
 
 st.markdown("___")
-# __________________ Part 3: Scatter Plot APR vs. Utilization Rate ______________________________________________________________________
-
-
-
-
-
-st.markdown("___")
-# __________________ Part 4: Liquidity Metrics  ______________________________________________________________________
+# __________________ Part 3: Liquidity Metrics  ______________________________________________________________________
 st.markdown("### 💸 Lending Flow Metrics Over Time")
 
 df_amounts = filtered_data[['block_timestamp', 'deposit_amount', 'loan_amount', 'repay_amount', 'withdraw_amount']].copy()
@@ -272,4 +265,72 @@ with col2:
                 st.write(f"• {line.strip().lstrip('-•')}")
     except Exception as e:
         st.error(f"AI insight error: {e}")
+
+
+
+st.markdown("___")
+# __________________ Part 4: Scatter Plot APR vs. Utilization Rate ______________________________________________________________________
+df_scatter = filtered_data[["APR", "utilization_rate"]].dropna()
+df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
+
+st.markdown("### 🔄 APR vs Utilization Rate")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    fig = px.scatter(
+        df_scatter,
+        x="utilization_rate",
+        y="APR",
+        title="APR vs Utilization Rate",
+        labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
+        trendline="ols",
+        color_discrete_sequence=["#FF5733"]
+    )
+    fig.update_layout(height=370)
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    st.markdown("#### 🤖 APR & Utilization Insights")
+
+    # ساخت prompt
+    sample_rows = df_scatter.tail(30)
+    data_summary = "\n".join(f"{r['utilization_rate']:.2f}, {r['APR']:.2f}" for _, r in sample_rows.iterrows())
+
+    prompt = (
+        f"Below is 30 days of utilization rate and APR from a DeFi lending pool:\n\n"
+        f"(utilization_rate, APR):\n{data_summary}\n\n"
+        f"Provide 3 concise bullet-point insights about the relationship between APR and utilization rate."
+    )
+
+    # LLM call
+    together_api_key = st.secrets["TOGETHER_API_KEY"]
+    url = "https://api.together.xyz/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {together_api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        "messages": [
+            {"role": "system", "content": "You are a professional DeFi yield analyst."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.6,
+        "top_p": 0.9,
+        "max_tokens": 250
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+        output = result['choices'][0]['message']['content']
+        for bullet in output.strip().split('\n'):
+            if bullet.strip():
+                st.write(f"• {bullet.strip().lstrip('-•')}")
+    except Exception as e:
+        st.error(f"AI Insight error: {e}")
+
+
+
 
