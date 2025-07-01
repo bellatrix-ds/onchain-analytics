@@ -64,6 +64,43 @@ with col5:
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
+import requests
+import json
+
+API_KEY = "79e7ccd7e568ae5694594efe5e318a03fc42a64d4c7bc2dc491a6e2123404fd9"
+MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+
+def make_summary_netflow(data: pd.DataFrame, limit=30) -> str:
+    summary = ""
+    data = data.sort_values(by="block_timestamp", ascending=False).head(limit)
+    for _, row in data.iterrows():
+        summary += f"Date: {row['block_timestamp'].date()}, Net Flow: {row['net_flow']:.2f}\n"
+    return summary
+
+def ask_ai_netflow(context: str) -> str:
+    url = "https://api.together.xyz/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": "You are a DeFi liquidity analyst. Analyze the Net Flow data of a DeFi lending pool."},
+            {"role": "user", "content": f"Context:\n{context}"},
+            {"role": "user", "content": "Give a short analysis about the liquidity situation based on the Net Flow trend. Mention if there are any signs of sustained outflows or inflows, and whether any abnormal liquidity events can be observed."}
+        ],
+        "temperature": 0.5,
+        "top_p": 0.7
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    if response.ok:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
+
+
+# 🧠 کد بخش Net Flow با تحلیل AI
 col6, col7 = st.columns(2)
 
 with col6:
@@ -76,11 +113,15 @@ with col6:
     st.plotly_chart(fig2, use_container_width=True)
 
 with col7:
-    st.markdown("### 🔄 Net Flow یعنی چه؟")
-    st.write("""
-    **Net Flow = Deposit - Withdraw**  
-    - مثبت: ورود نقدینگی بیشتر از برداشت  
-    - منفی: خروج سرمایه بیشتر از ورودی  
-    شناسایی Net Flow منفی به مدت چند روز پیاپی، ممکن است هشدار بحران نقدینگی باشد.
-    """)
+    st.markdown("### 🧠 تحلیل خودکار Net Flow")
+    try:
+        context = make_summary_netflow(df_netflow)
+        with st.spinner("در حال تحلیل..."):
+            ai_analysis = ask_ai_netflow(context)
+        st.markdown(ai_analysis)
+    except Exception as e:
+        st.error(f"❌ خطا در تحلیل AI: {str(e)}")
+
+
+
 st.markdown("___")
