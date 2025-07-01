@@ -357,14 +357,12 @@ with col20:
 st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
 
-
 scenarios = {
     "📉 Decreasing Net Flow": "Analyze signs of capital outflows and what risks it may imply for the lending pool.",
     "📈 Increasing Utilization": "What does a rising utilization rate mean for APR and borrower demand?",
     "🔁 Sudden APR Changes": "Explain the potential causes and implications of volatile APR behavior.",
     "🧊 Zero Borrow Activity": "Interpret days with zero utilization and what they signal for market sentiment.",
-    "🔥 Liquidity Crunch": "Could recent data suggest a liquidity crisis or risk of insolvency?"
-}
+    "🔥 Liquidity Crunch": "Could recent data suggest a liquidity crisis or risk of insolvency?" }
 
 st.markdown("### 🧪 Scenario-based Insight Generator")
 selected_scenario = st.radio("Choose a scenario to analyze:", list(scenarios.keys()))
