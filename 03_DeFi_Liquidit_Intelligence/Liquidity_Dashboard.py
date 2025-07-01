@@ -67,61 +67,75 @@ st.markdown("___")
 import requests
 import json
 
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import requests
+
 API_KEY = "79e7ccd7e568ae5694594efe5e318a03fc42a64d4c7bc2dc491a6e2123404fd9"
+
 MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-def make_summary_netflow(data: pd.DataFrame, limit=10) -> str:
-    summary = ""
-    data = data.sort_values(by="block_timestamp", ascending=False).head(limit)
-    for _, row in data.iterrows():
-        summary += f"Date: {row['block_timestamp'].date()}, Net Flow: {row['net_flow']:.2f}\n"
-    return summary
-
-def ask_ai_netflow(context: str) -> str:
-    url = "https://api.together.xyz/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": "You are a DeFi liquidity analyst. Analyze the Net Flow data of a DeFi lending pool."},
-            {"role": "user", "content": f"Context:\n{context}"},
-            {"role": "user", "content": "Give a short analysis about the liquidity situation based on the Net Flow trend. Mention if there are any signs of sustained outflows or inflows, and whether any abnormal liquidity events can be observed."}
-        ],
-        "temperature": 0.5,
-        "top_p": 0.7
-    }
-    response = requests.post(url, headers=headers, json=payload)
-    if response.ok:
-        return response.json()["choices"][0]["message"]["content"]
-    else:
-        raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
-
-
-# 🧠 Ai Agent
 col6, col7 = st.columns(2)
 
 with col6:
-    df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna(subset=['block_timestamp', 'net_flow'])
-    df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
+    df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
+    df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'], errors='coerce')
+    df_netflow = df_netflow.dropna().sort_values(by="block_timestamp")
 
     fig2 = px.area(df_netflow, x='block_timestamp', y='net_flow',
                    title='Net Flow Over Time', color_discrete_sequence=['#2196F3'])
     fig2.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=400)
     st.plotly_chart(fig2, use_container_width=True)
 
+# خلاصه‌ساز امن برای AI
+def make_summary_netflow(data: pd.DataFrame, limit=15) -> str:
+    data = data.dropna(subset=['block_timestamp', 'net_flow']).copy()
+    data['block_timestamp'] = pd.to_datetime(data['block_timestamp'], errors='coerce')
+    data = data.dropna(subset=['block_timestamp']).sort_values(by="block_timestamp", ascending=False).head(limit)
+
+    summary = ""
+    for _, row in data.iterrows():
+        summary += f"Date: {row['block_timestamp'].date()}, Net Flow: {row['net_flow']:.2f}\n"
+    return summary.strip()
+
+# درخواست از مدل Together
+def ask_together_api(context: str) -> str:
+    url = "https://api.together.xyz/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+    context_clean = context.encode('ascii', errors='ignore').decode()
+
+    payload = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": "You are a DeFi analyst. Provide an analytical summary based on Net Flow trends in a lending protocol."},
+            {"role": "user", "content": f"Here is the Net Flow data:\n{context_clean}"},
+            {"role": "user", "content": "Give a short summary of recent liquidity behavior and possible risks based on this data."}
+        ],
+        "temperature": 0.4,
+        "top_p": 0.7
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    if response.ok:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
+
+# گرفتن تحلیل و نمایش
 with col7:
-    st.markdown("### 🧠 تحلیل خودکار Net Flow")
+    st.markdown("### 🤖 تحلیل هوشمند Net Flow")
     try:
         context = make_summary_netflow(df_netflow)
-        with st.spinner("در حال تحلیل..."):
-            ai_analysis = ask_ai_netflow(context)
-        st.markdown(ai_analysis)
+        with st.spinner("در حال تحلیل نمودار توسط AI..."):
+            explanation = ask_together_api(context)
+            st.write(explanation)
     except Exception as e:
         st.error(f"❌ خطا در تحلیل AI: {str(e)}")
-
-
 
 st.markdown("___")
