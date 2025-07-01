@@ -8,7 +8,7 @@ import seaborn as sns
 import plotly.express as px
 
 from matplotlib.dates import DateFormatter
-
+import statsmodels
 import altair as alt
 from sklearn.preprocessing import MinMaxScaler
 import requests
