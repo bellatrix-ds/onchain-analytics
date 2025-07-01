@@ -331,5 +331,60 @@ with col20:
         st.error(f"AI Insight error: {e}")
 
 
+st.markdown("___")
+# __________________ Part 5 ______________________________________________________________________
+scenarios = {
+    "📉 Decreasing Net Flow": "Analyze signs of capital outflows and what risks it may imply for the lending pool.",
+    "📈 Increasing Utilization": "What does a rising utilization rate mean for APR and borrower demand?",
+    "🔁 Sudden APR Changes": "Explain the potential causes and implications of volatile APR behavior.",
+    "🧊 Zero Borrow Activity": "Interpret days with zero utilization and what they signal for market sentiment.",
+    "🔥 Liquidity Crunch": "Could recent data suggest a liquidity crisis or risk of insolvency?"
+}
 
+
+st.markdown("### 🧪 Scenario-based Insight Generator")
+
+selected_scenario = st.radio("Choose a scenario to analyze:", list(scenarios.keys()))
+
+scenario_instruction = scenarios[selected_scenario]
+
+
+context_data = filtered_data.tail(30)[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna()
+summary = "\n".join(f"{r['block_timestamp'].date()} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Utilization: {r['utilization_rate']:.2f}" for _, r in context_data.iterrows())
+
+prompt = f"""
+You are a DeFi protocol analyst. Below is recent daily data from a lending pool on a blockchain:
+
+Date | Net Flow | APR | Utilization Rate  
+{summary}
+
+Scenario: {scenario_instruction}
+
+Give 3 bullet-point insights for this scenario based on the above data.
+"""
+
+
+payload = {
+    "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    "messages": [
+        {"role": "system", "content": "You are a professional DeFi protocol analyst."},
+        {"role": "user", "content": prompt}
+    ],
+    "temperature": 0.6,
+    "top_p": 0.9,
+    "max_tokens": 500
+}
+
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("📊 Last 30 Days Overview")
+    st.dataframe(context_data)
+
+with col2:
+    st.markdown("#### 🤖 Scenario-based Insight")
+    for line in output.strip().split("\n"):
+        if line.strip():
+            st.write("• " + line.strip().lstrip("-•"))
 
