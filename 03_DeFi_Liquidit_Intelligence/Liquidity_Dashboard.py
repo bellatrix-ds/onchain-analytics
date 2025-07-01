@@ -279,15 +279,14 @@ st.markdown("### 🔁 APR vs Utilization Rate")
 col1, col2 = st.columns(2)
 
 with col1:
-    fig = px.scatter(
-        df_scatter,
-        x="utilization_rate",
-        y="APR",
-        title="APR vs Utilization Rate",
-        labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
-        trendline="ols",
-        color_discrete_sequence=["#FF5733"]
-    )
+fig = px.scatter(
+    df_scatter,
+    x="utilization_rate",
+    y="APR",
+    title="APR vs Utilization Rate",
+    labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
+    color_discrete_sequence=["#FF5733"]
+)
     fig.update_layout(height=370)
     st.plotly_chart(fig, use_container_width=True)
 
