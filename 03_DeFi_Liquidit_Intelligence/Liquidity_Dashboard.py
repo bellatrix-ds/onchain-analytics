@@ -40,43 +40,50 @@ filtered_df = data[
     (data['pool'] == selected_pool)]
 
 
+st.markdown("_")
 # __________________ Part 1: Trends ______________________________________________________________________
 
-
-
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import calendar
-
-# آماده‌سازی دیتا
-filtered_df['block_timestamp'] = pd.to_datetime(filtered_df['block_timestamp'])
-filtered_df['month'] = filtered_df['block_timestamp'].dt.month
-filtered_df['month_str'] = filtered_df['month'].apply(lambda x: calendar.month_name[x])
-
-# فقط ماه‌های بین March تا June
-month_order = ['March', 'April', 'May', 'June']
-available_months = [m for m in month_order if m in filtered_df['month_str'].unique()]
-
-# چینش دو ستونی
-col1, col2 = st.columns([3, 2])
-
+col1, col2, col3 = st.columns(3)
 with col1:
-    selected_month = st.radio("Select Month", available_months, horizontal=True)
-    df_plot = filtered_df[filtered_df['month_str'] == selected_month][['block_timestamp', 'utilization_rate']].dropna()
-    fig1 = px.line(df_plot, x='block_timestamp', y='utilization_rate',
-                   title='Utilization Rate Over Time', markers=True)
-    fig1.update_layout(xaxis_title='Date', yaxis_title='Utilization Rate', height=400)
-    st.plotly_chart(fig1, use_container_width=True)
-
+    selected_protocol = st.selectbox("Lending Protocol", options=data['lending_protocol'].dropna().unique())
 with col2:
-    st.markdown("### ℹ️ توضیح")
+    selected_chain = st.selectbox("Chain", options=data[data['lending_protocol'] == selected_protocol]['chain'].dropna().unique())
+with col3:
+    selected_pool = st.selectbox("Pool", options=data[(data['lending_protocol'] == selected_protocol) & (data['chain'] == selected_chain)]['pool'].dropna().unique())
+
+filtered_data = data[
+    (data['lending_protocol'] == selected_protocol) &
+    (data['chain'] == selected_chain) &
+    (data['pool'] == selected_pool)
+].copy()
+
+filtered_data['month'] = filtered_data['block_timestamp'].dt.month
+month_map = {3: 'March', 4: 'April', 5: 'May', 6: 'June'}
+filtered_data['month_name'] = filtered_data['month'].map(month_map)
+selected_month = st.radio("Select Month", options=['March', 'April', 'May', 'June'], horizontal=True)
+month_num = [k for k, v in month_map.items() if v == selected_month][0]
+filtered_month_data = filtered_data[filtered_data['month'] == month_num]
+
+left_col, right_col = st.columns([1.5, 1])
+
+with left_col:
+    st.subheader("Utilization Rate Over Time")
+    fig = px.line(
+        filtered_month_data,
+        x='block_timestamp',
+        y='utilization_rate',
+        markers=True,
+        labels={'block_timestamp': 'Date', 'utilization_rate': 'Utilization Rate'}
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+with right_col:
+    st.subheader("ℹ️ توضیح")
     st.markdown("""
     این نمودار میزان استفاده از نقدینگی را در طول زمان برای استخر انتخاب‌شده نشان می‌دهد.  
-    **بالا** می‌تواند نشانه فشار نقدینگی باشد. در حالی که **پایین** ممکن است به معنی سرمایه‌های استفاده‌نشده باشد.  
-    نقاط صفر یا نال معمولاً به معنی فقدان فعالیت یا ثبت‌نشدن داده در آن روز خاص هستند.
+    **بالا** می‌تواند نشانه فشار نقدینگی باشد. در حالی که نرخ **پایین** ممکن است به معنی سرمایه‌های بلااستفاده باشد.  
+    نقاط **صفر** یا **نال** معمولاً به معنی فقدان فعالیت یا ثبت‌نشدن داده در آن روز خاص هستند.
     """)
-
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
 col6, col7 = st.columns(2)
