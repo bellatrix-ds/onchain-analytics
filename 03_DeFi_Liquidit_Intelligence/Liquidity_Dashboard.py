@@ -75,37 +75,46 @@ with col5:
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
-
-
-# Load your data
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
-# Draw the chart
 col1, col2 = st.columns([1, 1])
+
 with col1:
-    fig = px.area(df_netflow, x='block_timestamp', y='net_flow',
-                  title='Net Flow Over Time', color_discrete_sequence=['#2196F3'])
+    fig = px.area(
+        df_netflow,
+        x='block_timestamp',
+        y='net_flow',
+        title='Net Flow Over Time',
+        color_discrete_sequence=['#2196F3']
+    )
     fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
     st.plotly_chart(fig, use_container_width=True)
 
-# User selects insight type
 with col2:
-    insight_type = st.radio("🧠 Insight Type", ["Trends", "Risks", "Liquidity Issues"])
+    insight_types = {
+        "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
+        "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
+        "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
+        "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
+    }
+
+    selected_type = st.radio("🧠 Insight Type", list(insight_types.keys()))
     st.markdown("### 🤖 AI Insight")
 
-    # Build prompt
+    recent_data = df_netflow.sort_values('block_timestamp').tail(30)
     prompt_data = "\n".join(
         f"{row['block_timestamp'].strftime('%Y-%m-%d')}: {row['net_flow']:.2f}"
-        for _, row in df_netflow.sort_values('block_timestamp').tail(30).iterrows()
-    )
-    prompt = (
-        f"You are a DeFi analyst. Below is the Net Flow for a lending pool:\n\n"
-        f"{prompt_data}\n\n"
-        f"Please give 3 short bullet-point insights focusing on {insight_type.lower()}."
+        for _, row in recent_data.iterrows()
     )
 
-    # Send to Together.ai
+    prompt = (
+        f"You are a DeFi analyst. Your task is: {insight_types[selected_type]}\n"
+        f"Here is the latest daily Net Flow data for the lending pool:\n\n"
+        f"{prompt_data}\n\n"
+        f"Now provide 3 concise, non-obvious bullet point insights."
+    )
+
     together_api_key = st.secrets["TOGETHER_API_KEY"]
     url = "https://api.together.xyz/v1/chat/completions"
     headers = {
@@ -113,12 +122,12 @@ with col2:
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",  # یا مدل دیگه مثل Nous Hermes 2
+        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
         "messages": [
-            {"role": "system", "content": "You are a professional DeFi analyst."},
+            {"role": "system", "content": "You are a professional DeFi analyst who gives smart, short, bullet-point insights based on net flow trends."},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.5,
+        "temperature": 0.4,
         "top_p": 0.9,
         "max_tokens": 200
     }
@@ -126,9 +135,9 @@ with col2:
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
-        output = result['choices'][0]['message']['content']
-        for bullet in output.strip().split('\n'):
-            if bullet.strip():
-                st.write(f"• {bullet.strip().lstrip('-•')}")
+        content = result["choices"][0]["message"]["content"]
+        for line in content.strip().split('\n'):
+            if line.strip():
+                st.write(f"• {line.strip().lstrip('-•')}")
     except Exception as e:
         st.error(f"AI Insight error: {e}")
