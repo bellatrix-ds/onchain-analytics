@@ -309,11 +309,12 @@ st.markdown("### 📌 APR vs Utilization Rate")
 col10, col20 = st.columns(2)
 
 with col10:
+    df_scatter["utilization_percent"] = df_scatter["utilization_rate"] * 100  # convert to %
     fig = px.scatter(
         df_scatter,
-        x="utilization_rate",
+        x="utilization_percent",
         y="APR",
-        labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
+        labels={"APR": "Annual Percentage Rate", "utilization_percent": "Utilization Rate (%)"},
         color_discrete_sequence=["#FF5733"]
     )
     fig.update_layout(height=370)
