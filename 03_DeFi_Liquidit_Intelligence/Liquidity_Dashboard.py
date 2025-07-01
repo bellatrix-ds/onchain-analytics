@@ -76,8 +76,7 @@ st.markdown("___")
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
-# 👆 Header Row: Title + Scenario Selector
-header_col1, header_col2 = st.columns([1, 1.2])
+header_col1, header_col2 = st.columns([1, 1.5])
 
 with header_col1:
     st.markdown("#### 📉 Net Flow Over Time")
@@ -90,9 +89,8 @@ insight_types = {
 }
 
 with header_col2:
-    selected_type = st.radio("🔴 Select Insight Type", list(insight_types.keys()), horizontal=True)
+    selected_type = st.radio("### 🔴 Select Insight Type", list(insight_types.keys()), horizontal=True)
 
-# 👇 Main Body: Two Columns
 main_col1, main_col2 = st.columns([1.1, 1])
 
 with main_col1:
