@@ -108,7 +108,7 @@ with st.container():
         )
 
         prompt = (
-            f"You are a DeFi analyst. Your task is: {insight_types[selected_type]}\n"
+            f"You are a DeFi and crypto analyst and this data is about lending pools in blockchain. Your task is: {insight_types[selected_type]}\n"
             f"Here is the latest daily Net Flow data for the lending pool:\n\n"
             f"{prompt_data}\n\n"
             f"Now provide 3 concise, non-obvious bullet point insights."
@@ -123,7 +123,7 @@ with st.container():
         payload = {
             "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
             "messages": [
-                {"role": "system", "content": "You are a professional DeFi analyst who gives smart, short, bullet-point insights based on net flow trends."},
+                {"role": "system", "content": "You are a professional crypto analyst who gives smart, short, bullet-point insights based on net flow trends."},
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.4,
@@ -137,6 +137,6 @@ with st.container():
             content = result["choices"][0]["message"]["content"]
             for line in content.strip().split('\n'):
                 if line.strip():
-                    st.write(f"• {line.strip().lstrip('-•')}")
+                    st.write(f"• {line.strip().lstrip('-')}")
         except Exception as e:
             st.error(f"AI Insight error: {e}")
