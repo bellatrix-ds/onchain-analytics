@@ -372,7 +372,7 @@ scenario_options = [
 ]
 
 st.markdown("### 🧪 Scenario-based Insight Generator")
-st.markdown("❗️**Choose a scenario to analyze:**")
+st.markdown("#### ❗️ Choose a scenario to analyze:")
 
 cols = st.columns([1, 4])
 with cols[0]:
@@ -387,7 +387,7 @@ with cols[1]:
 
 
 
-scenario_instruction = scenarios[selected_scenario]
+scenario_instruction = scenario_options[selected_scenario]
 
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
 context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
