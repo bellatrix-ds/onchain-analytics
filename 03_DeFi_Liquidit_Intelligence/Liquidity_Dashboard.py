@@ -239,7 +239,7 @@ df_melted = df_amounts.melt(
     var_name='Type', value_name='Amount'
 )
 
-col1, col2 = st.columns([1, 1])
+col1, col2 = st.columns([1.1, 1])
 
 with col1:
     fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type'
@@ -306,7 +306,7 @@ df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
 
 st.markdown("### 📌 APR vs Utilization Rate")
 
-col10, col20 = st.columns(2)
+col10, col20 = st.columns([1.1, 1])
 
 with col10:
     df_scatter["utilization_percent"] = df_scatter["utilization_rate"] * 100  # convert to %
@@ -416,7 +416,7 @@ payload = {
     "max_tokens": 600
 }
 
-col1, col2 = st.columns([1, 2])
+col1, col2 = st.columns([1.1, 1])
 
 with col1:
     st.markdown("📊 Last 30 Days Data")
