@@ -89,7 +89,7 @@ insight_types = {
 }
 
 with header_col2:
-    selected_type = st.radio("### 🔴 Select Insight Type", list(insight_types.keys()), horizontal=True)
+    selected_type = st.radio("**🔴 Select Insight Type**", list(insight_types.keys()), horizontal=True)
 
 main_col1, main_col2 = st.columns([1.1, 1])
 
