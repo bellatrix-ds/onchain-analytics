@@ -47,7 +47,7 @@ filtered_data = data[
 
 #filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
 st.markdown("___")
-# __________________ Part 1: Trends ______________________________________________________________________
+# __________________ Part 1: Utilization Rate Over Time ______________________________________________________________________
 
 df_util = filtered_data[['block_timestamp', 'utilization_rate']].dropna()
 df_util['block_timestamp'] = pd.to_datetime(df_util['block_timestamp'])
@@ -120,7 +120,7 @@ with util_col2:
 
 
 st.markdown("___")
-# __________________ Part 2: Net Flow ______________________________________________________________________
+# __________________ Part 2: Net Flow Over Time ______________________________________________________________________
 
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
@@ -198,5 +198,12 @@ with main_col2:
 
 
 st.markdown("___")
-# __________________ Part 3: Net Flow ______________________________________________________________________
+# __________________ Part 3: Scatter Plot APR vs. Utilization Rate ______________________________________________________________________
+
+
+
+
+
+st.markdown("___")
+# __________________ Part 4: Liquidity Metrics  ______________________________________________________________________
 
