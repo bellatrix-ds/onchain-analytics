@@ -363,30 +363,35 @@ st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
 
 
+st.markdown("### 🧪 Scenario-based Insight Generator")
+st.markdown("#### ❗ Choose a scenario to analyze:")
+
 scenario_options = [
-    ("📉 Decreasing Net Flow", "More funds are leaving the pool than entering, a potential sign of capital flight."),
+    ("📉 Decreasing Net Flow", "More funds are leaving the pool than entering — a potential sign of capital flight."),
     ("📈 Increasing Utilization", "Lending demand is rising, possibly reducing idle liquidity and increasing risk."),
-    ("🔁 Sudden APR Changes", "The lending rate has changed sharply, may indicate protocol adjustments or volatility."),
-    ("🧊 Zero Borrow Activity", "No loans are being taken, could suggest lack of demand or overly high borrowing costs."),
+    ("🔁 Sudden APR Changes", "The lending rate has changed sharply — may indicate protocol adjustments or volatility."),
+    ("🧊 Zero Borrow Activity", "No loans are being taken — could suggest lack of demand or overly high borrowing costs."),
     ("🔥 Liquidity Crunch", "Multiple stress signals suggest borrowers may face trouble getting funds.")
 ]
 
-st.markdown("### 🧪 Scenario-based Insight Generator")
-st.markdown("#### ❗️ Choose a scenario to analyze:")
+# Create two columns
+col_left, col_right = st.columns([1, 4])
 
-cols = st.columns([1, 4])
-with cols[0]:
-    selected = st.radio("", [s[0] for s in scenario_options], label_visibility="collapsed")
+# Show radio options only once, then capture selection
+selected = col_left.radio(
+    label="Choose a scenario",
+    options=[opt[0] for opt in scenario_options],
+    label_visibility="collapsed"
+)
 
-with cols[1]:
-    for label, description in scenario_options:
-        if label == selected:
-            st.markdown(f"**{description}**")
-        else:
-            st.markdown(description)
+# Display all descriptions aligned with options
+for label, desc in scenario_options:
+    if label == selected:
+        col_right.markdown(f"**{desc}**")
+    else:
+        col_right.markdown(desc)
 
-
-
+# Get the selected scenario's instruction
 scenario_instruction = dict(scenario_options)[selected]
 
 
@@ -426,7 +431,7 @@ payload = {
     "max_tokens": 600
 }
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 1.5])
 
 with col1:
     st.markdown("📊 Last 30 Days Data")
