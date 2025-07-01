@@ -76,66 +76,67 @@ st.markdown("___")
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
-col1, col2 = st.columns([1, 1])
+with st.container():
+    col1, col2 = st.columns([1, 1])
 
-with col1:
-    fig = px.area(
-        df_netflow,
-        x='block_timestamp',
-        y='net_flow',
-        title='Net Flow Over Time',
-        color_discrete_sequence=['#2196F3']
-    )
-    fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
-    st.plotly_chart(fig, use_container_width=True)
+    with col1:
+        st.markdown("#### 📉 Net Flow Over Time")
+        fig = px.area(
+            df_netflow,
+            x='block_timestamp',
+            y='net_flow',
+            color_discrete_sequence=['#2196F3']
+        )
+        fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=360)
+        st.plotly_chart(fig, use_container_width=True)
 
-with col2:
-    insight_types = {
-        "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
-        "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
-        "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
-        "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
-    }
+    with col2:
+        insight_types = {
+            "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
+            "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
+            "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
+            "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
+        }
 
-    selected_type = st.radio("🔴 Select Insight Type", list(insight_types.keys()))
-    st.markdown("**💡 AI Generated Insight**")
+        selected_type = st.radio("🔴 Select Insight Type", list(insight_types.keys()))
+        st.markdown("#### 💡 AI Generated Insight")
 
-    recent_data = df_netflow.sort_values('block_timestamp').tail(30)
-    prompt_data = "\n".join(
-        f"{row['block_timestamp'].strftime('%Y-%m-%d')}: {row['net_flow']:.2f}"
-        for _, row in recent_data.iterrows()
-    )
+        recent_data = df_netflow.sort_values('block_timestamp').tail(30)
+        prompt_data = "\n".join(
+            f"{row['block_timestamp'].strftime('%Y-%m-%d')}: {row['net_flow']:.2f}"
+            for _, row in recent_data.iterrows()
+        )
 
-    prompt = (
-        f"You are a DeFi analyst. Your task is: {insight_types[selected_type]}\n"
-        f"Here is the latest daily Net Flow data for the lending pool:\n\n"
-        f"{prompt_data}\n\n"
-        f"Now provide 3 concise, non-obvious bullet point insights."
-    )
+        prompt = (
+            f"You are a DeFi analyst. Your task is: {insight_types[selected_type]}\n"
+            f"Here is the latest daily Net Flow data for the lending pool:\n\n"
+            f"{prompt_data}\n\n"
+            f"Now provide 3 concise, non-obvious bullet point insights."
+        )
 
-    together_api_key = st.secrets["TOGETHER_API_KEY"]
-    url = "https://api.together.xyz/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {together_api_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
-        "messages": [
-            {"role": "system", "content": "You are a professional DeFi analyst who gives smart, short, bullet-point insights based on net flow trends."},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.4,
-        "top_p": 0.9,
-        "max_tokens": 200
-    }
+        together_api_key = st.secrets["TOGETHER_API_KEY"]
+        url = "https://api.together.xyz/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {together_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "messages": [
+                {"role": "system", "content": "You are a professional DeFi analyst who gives smart, short, bullet-point insights based on net flow trends."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.4,
+            "top_p": 0.9,
+            "max_tokens": 200
+        }
 
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        result = response.json()
-        content = result["choices"][0]["message"]["content"]
-        for line in content.strip().split('\n'):
-            if line.strip():
-                st.write(f"• {line.strip().lstrip('-•')}")
-    except Exception as e:
-        st.error(f"AI Insight error: {e}")
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
+            for line in content.strip().split('\n'):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
+        except Exception as e:
+            st.error(f"AI Insight error: {e}")
