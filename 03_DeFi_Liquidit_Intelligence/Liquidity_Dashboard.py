@@ -220,7 +220,7 @@ df_melted = df_amounts.melt(
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type'
+    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Tx Type'
                   , markers=False,
                   color_discrete_map={
                       'deposit_amount': '#4CAF50',
