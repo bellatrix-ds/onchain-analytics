@@ -28,12 +28,27 @@ data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analy
 st.title("🚀 AI‑Powered DeFi Liquidity Intelligence")
 st.set_page_config(layout="wide")
 
-# Welcome to the AI‑Powered DeFi Liquidity Dashboard 🚀
 
+st.markdown("""
+## Welcome to the AI‑Powered DeFi Liquidity Dashboard 🚀
+
+**Overview:**  
+This dashboard automatically fetches on‑chain lending data, visualizes key metrics, and generates AI‑driven insights across four sections.
 This dashboard uses **streaming data automation and AI‑powered insight engines** to fetch, analyze, and visualize key metrics for liquidity and risk in lending pools—no manual data wrangling required!
 
----
-## 🛠️ How to use
+**🛠️ How to use**
+**Sections:**  
+- **Net Flow Over Time** – Area chart showing deposit vs withdrawal trends  
+- **Utilization Rate Over Time** – Line chart tracking pool usage and demand  
+- **Core Metrics** (Deposit / Loan / Repay / Withdraw) – Multi-line chart displaying user behavior and liquidity flows  
+- **APR vs Utilization Rate** – Scatter plot analyzing interest sensitivity to pool usage  
+
+### 🎯 Final Section: Scenario Insights  
+Here, an AI agent reviews the last 30 days of Net Flow, APR, and Utilization, and provides **3 concise bullet-point insights** focused on:
+1. Liquidity stress or volatility  
+2. Risk alerts related to abnormal outflows  
+3. Unusual yield or usage patterns  
+""")
 
 # __________________ Filters ______________________________________________________________________
 
