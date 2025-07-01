@@ -52,6 +52,13 @@ st.markdown("""
 - **Section 2 --> AI Scenario Insights**  
 An AI agent examines the last 30 days and provides forward-looking insights:  potential risks, liquidity shifts, or usage patterns that may emerge soon. """)
 
+
+
+st.markdown("""
+##### 🟢 Ready?! Let's Start! 👊🏼 """)
+
+
+st.markdown("___")
 # __________________ Filters ______________________________________________________________________
 
 
