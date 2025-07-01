@@ -244,7 +244,7 @@ with col2:
     prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols:\n\n"
         f"{formatted_data}\n\n"
-        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily. use each with a relevant emoji (🟣,🔵,🟡,🟢,🟠,🟤) "
+        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily. use each with a relevant emoji just to start the bullet (🟣,🔵,🟡,🟢,🟠,🟤) "
     )
 
     headers = {
