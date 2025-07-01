@@ -46,16 +46,14 @@ st.markdown("""
 st.markdown("""
 ##### 📦 What's inside?
 - **Section 1 --> Time Series Overview**  
-  Track key DeFi lending metrics over time:  
-  Net Flow (💸), Utilization (📈), Core Behaviors (🧾), and APR vs Usage (📉)
-
+  Track key DeFi lending metrics over time:  💸 Net Flow , 📈 Utilization, 🧾 Core Behaviors, and 📉 APR vs Usage.
 - **Section 2 --> AI Scenario Insights**  
 An AI agent examines the last 30 days and provides forward-looking insights:  potential risks, liquidity shifts, or usage patterns that may emerge soon. """)
 
 
 
 st.markdown("""
-##### 🟢 Ready?! Let's Start! 👊🏼 """)
+##### 🚀 All set?! Let’s get started! 👊🏼 """)
 
 
 st.markdown("___")
