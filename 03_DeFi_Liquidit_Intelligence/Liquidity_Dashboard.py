@@ -67,9 +67,35 @@ st.markdown("___")
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from together import Together
+import requests
 
-st.subheader("📊 Net Flow Over Time")
+API_KEY = st.secrets["TOGETHER_API_KEY"]
+
+def ask_ai_agent(question: str, context: str) -> str:
+    url = "https://api.together.xyz/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "Qwen/QwQ-32B",
+        "messages": [
+            {"role": "system", "content": "You are a DeFi analyst that explains Net Flow behavior in lending pools."},
+            {"role": "user", "content": f"Analyze this time series of net flow:\n\n{context}"},
+            {"role": "user", "content": question}
+        ],
+        "temperature": 0.7,
+        "top_p": 0.9
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    if response.ok:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        raise Exception(f"❌ خطا در تحلیل AI: {response.text}")
+
+# ---------- نمودار Net Flow ----------
 col6, col7 = st.columns(2)
 
 with col6:
@@ -77,46 +103,24 @@ with col6:
     df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
     fig2 = px.area(df_netflow, x='block_timestamp', y='net_flow',
-                   color_discrete_sequence=['#2196F3'])
+                   title='Net Flow Over Time', color_discrete_sequence=['#2196F3'])
     fig2.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=400)
     st.plotly_chart(fig2, use_container_width=True)
 
 with col7:
-    st.markdown("### 🤖 تحلیل AI از Net Flow")
-
-    # ایجاد کانتکست متنی از داده‌ها
-    context_lines = []
-    for _, row in df_netflow.tail(20).iterrows():
-        context_lines.append(f"Date: {row['block_timestamp'].strftime('%Y-%m-%d')}, Net Flow: {row['net_flow']:.2f}")
-    context = "\n".join(context_lines)
-
-    # تعریف پیام‌ها برای مدل
-    messages = [
-        {"role": "system", "content": "You are an expert DeFi liquidity analyst."},
-        {"role": "user", "content": f"""
-        Based on the following Net Flow data for a lending pool, write an analytical summary of the liquidity behavior over time.
-        Highlight if there’s any sign of risk (such as consistent negative flow or high volatility), or if it's a healthy pattern.
-
-        Data:
-        {context}
-        """}
-    ]
+    st.markdown("### 🧠 تحلیل AI از Net Flow")
+    
+    context_text = ""
+    df_summary = df_netflow.sort_values('block_timestamp', ascending=False).head(30)
+    for _, row in df_summary.iterrows():
+        context_text += f"{row['block_timestamp'].date()} -> Net Flow: {row['net_flow']:.2f}\n"
 
     try:
-        client = Together(api_key=st.secrets["5395d02a273146ce23a2d8891979e557c4c7c6365508320760e565ba972a5f12"]) 
-
-        response = client.chat.completions.create(
-            model="Qwen/QwQ-32B",
-            messages=messages,
-            max_tokens=512,
-            stream=False
-        )
-
-        ai_output = response.choices[0].message.content
-        st.success("🧠 تحلیل مدل:")
-        st.write(ai_output)
-
+        with st.spinner("در حال تحلیل توسط AI..."):
+            ai_result = ask_ai_agent("Give a short analysis about this net flow chart", context_text)
+            st.success("✅ تحلیل آماده است")
+            st.markdown(ai_result)
     except Exception as e:
-        st.error(f"❌ خطا در تحلیل AI: {e}")
+        st.error(str(e))
 
 st.markdown("___")
