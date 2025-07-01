@@ -272,38 +272,38 @@ with col2:
 st.markdown("___")
 # __________________ Part 4: Scatter Plot APR vs. Utilization Rate ______________________________________________________________________
 
+
 df_scatter = filtered_data[["APR", "utilization_rate"]].dropna()
 df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
 
-st.markdown("### 🔁 APR vs Utilization Rate")
+st.markdown("### 📌 APR vs Utilization Rate")
 
 col1, col2 = st.columns(2)
 
 with col1:
-fig = px.scatter(
-    df_scatter,
-    x="utilization_rate",
-    y="APR",
-    title="APR vs Utilization Rate",
-    labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
-    color_discrete_sequence=["#FF5733"]
-)
+    fig = px.scatter(
+        df_scatter,
+        x="utilization_rate",
+        y="APR",
+        title="APR vs Utilization Rate",
+        labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
+        color_discrete_sequence=["#FF5733"]
+    )
     fig.update_layout(height=370)
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.markdown("#### 🤖 APR & Utilization Insights")
+    st.markdown("#### 🤖 Lending Efficiency Insights")
 
     sample_rows = df_scatter.tail(30)
     data_summary = "\n".join(f"{r['utilization_rate']:.2f}, {r['APR']:.2f}" for _, r in sample_rows.iterrows())
 
     prompt = (
-        f"Below is 30 days of utilization rate and APR from a DeFi lending pool in blockchain:\n\n"
-        f"(utilization_rate, APR):\n{data_summary}\n\n"
-        f"Provide 3 concise bullet-point insights about the relationship between APR and utilization rate."
+        f"Here are 30 recent (utilization_rate, APR) observations from a DeFi lending pool:\n"
+        f"{data_summary}\n\n"
+        f"Please summarize the relationship between APR and utilization in 3 short bullet points."
     )
 
-    # LLM call
     together_api_key = st.secrets["TOGETHER_API_KEY"]
     url = "https://api.together.xyz/v1/chat/completions"
     headers = {
@@ -313,19 +313,19 @@ with col2:
     payload = {
         "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
         "messages": [
-            {"role": "system", "content": "You are a professional DeFi yield analyst."},
+            {"role": "system", "content": "You are a DeFi lending analyst."},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.6,
+        "temperature": 0.5,
         "top_p": 0.9,
-        "max_tokens": 250
+        "max_tokens": 256
     }
 
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
         output = result['choices'][0]['message']['content']
-        for bullet in output.strip().split('\n'):
+        for bullet in output.strip().split("\n"):
             if bullet.strip():
                 st.write(f"• {bullet.strip().lstrip('-•')}")
     except Exception as e:
