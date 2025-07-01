@@ -82,7 +82,7 @@ df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
 # Draw the chart
-col1, col2 = st.columns([1, 2])
+col1, col2 = st.columns([1, 1])
 with col1:
     fig = px.area(df_netflow, x='block_timestamp', y='net_flow',
                   title='Net Flow Over Time', color_discrete_sequence=['#2196F3'])
