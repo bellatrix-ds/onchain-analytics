@@ -49,26 +49,75 @@ filtered_data = data[
 st.markdown("___")
 # __________________ Part 1: Trends ______________________________________________________________________
 
-col4, col5 = st.columns(2)
+df_util = filtered_data[['block_timestamp', 'utilization_rate']].dropna()
+df_util['block_timestamp'] = pd.to_datetime(df_util['block_timestamp'])
+df_util = df_util.sort_values('block_timestamp')
 
-with col4:
-    st.subheader("Utilization Rate Over Time")
-    fig = px.line(
-        filtered_data,
+df_util_recent = df_util.tail(30)
+
+util_col1, util_col2 = st.columns([1.1, 1])
+
+with util_col1:
+    st.markdown("#### 📈 Utilization Rate Over Time")
+    fig_util = px.line(
+        df_util_recent,
         x='block_timestamp',
         y='utilization_rate',
         markers=True,
-        labels={'block_timestamp': 'Date', 'utilization_rate': 'Utilization Rate'}
+        color_discrete_sequence=['#FF5722']
     )
-    st.plotly_chart(fig, use_container_width=True)
+    fig_util.update_layout(
+        xaxis_title='Date',
+        yaxis_title='Utilization Rate',
+        height=360,
+        yaxis_range=[0, 1.05]
+    )
+    st.plotly_chart(fig_util, use_container_width=True)
 
-with col5:
-    st.markdown("### 🔄 Net Flow یعنی چه؟")
-    st.write("""
-    این نمودار میزان استفاده از نقدینگی را در طول زمان برای استخر انتخاب‌شده نشان می‌دهد.  
-    **بالا** می‌تواند نشانه فشار نقدینگی باشد. در حالی که نرخ **پایین** ممکن است به معنی سرمایه‌های بلااستفاده باشد.  
-    نقاط **صفر** یا **نال** معمولاً به معنی فقدان فعالیت یا ثبت‌نشدن داده در آن روز خاص هستند.
-    """)
+with util_col2:
+    st.markdown("#### 💡 AI Generated Insight")
+
+    util_prompt_data = "\n".join(
+        f"{row['block_timestamp'].strftime('%Y-%m-%d')}: {row['utilization_rate']:.2f}"
+        for _, row in df_util_recent.iterrows()
+    )
+
+    util_prompt = (
+        "You are a blockchain DeFi analyst focused on lending protocols. "
+        "Below is the daily utilization rate (borrowed / total liquidity) of a lending pool. "
+        "Provide 3 concise, smart, non-obvious insights based on this time series:\n\n"
+        + util_prompt_data
+        + "\n\nFocus on identifying signs of lending demand shifts, liquidity pressure, or inactivity."
+    )
+
+    try:
+        together_api_key = st.secrets["TOGETHER_API_KEY"]
+        url = "https://api.together.xyz/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {together_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "messages": [
+                {"role": "system", "content": "You are an expert DeFi lending analyst. Your job is to explain utilization rate trends in lending pools."},
+                {"role": "user", "content": util_prompt}
+            ],
+            "temperature": 0.4,
+            "top_p": 0.9,
+            "max_tokens": 200
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+        output = result['choices'][0]['message']['content']
+        for line in output.strip().split('\n'):
+            if line.strip():
+                st.write(f"• {line.strip().lstrip('-•')}")
+    except Exception as e:
+        st.error(f"AI insight error: {e}")
+
+
 
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
@@ -147,4 +196,7 @@ with main_col2:
     except Exception as e:
         st.error(f"AI Insight error: {e}")
 
+
+st.markdown("___")
+# __________________ Part 3: Net Flow ______________________________________________________________________
 
