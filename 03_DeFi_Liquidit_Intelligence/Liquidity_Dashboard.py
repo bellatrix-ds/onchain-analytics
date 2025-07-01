@@ -25,8 +25,15 @@ import scipy
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
 
-st.title("🔍 Pool Liquidity Intelligence")
+st.title("🚀 AI‑Powered DeFi Liquidity Intelligence")
 st.set_page_config(layout="wide")
+
+# Welcome to the AI‑Powered DeFi Liquidity Dashboard 🚀
+
+This dashboard uses **streaming data automation and AI‑powered insight engines** to fetch, analyze, and visualize key metrics for liquidity and risk in lending pools—no manual data wrangling required!
+
+---
+## 🛠️ How to use
 
 # __________________ Filters ______________________________________________________________________
 
