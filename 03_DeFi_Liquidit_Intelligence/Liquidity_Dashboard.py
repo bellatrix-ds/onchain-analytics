@@ -292,7 +292,7 @@ with col10:
     st.plotly_chart(fig, use_container_width=True)
 
 with col20:
-    st.markdown("#### 🤖 Lending Efficiency Insights")
+    st.markdown("#### ✅ Lending Efficiency Insights")
 
     sample_rows = df_scatter.tail(30)
     data_summary = "\n".join(f"{r['utilization_rate']:.2f}, {r['APR']:.2f}" for _, r in sample_rows.iterrows())
