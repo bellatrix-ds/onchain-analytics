@@ -85,7 +85,7 @@ with util_col2:
     util_prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols. "
         "Below is the daily utilization rate (borrowed / total liquidity) of a lending pool. "
-        "Provide 3 concise, smart, non-obvious insights based on this time series:\n\n"
+        "Provide 3 concise, smart, non-obvious insights based on this time series for each bullet, use each with a relevant emoji (📉, 💡, ⚠️, 🔁):\n\n"
         + util_prompt_data
         + "\n\nFocus on identifying signs of lending demand shifts, liquidity pressure, or inactivity."
     )
