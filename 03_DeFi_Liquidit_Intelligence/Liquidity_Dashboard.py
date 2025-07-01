@@ -16,6 +16,8 @@ import pandas as pd
 import plotly.express as px
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from transformers import pipeline
+
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
@@ -83,32 +85,30 @@ with col2:
     st.markdown("### 🤖 AI Insight")
 
     try:
-        @st.cache_resource
-        def load_ai_pipeline():
-            return pipeline(
-                "text-generation",
-                model="NousResearch/Nous-Hermes-2-Mistral-7B-DPO",
-                trust_remote_code=True
-            )
+@st.cache_resource
+def load_pipeline():
+    return pipeline(
+        "text-generation",
+        model="mistralai/Mistral-7B-Instruct-v0.1",
+        trust_remote_code=True
+    )
 
-        pipe = load_ai_pipeline()
+pipe = load_pipeline()
 
-        # ساختن پرامپت از داده‌ها
-        prompt = (
-            "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
-            + "\n".join(
-                f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
-                for _, row in filtered_data[['block_timestamp', 'net_flow']].sort_values('block_timestamp').iterrows()
-            )
-            + "\n\nGive 3 smart, non-obvious bullet point insights based on the data above."
-        )
+prompt = (
+    "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
+    + "\n".join(
+        f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
+        for _, row in filtered_data[['block_timestamp', 'net_flow']].sort_values('block_timestamp').iterrows()
+    )
+    + "\n\nGive 3 smart, concise, non-obvious bullet point insights based on the above data."
+)
 
-        output = pipe(prompt, max_new_tokens=200, do_sample=True, temperature=0.7)[0]['generated_text']
+output = pipe(prompt, max_new_tokens=200, do_sample=True)[0]["generated_text"]
 
-        # فقط سه تا bullet point نهایی رو نمایش بده
-        for line in output.split('\n'):
-            if '-' in line or '•' in line:
-                st.write(line.strip().lstrip('-•'))
+for line in output.split("\n"):
+    if '-' in line or '•' in line:
+        st.write(line.strip().lstrip("-•"))
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
