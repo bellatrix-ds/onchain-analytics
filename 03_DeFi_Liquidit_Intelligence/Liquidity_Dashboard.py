@@ -362,38 +362,35 @@ with col20:
 st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
 
+st.markdown("### 🧪 Scenario-based Insight Generator")
 
-st.markdown("### 🧪 Scenario Meaning Guide")
-
-# Define scenarios and their descriptions
 scenarios = {
-    "🧭 Decreasing Net Flow": "More funds are leaving the pool than entering — a potential sign of capital flight.",
+    "📉 Decreasing Net Flow": "More funds are leaving the pool than entering — a potential sign of capital flight.",
     "📈 Increasing Utilization": "Lending demand is rising, possibly reducing idle liquidity and increasing risk.",
-    "🔄 Sudden APR Changes": "The lending rate has changed sharply — may indicate protocol adjustments or volatility.",
+    "🔁 Sudden APR Changes": "The lending rate has changed sharply — may indicate protocol adjustments or volatility.",
     "🧊 Zero Borrow Activity": "No loans are being taken — could suggest lack of demand or overly high borrowing costs.",
     "🔥 Liquidity Crunch": "Multiple stress signals suggest borrowers may face trouble getting funds."
 }
 
-# Render in two columns
+st.markdown("‼️ Choose a scenario to analyze:")
+
+# Layout: two columns for radio and description
 col1, col2 = st.columns([1, 3])
-for name, desc in scenarios.items():
-    with col1:
-        st.markdown(f"**{name}**")
-    with col2:
-        st.markdown(desc)
+
+with col1:
+    selected_scenario = st.radio("", list(scenarios.keys()), label_visibility="collapsed")
+
+with col2:
+    for key in scenarios:
+        if key == selected_scenario:
+            st.markdown(f"**{scenarios[key]}**")
+        else:
+            st.markdown(scenarios[key])
 
 
 
 
-scenarios = {
-    "📉 Decreasing Net Flow": "Analyze signs of capital outflows and what risks it may imply for the lending pool.",
-    "📈 Increasing Utilization": "What does a rising utilization rate mean for APR and borrower demand?",
-    "🔁 Sudden APR Changes": "Explain the potential causes and implications of volatile APR behavior.",
-    "🧊 Zero Borrow Activity": "Interpret days with zero utilization and what they signal for market sentiment.",
-    "🔥 Liquidity Crunch": "Could recent data suggest a liquidity crisis or risk of insolvency?" }
 
-st.markdown("### 🧪 Scenario-based Insight Generator")
-selected_scenario = st.radio("Choose a scenario to analyze:", list(scenarios.keys()))
 scenario_instruction = scenarios[selected_scenario]
 
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
