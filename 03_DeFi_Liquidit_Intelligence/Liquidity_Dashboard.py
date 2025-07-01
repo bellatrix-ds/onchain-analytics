@@ -378,13 +378,15 @@ selected = st.radio("❗ Choose a scenario to analyze:", [s[0] for s in scenario
 
 scenario_instruction = dict(scenario_options)[selected]
 
+filtered_data["utilization %"] = filtered_data["utilization_rate"] * 100 
+filtered_data["APR %"] = filtered_data["APR"]
 
-context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
+context_data = filtered_data[['block_timestamp', 'net_flow', 'APR %', 'utilization %']].dropna().tail(30)
 context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
 context_data['block_timestamp'] = context_data['block_timestamp'].dt.strftime('%d %b %Y')
 
 summary = "\n".join(
-    f"{r['block_timestamp']} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
+    f"{r['block_timestamp']} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR %']:.2f}, Util: {r['utilization %']:.2f}"
     for _, r in context_data.iterrows()
 )
 
