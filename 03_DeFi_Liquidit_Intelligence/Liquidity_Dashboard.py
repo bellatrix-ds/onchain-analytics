@@ -11,7 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 import requests
 import json
 import google.generativeai as genai
-
+from together import Together
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
