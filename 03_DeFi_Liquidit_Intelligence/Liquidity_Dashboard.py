@@ -76,39 +76,45 @@ fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
 st.plotly_chart(fig, use_container_width=True)
 
 # AI analysis
+# AI analysis section
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    st.write("")  # Empty block for spacing
+    st.write("")
 
 with col2:
     st.markdown("### 🤖 AI Insight")
 
     try:
-@st.cache_resource
-def load_pipeline():
-    return pipeline(
-        "text-generation",
-        model="mistralai/Mistral-7B-Instruct-v0.1",
-        trust_remote_code=True
-    )
+        from transformers import pipeline
 
-pipe = load_pipeline()
+        @st.cache_resource
+        def load_pipeline():
+            return pipeline(
+                "text-generation",
+                model="mistralai/Mistral-7B-Instruct-v0.1",
+                trust_remote_code=True
+            )
 
-prompt = (
-    "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
-    + "\n".join(
-        f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
-        for _, row in filtered_data[['block_timestamp', 'net_flow']].sort_values('block_timestamp').iterrows()
-    )
-    + "\n\nGive 3 smart, concise, non-obvious bullet point insights based on the above data."
-)
+        pipe = load_pipeline()
 
-output = pipe(prompt, max_new_tokens=200, do_sample=True)[0]["generated_text"]
+        prompt = (
+            "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
+            + "\n".join(
+                f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
+                for _, row in filtered_data[['block_timestamp', 'net_flow']]
+                .dropna()
+                .sort_values('block_timestamp')
+                .iterrows()
+            )
+            + "\n\nGive 3 smart, concise, non-obvious bullet point insights based on the above data."
+        )
 
-for line in output.split("\n"):
-    if '-' in line or '•' in line:
-        st.write(line.strip().lstrip("-•"))
+        output = pipe(prompt, max_new_tokens=200, do_sample=True)[0]["generated_text"]
+
+        for line in output.split("\n"):
+            if '-' in line or '•' in line:
+                st.write(line.strip().lstrip("-•"))
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
