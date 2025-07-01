@@ -31,15 +31,16 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
 This dashboard is fully powered by **raw on‑chain lending data** and **AI‑driven insight engines**.  
-It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed.""")
+It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed. """)
  
 
 st.markdown("""
-### 🛠️ How to use
-1. Select your target **lending protocol**  
-2. Choose one or more **blockchains** where that protocol is active  
-3. Pick a specific **lending pool**
-The entire dashboard will automatically filter based on your selections.
+#### 🛠️ How to use
+- ☝🏼 Select a **lending protocol** (e.g., Radiant, Aave, Compound)  
+- ✌🏼 Choose one or more **blockchains** it’s active on (e.g., Arbitrum, Ethereum)  
+- 🏊🏼‍♂️ Pick a **lending pool** (e.g., USDC pool on Arbitrum)
+
+➡️ The dashboard will update all charts and AI insights based on your selection.
 """)
 
 st.markdown("""
