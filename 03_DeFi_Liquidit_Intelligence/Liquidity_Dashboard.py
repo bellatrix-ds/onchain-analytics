@@ -387,7 +387,9 @@ with cols[1]:
 
 
 
-scenario_instruction = scenario_options[selected_scenario]
+scenario_instruction = dict(scenario_options)[selected]
+
+
 
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
 context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
