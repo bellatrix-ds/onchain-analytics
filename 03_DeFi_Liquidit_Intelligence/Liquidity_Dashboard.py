@@ -62,11 +62,11 @@ st.markdown("___")
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    selected_protocol = st.selectbox("Lending Protocol", options=data['lending_protocol'].dropna().unique())
+    selected_protocol = st.selectbox("Select Lending Protocol", options=data['lending_protocol'].dropna().unique())
 with col2:
-    selected_chain = st.selectbox("Chain", options=data[data['lending_protocol'] == selected_protocol]['chain'].dropna().unique())
+    selected_chain = st.selectbox("Select Chain", options=data[data['lending_protocol'] == selected_protocol]['chain'].dropna().unique())
 with col3:
-    selected_pool = st.selectbox("Pool", options=data[(data['lending_protocol'] == selected_protocol) & (data['chain'] == selected_chain)]['pool'].dropna().unique())
+    selected_pool = st.selectbox("Select Pool", options=data[(data['lending_protocol'] == selected_protocol) & (data['chain'] == selected_chain)]['pool'].dropna().unique())
 
 filtered_data = data[
     (data['lending_protocol'] == selected_protocol) &
@@ -76,7 +76,6 @@ filtered_data = data[
 
 filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
 
-st.markdown("___")
 # __________________ Part 1: Utilization Rate Over Time ______________________________________________________________________
 
 df_util = filtered_data[['block_timestamp', 'utilization_rate']].dropna()
@@ -314,7 +313,6 @@ with col10:
         df_scatter,
         x="utilization_rate",
         y="APR",
-        title="APR vs Utilization Rate",
         labels={"APR": "Annual Percentage Rate", "utilization_rate": "Utilization Rate"},
         color_discrete_sequence=["#FF5733"]
     )
@@ -363,6 +361,29 @@ with col20:
 
 st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
+
+
+st.markdown("### 🧪 Scenario Meaning Guide")
+
+# Define scenarios and their descriptions
+scenarios = {
+    "🧭 Decreasing Net Flow": "More funds are leaving the pool than entering — a potential sign of capital flight.",
+    "📈 Increasing Utilization": "Lending demand is rising, possibly reducing idle liquidity and increasing risk.",
+    "🔄 Sudden APR Changes": "The lending rate has changed sharply — may indicate protocol adjustments or volatility.",
+    "🧊 Zero Borrow Activity": "No loans are being taken — could suggest lack of demand or overly high borrowing costs.",
+    "🔥 Liquidity Crunch": "Multiple stress signals suggest borrowers may face trouble getting funds."
+}
+
+# Render in two columns
+col1, col2 = st.columns([1, 3])
+for name, desc in scenarios.items():
+    with col1:
+        st.markdown(f"**{name}**")
+    with col2:
+        st.markdown(desc)
+
+
+
 
 scenarios = {
     "📉 Decreasing Net Flow": "Analyze signs of capital outflows and what risks it may imply for the lending pool.",
@@ -417,7 +438,7 @@ with col1:
     st.dataframe(context_data)
 
 with col2:
-    st.markdown("#### 🟢 Scenario-based Insight")
+    st.markdown("#### 🎭 Scenario-based Insight")
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
