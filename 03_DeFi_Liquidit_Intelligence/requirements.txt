@@ -11,3 +11,5 @@ ollama
 requests
 google.generativeai
 together
+transformers
+torch
