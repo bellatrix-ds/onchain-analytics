@@ -42,19 +42,6 @@ filtered_df = data[
 
 # __________________ Part 1: Trends ______________________________________________________________________
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    selected_protocol = st.selectbox("Lending Protocol", options=data['lending_protocol'].dropna().unique())
-with col2:
-    selected_chain = st.selectbox("Chain", options=data[data['lending_protocol'] == selected_protocol]['chain'].dropna().unique())
-with col3:
-    selected_pool = st.selectbox("Pool", options=data[(data['lending_protocol'] == selected_protocol) & (data['chain'] == selected_chain)]['pool'].dropna().unique())
-
-filtered_data = data[
-    (data['lending_protocol'] == selected_protocol) &
-    (data['chain'] == selected_chain) &
-    (data['pool'] == selected_pool)
-].copy()
 
 filtered_data['month'] = filtered_data['block_timestamp'].dt.month
 month_map = {3: 'March', 4: 'April', 5: 'May', 6: 'June'}
