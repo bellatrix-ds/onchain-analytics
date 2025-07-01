@@ -41,40 +41,39 @@ filtered_df = data[
 
 
 # __________________ Part 1: Trends ______________________________________________________________________
+
+
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
 import calendar
 
+# آماده‌سازی دیتا
 filtered_df['block_timestamp'] = pd.to_datetime(filtered_df['block_timestamp'])
 filtered_df['month'] = filtered_df['block_timestamp'].dt.month
-filtered_df['month_str'] = filtered_df['block_timestamp'].dt.month.apply(lambda x: calendar.month_name[x])
+filtered_df['month_str'] = filtered_df['month'].apply(lambda x: calendar.month_name[x])
 
-months_available = filtered_df['month_str'].unique()
-selected_month = st.selectbox("Select Month", sorted(months_available))
+# فقط ماه‌های بین March تا June
+month_order = ['March', 'April', 'May', 'June']
+available_months = [m for m in month_order if m in filtered_df['month_str'].unique()]
 
-df_plot = filtered_df[filtered_df['month_str'] == selected_month][['block_timestamp', 'utilization_rate']].dropna()
-
-fig1 = px.line(df_plot, x='block_timestamp', y='utilization_rate',
-               title='Utilization Rate Over Time', markers=True)
-fig1.update_layout(xaxis_title='Date', yaxis_title='Utilization Rate', height=400)
-
-st.plotly_chart(fig1, use_container_width=True)
-
-
-col1, col2 = st.columns(2)
+# چینش دو ستونی
+col1, col2 = st.columns([3, 2])
 
 with col1:
-    df_plot = filtered_df[['block_timestamp', 'utilization_rate']].dropna()
-    df_plot['block_timestamp'] = pd.to_datetime(df_plot['block_timestamp'])
-
-    fig = px.line(df_plot, x='block_timestamp', y='utilization_rate',
-                  title='Utilization Rate Over Time', markers=True)
-    fig.update_layout(xaxis_title='Date', yaxis_title='Utilization Rate', height=400)
-    st.plotly_chart(fig, use_container_width=True)
+    selected_month = st.radio("Select Month", available_months, horizontal=True)
+    df_plot = filtered_df[filtered_df['month_str'] == selected_month][['block_timestamp', 'utilization_rate']].dropna()
+    fig1 = px.line(df_plot, x='block_timestamp', y='utilization_rate',
+                   title='Utilization Rate Over Time', markers=True)
+    fig1.update_layout(xaxis_title='Date', yaxis_title='Utilization Rate', height=400)
+    st.plotly_chart(fig1, use_container_width=True)
 
 with col2:
     st.markdown("### ℹ️ توضیح")
-    st.write("""
+    st.markdown("""
     این نمودار میزان استفاده از نقدینگی را در طول زمان برای استخر انتخاب‌شده نشان می‌دهد.  
-    نرخ utilization بالا می‌تواند نشانه فشار نقدینگی باشد، در حالی که نرخ پایین ممکن است به معنای سرمایه‌های بلااستفاده باشد.  
+    **بالا** می‌تواند نشانه فشار نقدینگی باشد. در حالی که **پایین** ممکن است به معنی سرمایه‌های استفاده‌نشده باشد.  
     نقاط صفر یا نال معمولاً به معنی فقدان فعالیت یا ثبت‌نشدن داده در آن روز خاص هستند.
     """)
 
