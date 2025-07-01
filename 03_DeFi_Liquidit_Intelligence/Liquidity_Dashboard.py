@@ -35,7 +35,7 @@ It automatically fetches blockchain logs, analyzes key metrics, and visualizes l
  
 
 st.markdown("""
-#### 🛠️ How to use
+##### 🛠️ How to use
 - ☝🏼 Select a **lending protocol** (e.g., Radiant, Aave, Compound)  
 - ✌🏼 Choose one or more **blockchains** it’s active on (e.g., Arbitrum, Ethereum)  
 - 🏊🏼‍♂️ Pick a **lending pool** (e.g., USDC pool on Arbitrum)
@@ -44,16 +44,14 @@ st.markdown("""
 """)
 
 st.markdown("""
-- **Net Flow Over Time** – Area chart showing deposit vs withdrawal trends  
-- **Utilization Rate Over Time** – Line chart tracking pool usage and demand  
-- **Core Metrics** (Deposit / Loan / Repay / Withdraw) – Multi-line chart displaying user behavior and liquidity flows  
-- **APR vs Utilization Rate** – Scatter plot analyzing interest sensitivity to pool usage  
+### 📊 What's inside?
+- **Section 1 – Time Series Overview**  
+  Track key DeFi lending metrics over time:  
+  Net Flow (💸), Utilization (📈), Core Behaviors (🧾), and APR vs Usage (📉)
 
-### 🎯 Final Section: Scenario Insights  
-Here, an AI agent reviews the last 30 days of Net Flow, APR, and Utilization, and provides **3 concise bullet-point insights** focused on:
-1. Liquidity stress or volatility  
-2. Risk alerts related to abnormal outflows  
-3. Unusual yield or usage patterns  
+- **Section 2 – AI Scenario Insights**  
+  An AI agent analyzes the last 30 days of data to detect:  
+  liquidity risks, abnormal outflows, and unusual APR/utilization patterns.
 """)
 
 # __________________ Filters ______________________________________________________________________
