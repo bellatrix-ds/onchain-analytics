@@ -13,3 +13,4 @@ google.generativeai
 together
 transformers
 torch
+einops
