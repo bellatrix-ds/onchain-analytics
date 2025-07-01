@@ -21,27 +21,20 @@ st.set_page_config(layout="wide")
 
 # __________________ Filters ______________________________________________________________________
 
+
 col1, col2, col3 = st.columns(3)
 with col1:
-    selected_protocol = st.selectbox("Lending Protocol", sorted(data['lending_protocol'].dropna().unique()))
+    selected_protocol = st.selectbox("Lending Protocol", options=data['lending_protocol'].dropna().unique())
 with col2:
-    chains = data[data['lending_protocol'] == selected_protocol]['chain'].dropna().unique()
-    selected_chain = st.selectbox("Chain", sorted(chains))
+    selected_chain = st.selectbox("Chain", options=data[data['lending_protocol'] == selected_protocol]['chain'].dropna().unique())
 with col3:
-    pools = data[
-        (data['lending_protocol'] == selected_protocol) &
-        (data['chain'] == selected_chain)
-    ]['pool'].dropna().unique()
-    selected_pool = st.selectbox("Pool", sorted(pools))
+    selected_pool = st.selectbox("Pool", options=data[(data['lending_protocol'] == selected_protocol) & (data['chain'] == selected_chain)]['pool'].dropna().unique())
 
-filtered_df = data[
+filtered_data = data[
     (data['lending_protocol'] == selected_protocol) &
     (data['chain'] == selected_chain) &
-    (data['pool'] == selected_pool)]
-
-
-# __________________ Part 1: Trends ______________________________________________________________________
-
+    (data['pool'] == selected_pool)
+].copy()
 
 filtered_data['month'] = filtered_data['block_timestamp'].dt.month
 month_map = {3: 'March', 4: 'April', 5: 'May', 6: 'June'}
@@ -70,6 +63,10 @@ with right_col:
     **بالا** می‌تواند نشانه فشار نقدینگی باشد. در حالی که نرخ **پایین** ممکن است به معنی سرمایه‌های بلااستفاده باشد.  
     نقاط **صفر** یا **نال** معمولاً به معنی فقدان فعالیت یا ثبت‌نشدن داده در آن روز خاص هستند.
     """)
+
+# __________________ Part 1: Trends ______________________________________________________________________
+
+
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
 col6, col7 = st.columns(2)
