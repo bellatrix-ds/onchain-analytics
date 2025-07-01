@@ -76,7 +76,7 @@ st.markdown("___")
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
-header_col1, header_col2 = st.columns([1, 1.5])
+header_col1, header_col2 = st.columns([1.1, 1])
 
 with header_col1:
     st.markdown("#### 📉 Net Flow Over Time")
