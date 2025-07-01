@@ -105,7 +105,7 @@ with util_col2:
             ],
             "temperature": 0.4,
             "top_p": 0.9,
-            "max_tokens": 200
+            "max_tokens": 400
         }
 
         response = requests.post(url, headers=headers, json=payload)
