@@ -277,9 +277,9 @@ df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
 
 st.markdown("### 📌 APR vs Utilization Rate")
 
-col1, col2 = st.columns(2)
+col10, col20 = st.columns(2)
 
-with col1:
+with col10:
     fig = px.scatter(
         df_scatter,
         x="utilization_rate",
@@ -291,7 +291,7 @@ with col1:
     fig.update_layout(height=370)
     st.plotly_chart(fig, use_container_width=True)
 
-with col2:
+with col20:
     st.markdown("#### 🤖 Lending Efficiency Insights")
 
     sample_rows = df_scatter.tail(30)
