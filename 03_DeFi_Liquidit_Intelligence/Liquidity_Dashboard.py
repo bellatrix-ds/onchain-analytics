@@ -69,7 +69,7 @@ st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
 # Net Flow chart
-fig = px.area(filtered, x='block_timestamp', y='net_flow', title="Net Flow Over Time", color_discrete_sequence=['#2196F3'])
+fig = px.area(filtered_data, x='block_timestamp', y='net_flow', title="Net Flow Over Time", color_discrete_sequence=['#2196F3'])
 fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
 st.plotly_chart(fig, use_container_width=True)
 
