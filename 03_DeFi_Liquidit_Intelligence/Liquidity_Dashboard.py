@@ -12,6 +12,10 @@ import requests
 import json
 import google.generativeai as genai
 from together import Together
+import pandas as pd
+import plotly.express as px
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 # __________________ Import Data ______________________________________________________________________
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
@@ -64,90 +68,37 @@ with col5:
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
-import streamlit as st
-import pandas as pd
-import requests
-import json
-import plotly.express as px
+# Net Flow chart
+fig = px.area(filtered, x='block_timestamp', y='net_flow', title="Net Flow Over Time", color_discrete_sequence=['#2196F3'])
+fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
+st.plotly_chart(fig, use_container_width=True)
 
-# 🔧 Load the filtered Net Flow data
-df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
-df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
-
-# 📊 Net Flow Chart (left column)
-col1, col2 = st.columns([1, 1.1])
+# AI analysis
+col1, col2 = st.columns([1,2])
 with col1:
-    st.markdown("### 📈 Net Flow Over Time")
-    fig = px.area(df_netflow, x='block_timestamp', y='net_flow',
-                  color_discrete_sequence=['#2196F3'], height=400)
-    fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow')
-    st.plotly_chart(fig, use_container_width=True)
-
-# 🧠 AI Analysis Prompt Selector (right column)
+    st.write("")  # empty to align with AI block
 with col2:
-    st.markdown("### 🤖 AI-Powered Summary")
-    analysis_type = st.selectbox("Select the type of analysis you want:", [
-        "🔍 Key insights (3 bullets)",
-        "⚠️ Risks and outflow alerts",
-        "📈 Trend & volatility explanation",
-        "🧠 Full narrative analysis"
-    ])
+    st.markdown("### 🤖 AI Insight")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained("mosaicml/mpt-7b-instruct", trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained("mosaicml/mpt-7b-instruct",
+                      trust_remote_code=True, torch_dtype=torch.bfloat16, device_map="auto")
+        pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, 
+                        device=0 if torch.cuda.is_available() else -1)
 
-    # Context: convert time series to plain text summary
-    def make_context(df):
-        context = ""
-        for _, row in df.sort_values('block_timestamp').iterrows():
-            date = row['block_timestamp'].strftime('%Y-%m-%d')
-            context += f"{date}: {row['net_flow']:.2f}\n"
-        return context.strip()
-
-    context_text = make_context(df_netflow)
-
-    # Prompt based on analysis type
-    prompt_map = {
-        "🔍 Key insights (3 bullets)": "Give exactly 3 non-obvious insights from the Net Flow time series. Do not explain what net flow is.",
-        "⚠️ Risks and outflow alerts": "Analyze the net flow data and highlight any potential risks, large withdrawals, or warning signs in under 5 bullet points.",
-        "📈 Trend & volatility explanation": "Explain the trends and volatility of the Net Flow values over time. Be concise and skip basic definitions.",
-        "🧠 Full narrative analysis": "Provide a full analytical narrative of the Net Flow behavior in this DeFi lending pool. Include major changes and possible causes."
-    }
-    prompt = prompt_map[analysis_type]
-
-    # 🔑 Together API config
-    TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions"
-    TOGETHER_API_KEY = st.secrets["TOGETHER_API_KEY"]
-
-    def ask_ai(prompt, context):
-        headers = {
-            "Authorization": f"Bearer {TOGETHER_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "model": "Qwen/QwQ-32B",
-            "messages": [
-                {"role": "system", "content": "You are a DeFi data analyst."},
-                {"role": "user", "content": f"Context:\n{context}"},
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.7,
-            "top_p": 0.9,
-            "max_tokens": 1024
-        }
-        response = requests.post(TOGETHER_API_URL, headers=headers, json=payload)
-        if response.ok:
-            return response.json()["choices"][0]["message"]["content"]
-        else:
-            raise Exception(f"❌ API Error: {response.status_code}, {response.text}")
-
-    # 🔍 Run AI Analysis
-    with st.spinner("Analyzing Net Flow using AI..."):
-        try:
-            output = ask_ai(prompt, context_text)
-            st.markdown("### ✅ AI Analysis")
-            for line in output.strip().split("\n"):
-                if line.strip().startswith("-") or line.strip().startswith("•"):
-                    st.markdown(f"{line.strip()}")
-        except Exception as e:
-            st.error(f"❌ AI Analysis failed: {e}")
-
+        prompt = (
+            "The following is the daily net flow (deposit - withdraw) for a lending pool:\n"
+            + "\n".join(f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
+                        for _, row in filtered[['block_timestamp','net_flow']].sort_values('block_timestamp').iterrows()
+                    ) 
+            + "\n\nProvide 3 concise bullet insights (1-2 lines each)."
+        )
+        out = pipe(prompt, max_new_tokens=128, do_sample=False)[0]['generated_text']
+        insights = out.split("\n")
+        for line in insights[-3:]:
+            if line.strip():
+                st.write(line.strip().lstrip('-•'))
+    except Exception as e:
+        st.error(f"AI insight error: {e}")
 
 st.markdown("___")
