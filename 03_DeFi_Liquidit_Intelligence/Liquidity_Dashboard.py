@@ -374,30 +374,15 @@ scenario_options = [
     ("🔥 Liquidity Crunch", "Multiple stress signals suggest borrowers may face trouble getting funds.")
 ]
 
-# Create two columns
-col_left, col_right = st.columns([1, 4])
 
-# Show radio options only once, then capture selection
-selected = col_left.radio(
-    label="Choose a scenario",
-    options=[opt[0] for opt in scenario_options],
-    label_visibility="collapsed"
-)
-
-# Display all descriptions aligned with options
-for label, desc in scenario_options:
-    if label == selected:
-        col_right.markdown(f"**{desc}**")
-    else:
-        col_right.markdown(desc)
-
-# Get the selected scenario's instruction
 scenario_instruction = dict(scenario_options)[selected]
 
 
 
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
 context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
+context_data['block_timestamp'] = context_data['block_timestamp'].dt.strftime('%d %b %Y')
+
 summary = "\n".join(
     f"{r['block_timestamp'].strftime('%d %b %Y')} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
     for _, r in context_data.iterrows()
@@ -431,7 +416,7 @@ payload = {
     "max_tokens": 600
 }
 
-col1, col2 = st.columns([1, 1.5])
+col1, col2 = st.columns([1, 2])
 
 with col1:
     st.markdown("📊 Last 30 Days Data")
