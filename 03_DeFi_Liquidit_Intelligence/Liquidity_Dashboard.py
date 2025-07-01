@@ -244,7 +244,7 @@ with col2:
     prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols:\n\n"
         f"{formatted_data}\n\n"
-        "Provide 3 concise, smart, non-obvious insights based on this time series in bullet points.Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily, use each with a relevant emoji ((🟣 , 🔵 , 🟡 , 🟢 , 🟠 , 🟤 )):\n\n"
+        "Provide 3 concise, smart, non-obvious insights based on this time series in bullet points.Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily"
     )
 
     headers = {
@@ -269,7 +269,7 @@ with col2:
         content = result['choices'][0]['message']['content']
         for line in content.strip().split('\n'):
             if line.strip():
-                st.write(f"• {line.strip().lstrip('-•')}")
+                st.write(f"• {line.strip().lstrip('🟣')}")
     except Exception as e:
         st.error(f"AI insight error: {e}")
 
