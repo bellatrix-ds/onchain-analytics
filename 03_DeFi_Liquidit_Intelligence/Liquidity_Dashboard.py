@@ -365,7 +365,6 @@ st.markdown("___")
 
 
 st.markdown("### 🧪 Scenario-based Insight Generator")
-st.markdown("#### ❗ Choose a scenario to analyze:")
 
 scenario_options = [
     ("📉 Decreasing Net Flow", "More funds are leaving the pool than entering — a potential sign of capital flight."),
@@ -375,9 +374,9 @@ scenario_options = [
     ("🔥 Liquidity Crunch", "Multiple stress signals suggest borrowers may face trouble getting funds.")
 ]
 
+selected = st.radio("❗ Choose a scenario to analyze:", [s[0] for s in scenario_options])
 
 scenario_instruction = dict(scenario_options)[selected]
-
 
 
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
