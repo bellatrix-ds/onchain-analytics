@@ -41,6 +41,23 @@ filtered_df = data[
 
 
 # __________________ Part 1: Trends ______________________________________________________________________
+import calendar
+
+filtered_df['block_timestamp'] = pd.to_datetime(filtered_df['block_timestamp'])
+filtered_df['month'] = filtered_df['block_timestamp'].dt.month
+filtered_df['month_str'] = filtered_df['block_timestamp'].dt.month.apply(lambda x: calendar.month_name[x])
+
+months_available = filtered_df['month_str'].unique()
+selected_month = st.selectbox("Select Month", sorted(months_available))
+
+df_plot = filtered_df[filtered_df['month_str'] == selected_month][['block_timestamp', 'utilization_rate']].dropna()
+
+fig1 = px.line(df_plot, x='block_timestamp', y='utilization_rate',
+               title='Utilization Rate Over Time', markers=True)
+fig1.update_layout(xaxis_title='Date', yaxis_title='Utilization Rate', height=400)
+
+st.plotly_chart(fig1, use_container_width=True)
+
 
 col1, col2 = st.columns(2)
 
