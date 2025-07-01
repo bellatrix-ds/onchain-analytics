@@ -357,7 +357,8 @@ summary = "\n".join(
 prompt = f"""
 You are a DeFi protocol analyst. Below is recent daily data from a lending pool on a blockchain:
 
-Date | Net Flow | APR | Utilization Rate  
+Date | Net Flow | APR | Utilization Rate
+context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
 {summary}
 
 Scenario: {scenario_instruction}
