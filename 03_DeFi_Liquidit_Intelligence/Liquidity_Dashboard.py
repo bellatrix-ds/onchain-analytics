@@ -206,4 +206,70 @@ st.markdown("___")
 
 st.markdown("___")
 # __________________ Part 4: Liquidity Metrics  ______________________________________________________________________
+st.markdown("### 💸 Lending Flow Metrics Over Time")
+
+df_amounts = filtered_data[['block_timestamp', 'deposit_amount', 'loan_amount', 'repay_amount', 'withdraw_amount']].copy()
+df_amounts['block_timestamp'] = pd.to_datetime(df_amounts['block_timestamp'])
+
+df_melted = df_amounts.melt(
+    id_vars='block_timestamp',
+    value_vars=['deposit_amount', 'loan_amount', 'repay_amount', 'withdraw_amount'],
+    var_name='Type', value_name='Amount'
+)
+
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type',
+                  title="Lending Pool Activities", markers=True,
+                  color_discrete_map={
+                      'deposit_amount': '#4CAF50',
+                      'loan_amount': '#2196F3',
+                      'repay_amount': '#FFC107',
+                      'withdraw_amount': '#F44336'
+                  })
+    fig.update_layout(height=380, xaxis_title="Date", yaxis_title="Amount (WETH)")
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    st.markdown("### 💡 AI Generated Insight")
+
+    recent_data = df_amounts.sort_values("block_timestamp").tail(30)
+    formatted_data = "\n".join(
+        f"{row['block_timestamp'].strftime('%Y-%m-%d')}: deposit={row['deposit_amount']:.2f}, "
+        f"loan={row['loan_amount']:.2f}, repay={row['repay_amount']:.2f}, withdraw={row['withdraw_amount']:.2f}"
+        for _, row in recent_data.iterrows()
+    )
+
+    prompt = (
+        "You are a DeFi analyst. Here is the daily lending pool activity:\n\n"
+        f"{formatted_data}\n\n"
+        "Please give 3 concise insights in bullet points. Focus on behavior of deposit, loan, repay, and withdraw."
+    )
+
+    headers = {
+        "Authorization": f"Bearer {st.secrets['TOGETHER_API_KEY']}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        "messages": [
+            {"role": "system", "content": "You are a professional DeFi analyst."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.5,
+        "top_p": 0.9,
+        "max_tokens": 200
+    }
+
+    try:
+        response = requests.post("https://api.together.xyz/v1/chat/completions", headers=headers, json=payload)
+        result = response.json()
+        content = result['choices'][0]['message']['content']
+        for line in content.strip().split('\n'):
+            if line.strip():
+                st.write(f"• {line.strip().lstrip('-•')}")
+    except Exception as e:
+        st.error(f"AI insight error: {e}")
 
