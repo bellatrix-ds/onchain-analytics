@@ -351,7 +351,7 @@ scenario_instruction = scenarios[selected_scenario]
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
 context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
 summary = "\n".join(
-    f"{r['block_timestamp'].date()} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
+    f"{r['block_timestamp'].strftime('%d %b %Y')} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
     for _, r in context_data.iterrows()
 )
 
@@ -380,7 +380,7 @@ payload = {
     ],
     "temperature": 0.6,
     "top_p": 0.9,
-    "max_tokens": 300
+    "max_tokens": 600
 }
 
 col1, col2 = st.columns(2)
@@ -390,7 +390,7 @@ with col1:
     st.dataframe(context_data)
 
 with col2:
-    st.markdown("#### 🤖 Scenario-based Insight")
+    st.markdown("#### 🟢 Scenario-based Insight")
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
