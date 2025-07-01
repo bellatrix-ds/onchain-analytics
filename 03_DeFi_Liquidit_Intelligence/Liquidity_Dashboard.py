@@ -45,7 +45,8 @@ filtered_data = data[
     (data['pool'] == selected_pool)
 ].copy()
 
-#filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
+filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
+
 st.markdown("___")
 # __________________ Part 1: Utilization Rate Over Time ______________________________________________________________________
 
@@ -335,11 +336,6 @@ st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
 
 
-import pandas as pd
-import requests
-import streamlit as st
-
-# تعریف سناریوها
 scenarios = {
     "📉 Decreasing Net Flow": "Analyze signs of capital outflows and what risks it may imply for the lending pool.",
     "📈 Increasing Utilization": "What does a rising utilization rate mean for APR and borrower demand?",
@@ -352,14 +348,12 @@ st.markdown("### 🧪 Scenario-based Insight Generator")
 selected_scenario = st.radio("Choose a scenario to analyze:", list(scenarios.keys()))
 scenario_instruction = scenarios[selected_scenario]
 
-# فیلتر داده‌های اخیر
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
 summary = "\n".join(
     f"{r['block_timestamp'].date()} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
     for _, r in context_data.iterrows()
 )
 
-# ایجاد پرامپت برای مدل
 prompt = f"""
 You are a DeFi protocol analyst. Below is recent daily data from a lending pool on a blockchain:
 
@@ -371,7 +365,6 @@ Scenario: {scenario_instruction}
 Give 3 bullet-point insights for this scenario based on the above data.
 """
 
-# فراخوانی API
 together_api_key = st.secrets["TOGETHER_API_KEY"]
 url = "https://api.together.xyz/v1/chat/completions"
 headers = {
@@ -389,7 +382,6 @@ payload = {
     "max_tokens": 300
 }
 
-# نمایش خروجی در دو ستون
 col1, col2 = st.columns(2)
 
 with col1:
