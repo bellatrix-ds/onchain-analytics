@@ -36,7 +36,9 @@ filtered_data = data[
     (data['pool'] == selected_pool)
 ].copy()
 
+filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
 filtered_data['month'] = filtered_data['block_timestamp'].dt.month
+
 month_map = {3: 'March', 4: 'April', 5: 'May', 6: 'June'}
 filtered_data['month_name'] = filtered_data['month'].map(month_map)
 selected_month = st.radio("Select Month", options=['March', 'April', 'May', 'June'], horizontal=True)
