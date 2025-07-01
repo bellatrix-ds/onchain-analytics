@@ -36,8 +36,7 @@ filtered_data = data[
     (data['pool'] == selected_pool)
 ].copy()
 
-filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
-filtered_data['month'] = filtered_data['block_timestamp'].dt.month
+#filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
 
 # __________________ Part 1: Trends ______________________________________________________________________
 
