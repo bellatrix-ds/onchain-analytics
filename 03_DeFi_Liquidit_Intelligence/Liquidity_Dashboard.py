@@ -349,6 +349,7 @@ selected_scenario = st.radio("Choose a scenario to analyze:", list(scenarios.key
 scenario_instruction = scenarios[selected_scenario]
 
 context_data = filtered_data[['block_timestamp', 'net_flow', 'APR', 'utilization_rate']].dropna().tail(30)
+context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
 summary = "\n".join(
     f"{r['block_timestamp'].date()} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
     for _, r in context_data.iterrows()
@@ -358,7 +359,6 @@ prompt = f"""
 You are a DeFi protocol analyst. Below is recent daily data from a lending pool on a blockchain:
 
 Date | Net Flow | APR | Utilization Rate
-context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
 {summary}
 
 Scenario: {scenario_instruction}
