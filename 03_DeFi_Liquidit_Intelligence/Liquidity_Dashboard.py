@@ -40,7 +40,6 @@ filtered_df = data[
     (data['pool'] == selected_pool)]
 
 
-st.markdown("_")
 # __________________ Part 1: Trends ______________________________________________________________________
 
 col1, col2, col3 = st.columns(3)
