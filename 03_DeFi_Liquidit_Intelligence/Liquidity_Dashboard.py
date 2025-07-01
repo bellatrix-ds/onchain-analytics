@@ -39,18 +39,14 @@ filtered_data = data[
 filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'], errors='coerce')
 filtered_data['month'] = filtered_data['block_timestamp'].dt.month
 
-month_map = {3: 'March', 4: 'April', 5: 'May', 6: 'June'}
-filtered_data['month_name'] = filtered_data['month'].map(month_map)
-selected_month = st.radio("Select Month", options=['March', 'April', 'May', 'June'], horizontal=True)
-month_num = [k for k, v in month_map.items() if v == selected_month][0]
-filtered_month_data = filtered_data[filtered_data['month'] == month_num]
+# __________________ Part 1: Trends ______________________________________________________________________
 
-left_col, right_col = st.columns([1.5, 1])
+col4, col5 = st.columns(2)
 
-with left_col:
+with col4:
     st.subheader("Utilization Rate Over Time")
     fig = px.line(
-        filtered_month_data,
+        filtered_data,
         x='block_timestamp',
         y='utilization_rate',
         markers=True,
@@ -58,15 +54,13 @@ with left_col:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-with right_col:
-    st.subheader("ℹ️ توضیح")
-    st.markdown("""
+with col5:
+    st.markdown("### 🔄 Net Flow یعنی چه؟")
+    st.write("""
     این نمودار میزان استفاده از نقدینگی را در طول زمان برای استخر انتخاب‌شده نشان می‌دهد.  
     **بالا** می‌تواند نشانه فشار نقدینگی باشد. در حالی که نرخ **پایین** ممکن است به معنی سرمایه‌های بلااستفاده باشد.  
     نقاط **صفر** یا **نال** معمولاً به معنی فقدان فعالیت یا ثبت‌نشدن داده در آن روز خاص هستند.
     """)
-
-# __________________ Part 1: Trends ______________________________________________________________________
 
 
 # __________________ Part 2: Net Flow ______________________________________________________________________
