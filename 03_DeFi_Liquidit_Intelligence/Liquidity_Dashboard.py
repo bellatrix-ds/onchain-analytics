@@ -213,7 +213,7 @@ df_melted = df_amounts.melt(
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Tx Type'
+    fig = px.line(df_melted, x='block_timestamp', y='Amount', color='Type'
                   , markers=False,
                   color_discrete_map={
                       'deposit_amount': '#4CAF50',
@@ -270,10 +270,11 @@ with col2:
 
 st.markdown("___")
 # __________________ Part 4: Scatter Plot APR vs. Utilization Rate ______________________________________________________________________
+
 df_scatter = filtered_data[["APR", "utilization_rate"]].dropna()
 df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
 
-st.markdown("### 🔄 APR vs Utilization Rate")
+st.markdown("### 🔁 APR vs Utilization Rate")
 
 col1, col2 = st.columns(2)
 
@@ -293,12 +294,11 @@ with col1:
 with col2:
     st.markdown("#### 🤖 APR & Utilization Insights")
 
-    # ساخت prompt
     sample_rows = df_scatter.tail(30)
     data_summary = "\n".join(f"{r['utilization_rate']:.2f}, {r['APR']:.2f}" for _, r in sample_rows.iterrows())
 
     prompt = (
-        f"Below is 30 days of utilization rate and APR from a DeFi lending pool:\n\n"
+        f"Below is 30 days of utilization rate and APR from a DeFi lending pool in blockchain:\n\n"
         f"(utilization_rate, APR):\n{data_summary}\n\n"
         f"Provide 3 concise bullet-point insights about the relationship between APR and utilization rate."
     )
