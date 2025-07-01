@@ -70,7 +70,7 @@ import json
 API_KEY = "79e7ccd7e568ae5694594efe5e318a03fc42a64d4c7bc2dc491a6e2123404fd9"
 MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-def make_summary_netflow(data: pd.DataFrame, limit=30) -> str:
+def make_summary_netflow(data: pd.DataFrame, limit=10) -> str:
     summary = ""
     data = data.sort_values(by="block_timestamp", ascending=False).head(limit)
     for _, row in data.iterrows():
@@ -100,11 +100,11 @@ def ask_ai_netflow(context: str) -> str:
         raise Exception(f"❌ Error: Status {response.status_code}, Body: {response.text}")
 
 
-# 🧠 کد بخش Net Flow با تحلیل AI
+# 🧠 Ai Agent
 col6, col7 = st.columns(2)
 
 with col6:
-    df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
+    df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna(subset=['block_timestamp', 'net_flow'])
     df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
     fig2 = px.area(df_netflow, x='block_timestamp', y='net_flow',
