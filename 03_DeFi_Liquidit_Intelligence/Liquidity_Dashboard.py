@@ -70,20 +70,17 @@ with col5:
 st.markdown("___")
 # __________________ Part 2: Net Flow ______________________________________________________________________
 
-# Net Flow chart
-fig = px.area(filtered_data, x='block_timestamp', y='net_flow', title="Net Flow Over Time", color_discrete_sequence=['#2196F3'])
-fig.update_layout(xaxis_title='Date', yaxis_title='Net Flow', height=350)
-st.plotly_chart(fig, use_container_width=True)
+insight_types = {
+    "📈 Trend Analysis": "Analyze the overall trend and pattern of net flows in this lending pool. Look for growth, decline, or stability.",
+    "⚠️ Risk Alerts": "Look for large negative flows or frequent withdrawals that may indicate potential liquidity risks.",
+    "📊 Volatility Summary": "Summarize the volatility of the net flows. Highlight sudden spikes or reversals.",
+    "🧠 User Behavior Insights": "Infer user behavior from the net flow pattern. Are users yield-farming, exiting, or coming back?",
+    "🔍 Interesting Events": "Identify 3 interesting or unusual moments from this net flow time series and explain briefly."
+}
 
-# AI analysis
-col1, col2 = st.columns([1, 2])
+selected_scenario = st.selectbox("🧠 What kind of AI insight do you want?", list(insight_types.keys()))
 
-with col1:
-    st.write("")
-
-with col2:
-    st.markdown("### 🤖 AI Insight")
-
+if selected_scenario:
     try:
         from transformers import pipeline
 
@@ -93,11 +90,12 @@ with col2:
 
         pipe = load_pipe()
 
-        # ✅ fix timestamp format
+        # اطمینان از اینکه زمان datetime هست
         filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp'])
 
         prompt = (
-            "The following is the daily net flow (deposit - withdraw) for a DeFi lending pool:\n"
+            f"{insight_types[selected_scenario]}\n\n"
+            "Here is the net flow data:\n"
             + "\n".join(
                 f"{row['block_timestamp'].date()}: {row['net_flow']:.2f}"
                 for _, row in filtered_data[['block_timestamp', 'net_flow']]
@@ -105,16 +103,15 @@ with col2:
                 .sort_values('block_timestamp')
                 .iterrows()
             )
-            + "\n\nGive 3 concise, smart insights in bullet points."
+            + "\n\nPlease summarize 3 smart insights in bullet points."
         )
 
         result = pipe(prompt, max_new_tokens=256)[0]['generated_text']
 
+        st.markdown(f"### 🤖 AI Insight: {selected_scenario}")
         for line in result.split("\n"):
             if '-' in line or '•' in line:
                 st.write(line.strip().lstrip("-•"))
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
-
-st.markdown("___")
