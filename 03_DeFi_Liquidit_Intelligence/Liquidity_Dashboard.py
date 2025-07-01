@@ -384,7 +384,7 @@ context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp']
 context_data['block_timestamp'] = context_data['block_timestamp'].dt.strftime('%d %b %Y')
 
 summary = "\n".join(
-    f"{r['block_timestamp'].strftime('%d %b %Y')} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
+    f"{r['block_timestamp']} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR']:.2f}, Util: {r['utilization_rate']:.2f}"
     for _, r in context_data.iterrows()
 )
 
