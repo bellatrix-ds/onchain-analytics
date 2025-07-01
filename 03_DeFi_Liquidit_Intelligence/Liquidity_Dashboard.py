@@ -1,25 +1,23 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+
 from matplotlib.dates import DateFormatter
-import numpy as np
+
 import altair as alt
 from sklearn.preprocessing import MinMaxScaler
 import requests
 import json
 import google.generativeai as genai
 from together import Together
-import pandas as pd
-import plotly.express as px
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from transformers import pipeline
-import streamlit as st
-import pandas as pd
-import plotly.express as px
 from transformers import pipeline
 from datetime import datetime
 
@@ -99,8 +97,8 @@ with col2:
         "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
     }
 
-    selected_type = st.radio("🧠 Insight Type", list(insight_types.keys()))
-    st.markdown("### 🤖 AI Insight")
+    selected_type = st.radio("🧠 Select Insight Type", list(insight_types.keys()))
+    st.markdown("🚀 🤖 AI Generated Insight")
 
     recent_data = df_netflow.sort_values('block_timestamp').tail(30)
     prompt_data = "\n".join(
