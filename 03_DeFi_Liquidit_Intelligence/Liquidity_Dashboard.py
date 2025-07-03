@@ -226,7 +226,7 @@ with main_col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama3-70b-8192",
+            "model": "mistral/mistral-7b-instruct",
             "messages": [
                 {
                     "role": "system",
