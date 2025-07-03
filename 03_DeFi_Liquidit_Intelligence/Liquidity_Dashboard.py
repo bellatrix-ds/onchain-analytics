@@ -110,17 +110,19 @@ with util_col2:
         f"{row['block_timestamp'].strftime('%Y-%m-%d')}: {row['utilization_rate']:.2f}"
         for _, row in df_util_recent.iterrows()
     )
- util_prompt = (
-    "You are a DeFi data analyst helping users understand lending pool activity. "
+
+    util_prompt = (
+     "You are a DeFi data analyst helping users understand lending pool activity. "
     "Below is the daily utilization rate of a lending pool.\n\n"
     f"{util_prompt_data}\n\n"
     "Now, generate exactly 3 bullet-point insights with the following rules:\n"
     "• Start each bullet with a short question that it answers (e.g., 'Why did utilization spike in mid-June?')\n"
     "• Keep each answer brief and to the point (max 2 sentences)\n"
     "• Avoid repeating information. Focus on anomalies, demand shifts, or liquidity signals."
-)
-try:
-        groq_api_key = st.secrets["GROQ_API_KEY"]  
+    )
+
+    try:
+        groq_api_key = st.secrets["GROQ_API_KEY"] 
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {groq_api_key}",
@@ -150,8 +152,6 @@ try:
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
-
-
 
 
 st.markdown("___")
