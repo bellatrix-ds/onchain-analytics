@@ -232,12 +232,13 @@ with main_col2:
         }
 
         response = requests.post(url, headers=headers, json=payload)
-        result = response.json()
+result = response.json()
 
-        if "choices" in result or not result["choices"]:
-         st.warning("⚠️ No useful content returned by model.")
-         st.json(result)
-         return
+# Safety check: no choices returned
+if "choices" not in result or not result["choices"]:
+    st.warning("⚠️ No useful content returned by model.")
+    st.json(result)
+    return
 
 # Extract and show insights
 output = result["choices"][0]["message"]["content"]
