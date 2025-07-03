@@ -110,8 +110,7 @@ with util_col2:
         f"{row['block_timestamp'].strftime('%Y-%m-%d')}: {row['utilization_rate']:.2f}"
         for _, row in df_util_recent.iterrows()
     )
-
-util_prompt = (
+ util_prompt = (
     "You are a DeFi data analyst helping users understand lending pool activity. "
     "Below is the daily utilization rate of a lending pool.\n\n"
     f"{util_prompt_data}\n\n"
@@ -120,8 +119,7 @@ util_prompt = (
     "• Keep each answer brief and to the point (max 2 sentences)\n"
     "• Avoid repeating information. Focus on anomalies, demand shifts, or liquidity signals."
 )
-
-    try:
+try:
         groq_api_key = st.secrets["GROQ_API_KEY"]  
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
