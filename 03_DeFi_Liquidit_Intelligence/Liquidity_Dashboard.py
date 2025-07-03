@@ -204,6 +204,9 @@ with main_col2:
         "2. Then provide a **brief answer** explaining the behavior (max 2 short sentences).\n"
         "3. Use a relevant emoji at the start of each answer (📉, ⚠️, 💡, etc).\n"
         "Avoid generalities—be direct and insightful.\n\n"
+         "keep each bullet short and don't use sentetens like <think> or The user wants me to.\n\n"
+
+     
         + prompt_data
     )
 
