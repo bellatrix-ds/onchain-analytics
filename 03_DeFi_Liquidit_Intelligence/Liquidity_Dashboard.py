@@ -238,6 +238,15 @@ with main_col2:
          st.warning("⚠️ No useful content returned by model.")
          st.json(result)
          return
+
+# Extract and show insights
+output = result["choices"][0]["message"]["content"]
+
+for line in output.strip().split('\n'):
+    if line.strip():
+        st.write(f"• {line.strip().lstrip('-•')}")
+
+
      
     
 
