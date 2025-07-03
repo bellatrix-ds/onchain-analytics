@@ -114,13 +114,13 @@ with util_col2:
     util_prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols. "
         "Below is the daily utilization rate (borrowed / total liquidity) of a lending pool. "
-        "Provide 3 concise, smart, non-obvious insights based on this time series. Use relevant emojis (📉, 💡, ⚠️, 🔁) for each bullet:\n\n"
+        "Provide 3 concise, smart, non-obvious insights based on this time series for each bullet:\n\n"
         + util_prompt_data
         + "\n\nFocus on identifying signs of lending demand shifts, liquidity pressure, or inactivity."
     )
 
     try:
-        groq_api_key = st.secrets["GROQ_API_KEY"]  # یا از os.getenv استفاده کن
+        groq_api_key = st.secrets["GROQ_API_KEY"]  
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {groq_api_key}",
