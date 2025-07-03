@@ -372,21 +372,25 @@ with col10:
 
 with col20:
     st.markdown("#### ✅ Lending Efficiency Insights")
- df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
- sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
+
+    # پاکسازی و تبدیل تاریخ
+    df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
+    sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
+
+    # آماده‌سازی داده‌ها برای پرامپت
     data_summary = "\n".join(
-    f"{r['block_timestamp'].strftime('%Y-%m-%d')}: utilization={r['utilization_rate']:.2f}, APR={r['APR']:.2f}"
-    for _, r in sample_rows.iterrows()
-)
+        f"{r['block_timestamp'].strftime('%Y-%m-%d')}: utilization={r['utilization_rate']:.2f}, APR={r['APR']:.2f}"
+        for _, r in sample_rows.iterrows()
+    )
 
     efficiency_prompt = (
-        "You are a senior DeFi lending analyst. Below is the daily utilization rate and APR of a lending pool.\n"
-        "Your task is to generate 3 short bullet-point insights.\n"
-        "For each:\n"
-        "• Start with a **concise question** related to the data.\n"
-        "• Then provide a **brief, smart answer** (max 2 sentences).\n"
-        "• Include a relevant emoji (📈, 📉, 💰, ⚠️, 🔄) at the beginning of each answer.\n"
-        "Avoid generic or surface-level insights — focus on behavioral patterns and yield dynamics.\n\n"
+        "You are a DeFi analyst evaluating lending pool efficiency.\n"
+        "Below is the recent daily relationship between utilization rate and APR.\n"
+        "Write 3 smart bullet-point insights. For each:\n"
+        "1. Start with a **short question** about efficiency or behavior.\n"
+        "2. Then give a clear answer (max 2 short sentences).\n"
+        "3. Begin the answer with a relevant emoji (📈, ⚠️, 💰, 🔄, etc).\n"
+        "Avoid generic commentary. Be sharp and helpful.\n\n"
         + data_summary
     )
 
@@ -402,7 +406,7 @@ with col20:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a professional DeFi analyst. Your job is to assess the relationship between APR and utilization rate in lending protocols."
+                    "content": "You are a DeFi analyst specializing in lending pool efficiency."
                 },
                 {
                     "role": "user",
@@ -419,17 +423,14 @@ with col20:
 
         if "choices" in result and len(result["choices"]) > 0:
             output = result["choices"][0]["message"]["content"]
-            for line in output.strip().split("\n"):
-                if line.strip():
-                    st.write(f"• {line.strip().lstrip('-•')}")
-        elif "error" in result:
-            st.warning("⚠️ AI returned an error.")
-            st.caption(f"Error message: {result['error'].get('message', 'Unknown error')}")
+            for bullet in output.strip().split("\n"):
+                if bullet.strip():
+                    st.write(f"• {bullet.strip().lstrip('-•')}")
         else:
-            st.warning("⚠️ No AI insight returned. Empty or unexpected response.")
-            st.caption(f"Debug info: {result}")
+            st.warning("⚠️ No AI insight returned.")
+            st.caption("The model responded with no usable content.")
     except Exception as e:
-        st.warning("⚠️ AI request failed unexpectedly.")
+        st.error("AI Insight error.")
         st.caption(f"Exception: {e}")
 
 st.markdown("___")
