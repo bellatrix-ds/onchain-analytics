@@ -217,9 +217,8 @@ with main_col2:
         "- Follow with a 1–2 sentence answer using a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
         "Be smart, concise, and avoid generic observations."
     )
-
-    try:
-     groq_api_key = st.secrets["GROQ_API_KEY"]
+ try:
+    groq_api_key = st.secrets["GROQ_API_KEY"]
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {groq_api_key}",
@@ -259,6 +258,10 @@ with main_col2:
 except Exception as e:
     st.warning("⚠️ AI request failed unexpectedly.")
     st.caption(f"Exception: {e}")
+
+
+
+ 
 
 st.markdown("___")
 # __________________ Part 3: Liquidity Metrics  ______________________________________________________________________
