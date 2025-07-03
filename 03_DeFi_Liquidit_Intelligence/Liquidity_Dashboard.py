@@ -246,8 +246,6 @@ with main_col2:
 
 
 
-st.markdown("___")
-
 
 
 st.markdown("### 💸 Lending Flow Metrics Over Time")
