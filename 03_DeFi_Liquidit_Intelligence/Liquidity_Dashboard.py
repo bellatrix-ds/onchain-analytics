@@ -287,7 +287,7 @@ with col1:
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    st.markdown("### 💡 Lending Behavior Insights - AI Generated")
+    st.markdown("### 💡 Lending Behavior Insights")
 
     recent_data = df_amounts.sort_values("block_timestamp").tail(30)
     formatted_data = "\n".join(
@@ -296,38 +296,55 @@ with col2:
         for _, row in recent_data.iterrows()
     )
 
-    prompt = (
-        "You are a blockchain DeFi analyst focused on lending protocols:\n\n"
-        f"{formatted_data}\n\n"
-        "Provide 3 concise, smart, non-obvious insights based on this time series in bullet points.Focus on behavior of deposit, loan, repay, and withdraw, below there are daily metrics related to deposit, loan, repay, and withdraw daily"
+    lending_prompt = (
+        "You are a DeFi analyst. Below is the daily behavior of a lending pool:\n"
+        "Metrics include deposit, loan, repay, and withdraw amounts.\n"
+        "Generate 3 smart, concise insights. For each:\n"
+        "1. Start with a **short question** about the behavior.\n"
+        "2. Then provide a brief, insightful answer (max 2 sentences).\n"
+        "3. Use a relevant emoji at the start (📥, 📤, 📉, 🔄, 💰, etc).\n"
+        "Avoid generic observations.\n\n"
+        + formatted_data
     )
 
-    headers = {
-        "Authorization": f"Bearer {st.secrets['TOGETHER_API_KEY']}",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
-        "messages": [
-            {"role": "system", "content": "You are a professional DeFi analyst."},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.5,
-        "top_p": 0.9,
-        "max_tokens": 200
-    }
-
     try:
-        response = requests.post("https://api.together.xyz/v1/chat/completions", headers=headers, json=payload)
-        result = response.json()
-        content = result['choices'][0]['message']['content']
-        for line in content.strip().split('\n'):
-            if line.strip():
-                st.write(f"• {line.strip().lstrip('-•')}")
-    except Exception as e:
-        st.error(f"AI insight error: {e}")
+        groq_api_key = st.secrets["GROQ_API_KEY"]
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {groq_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "llama3-70b-8192",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a professional DeFi analyst. Your job is to explain lending behavior patterns across deposits, loans, repayments, and withdrawals."
+                },
+                {
+                    "role": "user",
+                    "content": lending_prompt
+                }
+            ],
+            "temperature": 0.4,
+            "top_p": 0.9,
+            "max_tokens": 500
+        }
 
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
+
+        if "choices" in result and len(result["choices"]) > 0:
+            output = result["choices"][0]["message"]["content"]
+            for line in output.strip().split('\n'):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
+        else:
+            st.warning("💭🤔 No AI insight returned.")
+            st.caption("Model responded but without useful content.")
+    except Exception as e:
+        st.error("AI insight error")
+        st.caption(f"Exception: {e}")
 
 
 st.markdown("___")
@@ -357,41 +374,60 @@ with col20:
     st.markdown("#### ✅ Lending Efficiency Insights")
 
     sample_rows = df_scatter.tail(30)
-    data_summary = "\n".join(f"{r['utilization_rate']:.2f}, {r['APR']:.2f}" for _, r in sample_rows.iterrows())
-
-    prompt = (
-        f"Here are 30 recent (utilization_rate, APR) observations from a DeFi lending pool:\n"
-        f"{data_summary}\n\n"
-        f"Please summarize the relationship between APR and utilization in 3 short bullet points."
+    data_summary = "\n".join(
+        f"{r['block_timestamp'].strftime('%Y-%m-%d')}: utilization={r['utilization_rate']:.2f}, APR={r['APR']:.2f}"
+        for _, r in sample_rows.iterrows()
     )
 
-    together_api_key = st.secrets["TOGETHER_API_KEY"]
-    url = "https://api.together.xyz/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {together_api_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
-        "messages": [
-            {"role": "system", "content": "You are a DeFi lending analyst."},
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.5,
-        "top_p": 0.9,
-        "max_tokens": 256
-    }
+    efficiency_prompt = (
+        "You are a DeFi analyst evaluating lending pool efficiency.\n"
+        "Below is the recent daily relationship between utilization rate and APR.\n"
+        "Analyze and summarize what the pattern suggests in 3 smart bullet points. For each:\n"
+        "1. Start with a **short question** about efficiency or behavior.\n"
+        "2. Then give a clear, short answer (max 2 short sentences).\n"
+        "3. Begin the answer with a relevant emoji (📈, ⚠️, 💰, 🔄, etc).\n"
+        "Avoid generic statements. Focus on insightful relationships.\n\n"
+        + data_summary
+    )
 
     try:
+        groq_api_key = st.secrets["GROQ_API_KEY"]
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {groq_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "llama3-70b-8192",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a professional DeFi analyst. You explain how utilization rate and APR interact in lending pools."
+                },
+                {
+                    "role": "user",
+                    "content": efficiency_prompt
+                }
+            ],
+            "temperature": 0.4,
+            "top_p": 0.9,
+            "max_tokens": 500
+        }
+
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
-        output = result['choices'][0]['message']['content']
-        for bullet in output.strip().split("\n"):
-            if bullet.strip():
-                st.write(f"• {bullet.strip().lstrip('-•')}")
-    except Exception as e:
-        st.error(f"AI Insight error: {e}")
 
+        if "choices" in result and len(result["choices"]) > 0:
+            output = result["choices"][0]["message"]["content"]
+            for bullet in output.strip().split("\n"):
+                if bullet.strip():
+                    st.write(f"• {bullet.strip().lstrip('-•')}")
+        else:
+            st.warning("⚠️ No AI insight returned.")
+            st.caption("The model responded with no usable content.")
+    except Exception as e:
+        st.error("AI Insight error.")
+        st.caption(f"Exception: {e}")
 
 st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
