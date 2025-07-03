@@ -34,14 +34,7 @@ This dashboard is fully powered by **raw on‑chain lending data** and **AI‑dr
 It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed. """)
  
 
-st.set_page_config(page_title="My Dashboard", layout="wide")
-
 st.image("defi_analysis.png", use_column_width=True)
-
-
-
-
-
 
 st.markdown("""
 ##### 🚀 All set?! Let’s get started! 👊🏼 """)
