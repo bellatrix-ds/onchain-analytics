@@ -311,7 +311,7 @@ with col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama3-70b-8192",
+            "model": "compound-beta-mini",
             "messages": [
                 {
                     "role": "system",
