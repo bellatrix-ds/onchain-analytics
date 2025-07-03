@@ -216,7 +216,7 @@ with main_col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "compound-beta-mini",
+            "model": "llama-3.1-8b-instant",
             "messages": [
                 {
                     "role": "system",
@@ -311,7 +311,7 @@ with col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "compound-beta-mini",
+            "model": "llama-3.1-8b-instant",
             "messages": [
                 {
                     "role": "system",
@@ -398,7 +398,7 @@ with col20:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "compound-beta-mini",
+            "model": "llama-3.1-8b-instant",
             "messages": [
                 {
                     "role": "system",
@@ -479,7 +479,7 @@ headers = {
     "Content-Type": "application/json"
 }
 payload = {
-    "model": "compound-beta-mini",
+    "model": "llama-3.1-8b-instant",
     "messages": [
         {"role": "system", "content": "You are a professional DeFi protocol analyst."},
         {"role": "user", "content": prompt}
