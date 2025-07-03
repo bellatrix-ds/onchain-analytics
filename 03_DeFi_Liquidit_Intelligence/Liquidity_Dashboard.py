@@ -351,7 +351,7 @@ st.markdown("___")
 # __________________ Part 4: Scatter Plot APR vs. Utilization Rate ______________________________________________________________________
 
 
-df_scatter = filtered_data[["APR", "utilization_rate"]].dropna()
+df_scatter = filtered_data[["APR", "utilization_rate","block_timestamp"]].dropna()
 df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
 df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
 
