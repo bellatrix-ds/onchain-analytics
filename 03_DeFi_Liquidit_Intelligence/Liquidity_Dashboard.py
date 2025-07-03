@@ -34,21 +34,12 @@ This dashboard is fully powered by **raw on‑chain lending data** and **AI‑dr
 It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed. """)
  
 
-st.markdown("""
-##### 🛠️ How to use
-- ☝🏼 Select a **lending protocol** (e.g., Radiant, Aave, Compound)  
-- ✌🏼 Choose one or more **blockchains** it’s active on (e.g., Arbitrum, Ethereum)  
-- 🏊🏼‍♂️ Pick a **lending pool** (e.g., USDC pool on Arbitrum), then the dashboard will update all charts and AI insights based on your selection.
-""")
+st.set_page_config(page_title="My Dashboard", layout="wide")
 
-st.markdown(" ")
+st.image("defi_analysis.png", use_column_width=True)
 
-st.markdown("""
-##### 📦 What's inside?
-- **Section 1 --> Time Series Overview**  
-  Track key DeFi lending metrics over time:  💸 Net Flow , 📈 Utilization, 🧾 Core Behaviors, and 📉 APR vs Usage.
-- **Section 2 --> AI Scenario Insights**  
-An AI agent examines the last 30 days and provides forward-looking insights:  potential risks, liquidity shifts, or usage patterns that may emerge soon. """)
+
+
 
 
 
