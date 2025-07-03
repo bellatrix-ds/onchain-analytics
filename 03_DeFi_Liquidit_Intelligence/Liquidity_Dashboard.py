@@ -216,7 +216,7 @@ with main_col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "qwen-qwq-32b",
+            "model": "compound-beta-mini",
             "messages": [
                 {
                     "role": "system",
