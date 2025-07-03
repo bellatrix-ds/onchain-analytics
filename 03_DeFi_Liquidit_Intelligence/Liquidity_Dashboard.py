@@ -202,10 +202,8 @@ with main_col2:
         "Generate 3 concise bullet-point insights. For each:\n"
         "1. Start with a **short question** related to the net flow trend.\n"
         "2. Then provide a **brief answer** explaining the behavior (max 2 short sentences).\n"
-        "3. Use a relevant emoji at the start of each answer (📉, ⚠️, 💡, etc).\n"
+        "3. keep each bullet short and don't use sentetens like <think> or The user wants me to.\n"
         "Avoid generalities—be direct and insightful.\n\n"
-         "keep each bullet short and don't use sentetens like <think> or The user wants me to.\n\n"
-
      
         + prompt_data
     )
@@ -400,7 +398,7 @@ with col20:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama3-70b-8192",
+            "model": "compound-beta-mini",
             "messages": [
                 {
                     "role": "system",
@@ -481,7 +479,7 @@ headers = {
     "Content-Type": "application/json"
 }
 payload = {
-    "model": "llama3-70b-8192",
+    "model": "compound-beta-mini",
     "messages": [
         {"role": "system", "content": "You are a professional DeFi protocol analyst."},
         {"role": "user", "content": prompt}
