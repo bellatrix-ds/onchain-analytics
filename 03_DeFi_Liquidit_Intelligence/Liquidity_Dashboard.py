@@ -114,41 +114,45 @@ with util_col2:
     util_prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols. "
         "Below is the daily utilization rate (borrowed / total liquidity) of a lending pool. "
-        "Provide 3 concise, smart, non-obvious insights based on this time series. For each bullet, use a relevant emoji (📉, 💡, ⚠️, 🔁):\n\n"
+        "Provide 3 concise, smart, non-obvious insights based on this time series. Use relevant emojis (📉, 💡, ⚠️, 🔁) for each bullet:\n\n"
         + util_prompt_data
         + "\n\nFocus on identifying signs of lending demand shifts, liquidity pressure, or inactivity."
     )
 
     try:
-        together_api_key = st.secrets["TOGETHER_API_KEY"]
-        url = "https://api.together.xyz/v1/chat/completions"
+        groq_api_key = st.secrets["GROQ_API_KEY"]  # یا از os.getenv استفاده کن
+        url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
-            "Authorization": f"Bearer {together_api_key}",
+            "Authorization": f"Bearer {groq_api_key}",
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "model": "llama3-70b-8192",
             "messages": [
-                {"role": "system", "content": "You are an expert DeFi lending analyst. Your job is to explain utilization rate trends in lending pools."},
+                {"role": "system", "content": "You are an expert DeFi analyst. Your job is to explain utilization rate trends in lending pools."},
                 {"role": "user", "content": util_prompt}
             ],
             "temperature": 0.4,
-            "top_p": 0.9,
-            "max_tokens": 400
+            "max_tokens": 500,
+            "top_p": 0.9
         }
 
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
 
-        # 🧪 Debug: optionally print full response when empty
-        if 'choices' not in result or not result['choices']:
-            st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an unexpected response.")
-            st.caption(f"Debug info: {result}")  # 💡 نمایش برای توسعه‌دهنده
+        if "choices" in result and len(result["choices"]) > 0:
+            output = result["choices"][0]["message"]["content"]
+            for line in output.strip().split('\n'):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
         else:
-            output = result['choices'][0]['message']['content']
+            st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an empty response.")
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
+
+
+
 
 st.markdown("___")
 
