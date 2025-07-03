@@ -197,7 +197,7 @@ with main_col2:
     insight_instruction = insight_types.get(selected_type, insight_types["📈 Trend Analysis"])
 
     netflow_prompt = (
-        "You are a senior DeFi analyst working for a crypto protocol. You're analyzing the lending pool behavior based on net flow (deposits - withdrawals) to detect usage trends or anomalies. Use the following daily data to extract smart, non-obvious insights:\n"
+        "You are a senior DeFi analyst working for a crypto protocol. You're analyzing the lending pool behavior based on net flow (deposits - withdrawals) to detect usage trends or anomalies.\n"
         f"Your task is: {insight_instruction}\n\n"
         "Generate 3 concise bullet-point insights. For each:\n"
         "1. Start with a **short question** related to the net flow trend.\n"
@@ -232,22 +232,20 @@ with main_col2:
         }
 
         response = requests.post(url, headers=headers, json=payload)
-result = response.json()
+        result = response.json()
 
-# Safety check: no choices returned
-if "choices" not in result or not result["choices"]:
-    st.warning("⚠️ No useful content returned by model.")
-    st.json(result)
-    return
+        if "choices" not in result or not result["choices"]:
+            st.warning("⚠️ No useful content returned by model.")
+            st.json(result)
+        else:
+            output = result["choices"][0]["message"]["content"]
+            for line in output.strip().split('\n'):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
 
-# Extract and show insights
-output = result["choices"][0]["message"]["content"]
-
-for line in output.strip().split('\n'):
-    if line.strip():
-        st.write(f"• {line.strip().lstrip('-•')}")
-
-
+    except Exception as e:
+        st.error("❌ AI request failed.")
+        st.caption(f"Exception: {e}")
      
     
 
