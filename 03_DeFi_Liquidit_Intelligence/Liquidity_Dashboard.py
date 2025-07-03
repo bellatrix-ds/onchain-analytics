@@ -152,7 +152,7 @@ with util_col2:
                 if line.strip():
                     st.write(f"• {line.strip().lstrip('-•')}")
         else:
-            st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an empty response.")
+            st.warning("💭🤔 Wait ... I'm thinking!")
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
