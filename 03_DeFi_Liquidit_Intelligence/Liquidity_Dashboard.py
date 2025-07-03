@@ -374,7 +374,9 @@ with col10:
 
 with col20:
     st.markdown("#### ✅ Lending Efficiency Insights")
- sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
+
+    df_scatter["block_timestamp"] = pd.to_datetime(df_scatter["block_timestamp"])
+    sample_rows = df_scatter.dropna(subset=["block_timestamp", "utilization_rate", "APR"]).tail(30)
 
     data_summary = "\n".join(
         f"{r['block_timestamp'].strftime('%Y-%m-%d')}: utilization={r['utilization_rate']:.2f}, APR={r['APR']:.2f}"
@@ -384,11 +386,11 @@ with col20:
     efficiency_prompt = (
         "You are a DeFi analyst evaluating lending pool efficiency.\n"
         "Below is the recent daily relationship between utilization rate and APR.\n"
-        "Write 3 smart bullet-point insights. For each:\n"
+        "Analyze and summarize what the pattern suggests in 3 smart bullet points. For each:\n"
         "1. Start with a **short question** about efficiency or behavior.\n"
-        "2. Then give a clear answer (max 2 short sentences).\n"
+        "2. Then give a clear, short answer (max 2 short sentences).\n"
         "3. Begin the answer with a relevant emoji (📈, ⚠️, 💰, 🔄, etc).\n"
-        "Avoid generic commentary. Be sharp and helpful.\n\n"
+        "Avoid generic statements. Focus on insightful relationships.\n\n"
         + data_summary
     )
 
@@ -404,7 +406,7 @@ with col20:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a DeFi analyst specializing in lending pool efficiency."
+                    "content": "You are a professional DeFi analyst. You explain how utilization rate and APR interact in lending pools."
                 },
                 {
                     "role": "user",
