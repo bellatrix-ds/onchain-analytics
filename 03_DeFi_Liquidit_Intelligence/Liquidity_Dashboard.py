@@ -242,8 +242,14 @@ with main_col2:
     
 
 
-st.markdown("___")
 # __________________ Part 3: Liquidity Metrics  ______________________________________________________________________
+
+
+
+st.markdown("___")
+
+
+
 st.markdown("### 💸 Lending Flow Metrics Over Time")
 
 df_amounts = filtered_data[['block_timestamp', 'deposit_amount', 'loan_amount', 'repay_amount', 'withdraw_amount']].copy()
