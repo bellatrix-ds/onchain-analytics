@@ -162,7 +162,6 @@ header_col1, header_col2 = st.columns([1.1, 1])
 with header_col1:
     st.markdown("#### 📉 Net Flow Over Time")
 
-# Insight type selection
 insight_types = {
     "📈 Trend Analysis": "Identify trends, shifts in behavior, or sustained movements in net flow.",
     "⚠️ Risk Alerts": "Detect signals of high outflows, liquidity risk, or capital flight.",
@@ -198,7 +197,7 @@ with main_col2:
     insight_instruction = insight_types.get(selected_type, insight_types["📈 Trend Analysis"])
 
     netflow_prompt = (
-        "You are a DeFi analyst. Below is the daily net flow (deposits - withdrawals) for a lending pool.\n"
+        "You are a senior DeFi analyst working for a crypto protocol. You're analyzing the lending pool behavior based on net flow (deposits - withdrawals) to detect usage trends or anomalies. Use the following daily data to extract smart, non-obvious insights:\n"
         f"Your task is: {insight_instruction}\n\n"
         "Generate 3 concise bullet-point insights. For each:\n"
         "1. Start with a **short question** related to the net flow trend.\n"
@@ -235,16 +234,12 @@ with main_col2:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
 
-        if "choices" in result and len(result["choices"]) > 0:
-            output = result["choices"][0]["message"]["content"]
-            for line in output.strip().split('\n'):
-                if line.strip():
-                    st.write(f"• {line.strip().lstrip('-•')}")
-        else:
-            st.warning("💭 Wait ... I'm thinking! 🤔")
-    except Exception as e:
-        st.error(f"AI insight error: {e}")
- 
+        if "choices" in result or not result["choices"]:
+             st.warning("⚠️ No useful content returned by model.")
+            st.json(result)  
+     return
+    
+
 
 st.markdown("___")
 # __________________ Part 3: Liquidity Metrics  ______________________________________________________________________
