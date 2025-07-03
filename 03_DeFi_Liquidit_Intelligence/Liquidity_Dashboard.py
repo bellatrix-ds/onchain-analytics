@@ -210,13 +210,14 @@ with main_col2:
 
     insight_instruction = insight_types.get(selected_type, insight_types["📈 Trend Analysis"])
 
-    prompt = (
-        f"You are a senior DeFi analyst. Your task is:\n{insight_instruction}\n\n"
-        "Below is the daily net flow (deposits - withdrawals) for a lending pool.\n"
-        "Write 3 bullet-point insights. For each:\n"
-        "1. Start with a question in bold (about what’s happening).\n"
-        "2. Then give a short, clear answer with a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
-        "Limit each answer to 1-2 sentences.\n\n"
+    netflow_prompt = (
+        "You are a DeFi analyst. Below is the daily net flow (deposits - withdrawals) for a lending pool.\n"
+        f"Your task is: {insight_instruction}\n\n"
+        "Generate 3 concise bullet-point insights. For each:\n"
+        "1. Start with a **short question** related to the net flow trend.\n"
+        "2. Then provide a **brief answer** explaining the behavior (max 2 short sentences).\n"
+        "3. Use a relevant emoji at the start of each answer (📉, ⚠️, 💡, etc).\n"
+        "Avoid generalities—be direct and insightful.\n\n"
         + prompt_data
     )
 
@@ -232,36 +233,30 @@ with main_col2:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a professional DeFi data analyst. You explain lending pool behavior based on net flow charts."
+                    "content": "You are a professional DeFi analyst. Your job is to explain net flow trends in lending pools."
                 },
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": netflow_prompt
                 }
             ],
             "temperature": 0.4,
             "top_p": 0.9,
-            "max_tokens": 400
+            "max_tokens": 500
         }
 
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
 
-        if "choices" in result:
-            content = result["choices"][0]["message"]["content"]
-            for line in content.strip().split('\n'):
+        if "choices" in result and len(result["choices"]) > 0:
+            output = result["choices"][0]["message"]["content"]
+            for line in output.strip().split('\n'):
                 if line.strip():
                     st.write(f"• {line.strip().lstrip('-•')}")
-        elif "error" in result:
-            st.warning("⚠️ AI returned an error.")
-            st.caption(f"Error message: {result['error'].get('message', 'Unknown error')}")
         else:
-            st.warning("⚠️ No AI insight returned. Empty or unexpected response.")
-            st.caption(f"Debug info: {result}")
+            st.warning("💭🤔 Wait ... I'm thinking!")
     except Exception as e:
-        st.warning("⚠️ AI request failed unexpectedly.")
-        st.caption(f"Exception: {e}")
-
+        st.error(f"AI insight error: {e}")
  
 
 st.markdown("___")
