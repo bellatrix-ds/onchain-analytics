@@ -372,13 +372,8 @@ with col10:
 
 with col20:
     st.markdown("#### ✅ Lending Efficiency Insights")
- if 'block_timestamp' in df_scatter.columns:
-    df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
-else:
-    df_scatter['block_timestamp'] = pd.NaT  
-
-
-    sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
+ df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
+ sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
     data_summary = "\n".join(
     f"{r['block_timestamp'].strftime('%Y-%m-%d')}: utilization={r['utilization_rate']:.2f}, APR={r['APR']:.2f}"
     for _, r in sample_rows.iterrows()
