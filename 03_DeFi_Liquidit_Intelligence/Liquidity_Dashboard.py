@@ -34,7 +34,10 @@ This dashboard is fully powered by **raw on‑chain lending data** and **AI‑dr
 It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed. """)
  
 
-st.image("defi_analysis.png", use_column_width=True)
+st.image("https://github.com/bellatrix-ds/onchain-analytics/blob/main/03_DeFi_Liquidit_Intelligence/defi_analysis.png")
+
+
+
 
 st.markdown("""
 ##### 🚀 All set?! Let’s get started! 👊🏼 """)
