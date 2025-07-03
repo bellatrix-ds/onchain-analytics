@@ -114,7 +114,7 @@ with util_col2:
     util_prompt = (
         "You are a blockchain DeFi analyst focused on lending protocols. "
         "Below is the daily utilization rate (borrowed / total liquidity) of a lending pool. "
-        "Provide 3 concise, smart, non-obvious insights based on this time series for each bullet, use each with a relevant emoji (📉, 💡, ⚠️, 🔁):\n\n"
+        "Provide 3 concise, smart, non-obvious insights based on this time series. For each bullet, use a relevant emoji (📉, 💡, ⚠️, 🔁):\n\n"
         + util_prompt_data
         + "\n\nFocus on identifying signs of lending demand shifts, liquidity pressure, or inactivity."
     )
@@ -139,16 +139,21 @@ with util_col2:
 
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
-        output = result['choices'][0]['message']['content']
-        for line in output.strip().split('\n'):
-            if line.strip():
-                st.write(f"• {line.strip().lstrip('-•')}")
+
+        if 'choices' in result and result['choices']:
+            output = result['choices'][0]['message']['content']
+            for line in output.strip().split('\n'):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
+        else:
+            st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an unexpected response.")
+
     except Exception as e:
         st.error(f"AI insight error: {e}")
 
-
-
 st.markdown("___")
+
+
 # __________________ Part 2: Net Flow Over Time ______________________________________________________________________
 
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
