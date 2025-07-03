@@ -353,6 +353,8 @@ st.markdown("___")
 
 df_scatter = filtered_data[["APR", "utilization_rate"]].dropna()
 df_scatter = df_scatter[df_scatter["utilization_rate"] > 0]
+df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
+
 
 st.markdown("### 📌 APR vs Utilization Rate")
 
@@ -372,12 +374,8 @@ with col10:
 
 with col20:
     st.markdown("#### ✅ Lending Efficiency Insights")
+ sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
 
-    # پاکسازی و تبدیل تاریخ
-    df_scatter['block_timestamp'] = pd.to_datetime(df_scatter['block_timestamp'])
-    sample_rows = df_scatter.dropna(subset=['block_timestamp', 'utilization_rate', 'APR']).tail(30)
-
-    # آماده‌سازی داده‌ها برای پرامپت
     data_summary = "\n".join(
         f"{r['block_timestamp'].strftime('%Y-%m-%d')}: utilization={r['utilization_rate']:.2f}, APR={r['APR']:.2f}"
         for _, r in sample_rows.iterrows()
