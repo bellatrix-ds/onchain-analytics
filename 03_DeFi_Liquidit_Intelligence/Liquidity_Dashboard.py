@@ -380,13 +380,13 @@ with col20:
     )
 
     efficiency_prompt = (
-        "You are a DeFi analyst evaluating lending pool efficiency.\n"
-        "Below is the recent daily relationship between utilization rate and APR.\n"
-        "Analyze and summarize what the pattern suggests in 3 smart bullet points. For each:\n"
-        "1. Start with a **short question** about efficiency or behavior.\n"
-        "2. Then give a clear, short answer (max 2 short sentences).\n"
-        "3. Begin the answer with a relevant emoji (📈, ⚠️, 💰, 🔄, etc).\n"
-        "Avoid generic statements. Focus on insightful relationships.\n\n"
+        "You are a senior DeFi lending analyst. Below is the daily utilization rate and APR of a lending pool.\n"
+        "Your task is to generate 3 short bullet-point insights.\n"
+        "For each:\n"
+        "• Start with a **concise question** related to the data.\n"
+        "• Then provide a **brief, smart answer** (max 2 sentences).\n"
+        "• Include a relevant emoji (📈, 📉, 💰, ⚠️, 🔄) at the beginning of each answer.\n"
+        "Avoid generic or surface-level insights — focus on behavioral patterns and yield dynamics.\n\n"
         + data_summary
     )
 
@@ -402,7 +402,7 @@ with col20:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are a professional DeFi analyst. You explain how utilization rate and APR interact in lending pools."
+                    "content": "You are a professional DeFi analyst. Your job is to assess the relationship between APR and utilization rate in lending protocols."
                 },
                 {
                     "role": "user",
@@ -419,19 +419,21 @@ with col20:
 
         if "choices" in result and len(result["choices"]) > 0:
             output = result["choices"][0]["message"]["content"]
-            for bullet in output.strip().split("\n"):
-                if bullet.strip():
-                    st.write(f"• {bullet.strip().lstrip('-•')}")
+            for line in output.strip().split("\n"):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
+        elif "error" in result:
+            st.warning("⚠️ AI returned an error.")
+            st.caption(f"Error message: {result['error'].get('message', 'Unknown error')}")
         else:
-            st.warning("⚠️ No AI insight returned.")
-            st.caption("The model responded with no usable content.")
+            st.warning("⚠️ No AI insight returned. Empty or unexpected response.")
+            st.caption(f"Debug info: {result}")
     except Exception as e:
-        st.error("AI Insight error.")
+        st.warning("⚠️ AI request failed unexpectedly.")
         st.caption(f"Exception: {e}")
 
 st.markdown("___")
 # __________________ Part 5 ______________________________________________________________________
-
 
 st.markdown("### 🧪 Scenario-based Insight Generator")
 
@@ -444,15 +446,14 @@ scenario_options = [
 ]
 
 selected = st.radio("❗ Choose a scenario to analyze:", [s[0] for s in scenario_options])
-
 scenario_instruction = dict(scenario_options)[selected]
 
+# Prepare context
 filtered_data["utilization %"] = filtered_data["utilization_rate"] * 100 
 filtered_data["APR %"] = filtered_data["APR"]
 
-context_data = filtered_data[['block_timestamp', 'net_flow', 'APR %', 'utilization %']].dropna().tail(30)
-context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp'])
-context_data['block_timestamp'] = context_data['block_timestamp'].dt.strftime('%d %b %Y')
+context_data = filtered_data[['block_timestamp', 'net_flow', 'APR %', 'utilization %']].dropna().tail(30).copy()
+context_data['block_timestamp'] = pd.to_datetime(context_data['block_timestamp']).dt.strftime('%d %b %Y')
 
 summary = "\n".join(
     f"{r['block_timestamp']} | Net Flow: {r['net_flow']:.2f}, APR: {r['APR %']:.2f}, Util: {r['utilization %']:.2f}"
@@ -460,29 +461,33 @@ summary = "\n".join(
 )
 
 prompt = f"""
-You are a DeFi protocol analyst. Below is recent daily data from a lending pool on a blockchain:
+You are a senior DeFi lending analyst. Below is recent daily data from a blockchain lending pool:
 
 Date | Net Flow | APR | Utilization Rate
 {summary}
 
 Scenario: {scenario_instruction}
 
-Give 3 bullet-point insights for this scenario based on the above data.
+Generate 3 short, smart insights in bullet points. For each:
+• Start with a **question** that the scenario raises
+• Give a **brief answer** (max 2 short sentences)
+• Start the answer with a relevant emoji (⚠️, 📉, 🔄, 💡, etc)
 """
 
-together_api_key = st.secrets["TOGETHER_API_KEY"]
-url = "https://api.together.xyz/v1/chat/completions"
+# API setup
+groq_api_key = st.secrets["GROQ_API_KEY"]
+url = "https://api.groq.com/openai/v1/chat/completions"
 headers = {
-    "Authorization": f"Bearer {together_api_key}",
+    "Authorization": f"Bearer {groq_api_key}",
     "Content-Type": "application/json"
 }
 payload = {
-    "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    "model": "llama3-70b-8192",
     "messages": [
         {"role": "system", "content": "You are a professional DeFi protocol analyst."},
         {"role": "user", "content": prompt}
     ],
-    "temperature": 0.6,
+    "temperature": 0.5,
     "top_p": 0.9,
     "max_tokens": 600
 }
@@ -494,19 +499,24 @@ with col1:
     st.dataframe(context_data)
 
 with col2:
-    st.markdown("#### 🎭 Scenario-based Insight")
+    st.markdown("#### 🎭 AI Scenario Insight")
 
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
-        output = result['choices'][0]['message']['content']
-        bullets = [
-            f"<li>{line.strip().lstrip('-• ')}</li>"
-            for line in output.strip().split("\n")
-            if line.strip()
-        ]
-        bullet_html = "<ul style='padding-left: 18px; padding-right: 8px;'>" + "\n".join(bullets) + "</ul>"
-        st.markdown(bullet_html, unsafe_allow_html=True)
+
+        if "choices" in result and result["choices"]:
+            output = result['choices'][0]['message']['content']
+            bullets = [
+                f"<li>{line.strip().lstrip('-• ')}</li>"
+                for line in output.strip().split("\n")
+                if line.strip()
+            ]
+            bullet_html = "<ul style='padding-left: 18px; padding-right: 8px;'>" + "\n".join(bullets) + "</ul>"
+            st.markdown(bullet_html, unsafe_allow_html=True)
+        else:
+            st.warning("⚠️ AI model returned no content.")
 
     except Exception as e:
-        st.error(f"AI Insight error: {e}")
+        st.error("AI Insight error.")
+        st.caption(f"Exception: {e}")
