@@ -152,7 +152,7 @@ with util_col2:
                 if line.strip():
                     st.write(f"• {line.strip().lstrip('-•')}")
         else:
-            st.warning("💭🤔 Wait ... I'm thinking!")
+            st.warning("💭 Wait ... I'm thinking! 🤔")
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
@@ -254,7 +254,7 @@ with main_col2:
                 if line.strip():
                     st.write(f"• {line.strip().lstrip('-•')}")
         else:
-            st.warning("💭🤔 Wait ... I'm thinking!")
+            st.warning("💭 Wait ... I'm thinking! 🤔")
     except Exception as e:
         st.error(f"AI insight error: {e}")
  
@@ -340,7 +340,7 @@ with col2:
                 if line.strip():
                     st.write(f"• {line.strip().lstrip('-•')}")
         else:
-            st.warning("💭🤔 No AI insight returned.")
+            st.warning("💭 Wait ... I'm thinking! 🤔")
             st.caption("Model responded but without useful content.")
     except Exception as e:
         st.error("AI insight error")
@@ -427,7 +427,7 @@ with col20:
                 if bullet.strip():
                     st.write(f"• {bullet.strip().lstrip('-•')}")
         else:
-            st.warning("⚠️ No AI insight returned.")
+            st.warning("💭 Wait ... I'm thinking! 🤔")
             st.caption("The model responded with no usable content.")
     except Exception as e:
         st.error("AI Insight error.")
@@ -516,7 +516,7 @@ with col2:
             bullet_html = "<ul style='padding-left: 18px; padding-right: 8px;'>" + "\n".join(bullets) + "</ul>"
             st.markdown(bullet_html, unsafe_allow_html=True)
         else:
-            st.warning("⚠️ AI model returned no content.")
+            st.warning("💭 Wait ... I'm thinking! 🤔")
 
     except Exception as e:
         st.error("AI Insight error.")
