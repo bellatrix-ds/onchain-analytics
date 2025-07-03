@@ -219,7 +219,7 @@ with main_col2:
     )
 
     try:
-    groq_api_key = st.secrets["GROQ_API_KEY"]
+     groq_api_key = st.secrets["GROQ_API_KEY"]
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {groq_api_key}",
