@@ -140,13 +140,12 @@ with util_col2:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
 
-        if 'choices' in result and result['choices']:
-            output = result['choices'][0]['message']['content']
-            for line in output.strip().split('\n'):
-                if line.strip():
-                    st.write(f"• {line.strip().lstrip('-•')}")
-        else:
+        # 🧪 Debug: optionally print full response when empty
+        if 'choices' not in result or not result['choices']:
             st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an unexpected response.")
+            st.caption(f"Debug info: {result}")  # 💡 نمایش برای توسعه‌دهنده
+        else:
+            output = result['choices'][0]['message']['content']
 
     except Exception as e:
         st.error(f"AI insight error: {e}")
