@@ -210,56 +210,55 @@ with main_col2:
 
     prompt = (
         f"You are a senior DeFi analyst. Your task is:\n{insight_instruction}\n\n"
-        "Here is the net flow (deposit - withdraw) time series of a lending pool:\n"
-        f"{prompt_data}\n\n"
-        "Now provide exactly 3 bullet-point insights:\n"
-        "- Start each with a bold question.\n"
-        "- Follow with a 1–2 sentence answer using a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
-        "Be smart, concise, and avoid generic observations."
+        "Below is the daily net flow (deposits - withdrawals) for a lending pool.\n"
+        "Write 3 bullet-point insights. For each:\n"
+        "1. Start with a question in bold (about what’s happening).\n"
+        "2. Then give a short, clear answer with a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
+        "Limit each answer to 1-2 sentences.\n\n"
+        + prompt_data
     )
- try:
-    groq_api_key = st.secrets["GROQ_API_KEY"]
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {groq_api_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "mixtral-8x7b-32768",
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are a professional DeFi data analyst. You explain lending pool behavior based on net flow charts."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        "temperature": 0.4,
-        "top_p": 0.9,
-        "max_tokens": 400
-    }
 
-    response = requests.post(url, headers=headers, json=payload)
-    result = response.json()
+    try:
+        groq_api_key = st.secrets["GROQ_API_KEY"]
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {groq_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "mixtral-8x7b-32768",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a professional DeFi data analyst. You explain lending pool behavior based on net flow charts."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.4,
+            "top_p": 0.9,
+            "max_tokens": 400
+        }
 
-    if "choices" in result:
-        content = result["choices"][0]["message"]["content"]
-        for line in content.strip().split('\n'):
-            if line.strip():
-                st.write(f"• {line.strip().lstrip('-•')}")
-    elif "error" in result:
-        st.warning("⚠️ AI returned an error.")
-        st.caption(f"Error message: {result['error'].get('message', 'Unknown error')}")
-    else:
-        st.warning("⚠️ No AI insight returned. Empty or unexpected response.")
-        st.caption(f"Debug info: {result}")
-except Exception as e:
-    st.warning("⚠️ AI request failed unexpectedly.")
-    st.caption(f"Exception: {e}")
+        response = requests.post(url, headers=headers, json=payload)
+        result = response.json()
 
-
+        if "choices" in result:
+            content = result["choices"][0]["message"]["content"]
+            for line in content.strip().split('\n'):
+                if line.strip():
+                    st.write(f"• {line.strip().lstrip('-•')}")
+        elif "error" in result:
+            st.warning("⚠️ AI returned an error.")
+            st.caption(f"Error message: {result['error'].get('message', 'Unknown error')}")
+        else:
+            st.warning("⚠️ No AI insight returned. Empty or unexpected response.")
+            st.caption(f"Debug info: {result}")
+    except Exception as e:
+        st.warning("⚠️ AI request failed unexpectedly.")
+        st.caption(f"Exception: {e}")
 
  
 
