@@ -219,39 +219,46 @@ with main_col2:
     )
 
     try:
-        groq_api_key = st.secrets["GROQ_API_KEY"]
-        url = "https://api.groq.com/openai/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {groq_api_key}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "model": "mixtral-8x7b-32768",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a professional DeFi data analyst. You explain lending pool behavior based on net flow charts."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.4,
-            "top_p": 0.9,
-            "max_tokens": 400
-        }
+    groq_api_key = st.secrets["GROQ_API_KEY"]
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {groq_api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "mixtral-8x7b-32768",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a professional DeFi data analyst. You explain lending pool behavior based on net flow charts."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "temperature": 0.4,
+        "top_p": 0.9,
+        "max_tokens": 400
+    }
 
-        response = requests.post(url, headers=headers, json=payload)
-        result = response.json()
+    response = requests.post(url, headers=headers, json=payload)
+    result = response.json()
+
+    if "choices" in result:
         content = result["choices"][0]["message"]["content"]
-
         for line in content.strip().split('\n'):
             if line.strip():
                 st.write(f"• {line.strip().lstrip('-•')}")
-    except Exception as e:
-        st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an unexpected response.")
-        st.caption(f"Debug info: {e}")
+    elif "error" in result:
+        st.warning("⚠️ AI returned an error.")
+        st.caption(f"Error message: {result['error'].get('message', 'Unknown error')}")
+    else:
+        st.warning("⚠️ No AI insight returned. Empty or unexpected response.")
+        st.caption(f"Debug info: {result}")
+except Exception as e:
+    st.warning("⚠️ AI request failed unexpectedly.")
+    st.caption(f"Exception: {e}")
 
 st.markdown("___")
 # __________________ Part 3: Liquidity Metrics  ______________________________________________________________________
