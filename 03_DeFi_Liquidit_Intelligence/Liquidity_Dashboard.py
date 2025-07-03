@@ -235,9 +235,10 @@ with main_col2:
         result = response.json()
 
         if "choices" in result or not result["choices"]:
-             st.warning("⚠️ No useful content returned by model.")
-            st.json(result)  
-     return
+         st.warning("⚠️ No useful content returned by model.")
+         st.json(result)
+         return
+     
     
 
 
