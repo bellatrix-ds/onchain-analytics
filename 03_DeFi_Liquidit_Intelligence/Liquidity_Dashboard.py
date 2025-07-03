@@ -159,6 +159,8 @@ with util_col2:
 
 
 st.markdown("___")
+st.markdown("   ")
+
 
 
 # __________________ Part 2: Net Flow Over Time ______________________________________________________________________
@@ -226,7 +228,7 @@ with main_col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "mistral/mistral-7b-instruct",
+            "model": "llama3-70b-8192",
             "messages": [
                 {
                     "role": "system",
