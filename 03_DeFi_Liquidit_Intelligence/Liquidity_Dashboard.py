@@ -215,7 +215,7 @@ with main_col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama3-70b-8192",
+            "model": "qwen-qwq-32b",
             "messages": [
                 {
                     "role": "system",
