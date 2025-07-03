@@ -194,7 +194,7 @@ with main_col1:
     st.plotly_chart(fig, use_container_width=True)
 
 with main_col2:
-    st.markdown("#### 💡 AI Generated Insight")
+    st.markdown("#### 💡 AI Net Flow Insight")
 
     recent_data = df_netflow.sort_values('block_timestamp').tail(30)
     prompt_data = "\n".join(
@@ -202,30 +202,45 @@ with main_col2:
         for _, row in recent_data.iterrows()
     )
 
+    insight_types = {
+        "📈 Trend Analysis": "Identify trends, shifts in behavior, or sustained movements in net flow.",
+        "⚠️ Risk Alerts": "Detect signals of high outflows, liquidity risk, or capital flight.",
+        "🔍 Unusual Patterns": "Spot unusual, non-random behavior like sharp reversals, spikes, or anomalies.",
+        "📊 Volatility Summary": "Summarize the volatility or consistency in net flow over time."
+    }
+
+    # fallback
+    insight_instruction = insight_types.get(selected_type, insight_types["📈 Trend Analysis"])
+
     prompt = (
-        f"You are a DeFi analyst. Your task is: {insight_types[selected_type]}\n"
-        f"Here is the latest daily Net Flow data for the lending pool:\n\n"
-        f"{prompt_data}\n\n"
-        f"Now provide 3 concise, non-obvious bullet point insights."
+        f"You are a senior DeFi analyst. Your task is:\n{insight_instruction}\n\n"
+        "Below is the daily net flow (deposits - withdrawals) for a lending pool.\n"
+        "Write 3 bullet-point insights. For each:\n"
+        "1. Start with a question in bold (about what’s happening).\n"
+        "2. Then give a short, clear answer with a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
+        "Limit each answer to 1-2 sentences.\n\n"
+        + prompt_data
     )
 
-    # 🔐 Together API Call
     try:
-        together_api_key = st.secrets["TOGETHER_API_KEY"]
-        url = "https://api.together.xyz/v1/chat/completions"
+        groq_api_key = st.secrets["GROQ_API_KEY"]
+        url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
-            "Authorization": f"Bearer {together_api_key}",
+            "Authorization": f"Bearer {groq_api_key}",
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "model": "mixtral-8x7b-32768",
             "messages": [
-                {"role": "system", "content": "You are a professional DeFi analyst who gives smart, short, bullet-point insights based on net flow trends."},
+                {
+                    "role": "system",
+                    "content": "You analyze DeFi lending data and write smart, short insights based on net flow."
+                },
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.4,
             "top_p": 0.9,
-            "max_tokens": 200
+            "max_tokens": 400
         }
 
         response = requests.post(url, headers=headers, json=payload)
@@ -235,7 +250,8 @@ with main_col2:
             if line.strip():
                 st.write(f"• {line.strip().lstrip('-•')}")
     except Exception as e:
-        st.error(f"AI Insight error: {e}")
+        st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an unexpected response.")
+        st.caption(f"Debug info: {e}")
 
 
 st.markdown("___")
