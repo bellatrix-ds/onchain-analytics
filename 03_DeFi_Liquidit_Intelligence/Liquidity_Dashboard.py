@@ -120,7 +120,7 @@ with util_col2:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama3-70b-8192",
+            "model": "compound-beta",
             "messages": [
                 {"role": "system", "content": "You are an expert DeFi analyst. Your job is to explain utilization rate trends in lending pools."},
                 {"role": "user", "content": util_prompt}
