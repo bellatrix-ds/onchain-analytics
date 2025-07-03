@@ -163,24 +163,28 @@ st.markdown("___")
 
 # __________________ Part 2: Net Flow Over Time ______________________________________________________________________
 
+# Prepare Net Flow data
 df_netflow = filtered_data[['block_timestamp', 'net_flow']].dropna()
 df_netflow['block_timestamp'] = pd.to_datetime(df_netflow['block_timestamp'])
 
+# Header layout
 header_col1, header_col2 = st.columns([1.1, 1])
 
 with header_col1:
     st.markdown("#### 📉 Net Flow Over Time")
 
+# Insight type selection
 insight_types = {
-    "📈 Trend Analysis": "Analyze the overall trend of net flows in the lending pool.",
-    "⚠️ Risk Alerts": "Identify large outflows that may indicate liquidity risks.",
-    "📊 Volatility Summary": "Summarize spikes, dips, and variability in net flows.",
-    "🔍 Unusual Patterns": "Find 3 interesting or unexpected behaviors in the data."
+    "📈 Trend Analysis": "Identify trends, shifts in behavior, or sustained movements in net flow.",
+    "⚠️ Risk Alerts": "Detect signals of high outflows, liquidity risk, or capital flight.",
+    "📊 Volatility Summary": "Summarize the volatility or consistency in net flow over time.",
+    "🔍 Unusual Patterns": "Spot unusual, non-random behavior like sharp reversals, spikes, or anomalies."
 }
 
 with header_col2:
     selected_type = st.radio("**🔴 Select Insight Type**", list(insight_types.keys()), horizontal=True)
 
+# Chart + AI layout
 main_col1, main_col2 = st.columns([1.1, 1])
 
 with main_col1:
@@ -202,24 +206,16 @@ with main_col2:
         for _, row in recent_data.iterrows()
     )
 
-    insight_types = {
-        "📈 Trend Analysis": "Identify trends, shifts in behavior, or sustained movements in net flow.",
-        "⚠️ Risk Alerts": "Detect signals of high outflows, liquidity risk, or capital flight.",
-        "🔍 Unusual Patterns": "Spot unusual, non-random behavior like sharp reversals, spikes, or anomalies.",
-        "📊 Volatility Summary": "Summarize the volatility or consistency in net flow over time."
-    }
-
-    # fallback
     insight_instruction = insight_types.get(selected_type, insight_types["📈 Trend Analysis"])
 
     prompt = (
         f"You are a senior DeFi analyst. Your task is:\n{insight_instruction}\n\n"
-        "Below is the daily net flow (deposits - withdrawals) for a lending pool.\n"
-        "Write 3 bullet-point insights. For each:\n"
-        "1. Start with a question in bold (about what’s happening).\n"
-        "2. Then give a short, clear answer with a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
-        "Limit each answer to 1-2 sentences.\n\n"
-        + prompt_data
+        "Here is the net flow (deposit - withdraw) time series of a lending pool:\n"
+        f"{prompt_data}\n\n"
+        "Now provide exactly 3 bullet-point insights:\n"
+        "- Start each with a bold question.\n"
+        "- Follow with a 1–2 sentence answer using a relevant emoji (📉, ⚠️, 💡, 🔁, etc).\n"
+        "Be smart, concise, and avoid generic observations."
     )
 
     try:
@@ -234,9 +230,12 @@ with main_col2:
             "messages": [
                 {
                     "role": "system",
-                    "content": "You analyze DeFi lending data and write smart, short insights based on net flow."
+                    "content": "You are a professional DeFi data analyst. You explain lending pool behavior based on net flow charts."
                 },
-                {"role": "user", "content": prompt}
+                {
+                    "role": "user",
+                    "content": prompt
+                }
             ],
             "temperature": 0.4,
             "top_p": 0.9,
@@ -246,13 +245,13 @@ with main_col2:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
         content = result["choices"][0]["message"]["content"]
+
         for line in content.strip().split('\n'):
             if line.strip():
                 st.write(f"• {line.strip().lstrip('-•')}")
     except Exception as e:
         st.warning("⚠️ No AI insight returned. The model might be overloaded or returned an unexpected response.")
         st.caption(f"Debug info: {e}")
-
 
 st.markdown("___")
 # __________________ Part 3: Liquidity Metrics  ______________________________________________________________________
