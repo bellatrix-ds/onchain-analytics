@@ -78,6 +78,10 @@ filtered_data['block_timestamp'] = pd.to_datetime(filtered_data['block_timestamp
 
 # __________________ Part 1: Utilization Rate Over Time ______________________________________________________________________
 
+st.markdown("  ")
+
+st.markdown("  ")
+
 df_util = filtered_data[['block_timestamp', 'utilization_rate']].dropna()
 df_util['block_timestamp'] = pd.to_datetime(df_util['block_timestamp'])
 df_util = df_util.sort_values('block_timestamp')
