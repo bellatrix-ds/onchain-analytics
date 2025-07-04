@@ -517,3 +517,14 @@ with col2:
     except Exception as e:
         st.error("AI Insight error.")
         st.caption(f"Exception: {e}")
+
+
+
+
+
+
+#----
+st.markdown("Contact me:")
+st.markdown("Email: bellabahramii@gmail.com")
+st.markdown("Youtube: https://www.youtube.com/@bella_trickss")
+st.markdown("Github: https://github.com/bellatrix-ds")
