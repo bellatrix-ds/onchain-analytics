@@ -519,11 +519,8 @@ with col2:
         st.caption(f"Exception: {e}")
 
 
-
-
-
-
 #----
+
 st.markdown("Contact me:")
 st.markdown("Email: bellabahramii@gmail.com")
 st.markdown("Youtube: https://www.youtube.com/@bella_trickss")
