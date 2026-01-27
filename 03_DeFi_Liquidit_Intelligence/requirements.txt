@@ -1,19 +1,17 @@
 pandas
+numpy
 streamlit
 plotly
-numpy
+altair
 scikit-learn
 seaborn
-datetime
-altair
-sklearn.preprocessing
-ollama
 requests
-google.generativeai
-together
 transformers
 torch
 einops
 statsmodels>=0.14.0
 scipy>=1.11.0
+google-generativeai
+together
+ollama
 
