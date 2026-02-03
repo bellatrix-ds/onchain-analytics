@@ -25,7 +25,7 @@ import scipy
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
 
-st.title("🚀 Welcome to the AI‑Powered DeFi Liquidity Dashboard")
+st.title("🚀 DeFi Liquidity AI Agent - AI-generated Analysis")
 st.set_page_config(layout="wide")
 
 
