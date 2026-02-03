@@ -25,7 +25,12 @@ import scipy
 
 data = pd.read_csv('https://raw.githubusercontent.com/bellatrix-ds/onchain-analytics/refs/heads/main/03_DeFi_Liquidit_Intelligence/df_main.csv', on_bad_lines='skip')
 
-st.title("🚀 DeFi Liquidity AI Agent - AI-generated Analysis")
+st.title("🚀 AI Liquidity Analyst - Your AI DeFi Analyst In Market Making")
+st.markdown("##Stop staring at charts. Let AI analyze your DeFi liquidity data and tell you what actually matters")
+
+
+
+
 st.set_page_config(layout="wide")
 
 
@@ -34,13 +39,13 @@ This dashboard is fully powered by **raw on‑chain lending data** and **AI‑dr
 It automatically fetches blockchain logs, analyzes key metrics, and visualizes liquidity and risk patterns, no manual data wrangling needed. """)
  
 
-st.image("03_DeFi_Liquidit_Intelligence/defi_analysis.png")
+# st.image("03_DeFi_Liquidit_Intelligence/defi_analysis.png")
 
 
 
 
-st.markdown("""
-##### 🚀 All set?! Let’s get started! 👊🏼 """)
+# st.markdown("""
+##### All set?! Let’s get started! 👊🏼 """)
 
 
 st.markdown("___")
@@ -523,6 +528,8 @@ with col2:
 
 st.markdown("Contact me:")
 st.markdown("Email: bellabahramii@gmail.com")
-st.markdown("Youtube: https://www.youtube.com/@bella_trickss")
-st.markdown("Github: https://github.com/bellatrix-ds")
-st.markdown("Portfolio: https://shorturl.at/pDtAA ")
+st.markdown("x.com: @Bella52496")
+st.markdown("Youtube: @bella_trickss")
+st.markdown("Github: bellatrix-ds")
+st.markdown("Portfolio: https://bellabahrami.carrd.co/")
+
